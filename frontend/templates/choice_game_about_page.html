@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - About Us</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: float 25s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fade-in 0.8s ease;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #00d4ff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #7c3aed;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        header h1 {
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+        }
+
+        header p {
+            font-size: 18px;
+            color: #a0a0a0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Story Section */
+        .story-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #7c3aed;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 60px;
+            backdrop-filter: blur(10px);
+            animation: content-appear 0.8s ease 0.1s both;
+        }
+
+        @keyframes content-appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-section h2 {
+            font-size: 32px;
+            color: #00d4ff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .story-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #d0d0d0;
+            margin-bottom: 15px;
+        }
+
+        .story-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Features Grid */
+        .features-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 36px;
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: title-appear 0.8s ease 0.15s both;
+        }
+
+        @keyframes title-appear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: card-pop 0.6s ease backwards;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.2s; }
+        .feature-card:nth-child(2) { animation-delay: 0.25s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.35s; }
+
+        @keyframes card-pop {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            transform: translateY(-10px);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #999;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Team Section */
+        .team-section {
+            margin-bottom: 60px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .team-member {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: member-appear 0.8s ease backwards;
+        }
+
+        .team-member:nth-child(1) { animation-delay: 0.2s; }
+        .team-member:nth-child(2) { animation-delay: 0.25s; }
+        .team-member:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes member-appear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .team-member h3 {
+            color: #00d4ff;
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .team-member p {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .team-member:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            transform: translateY(-10px);
+        }
+
+        .team-bio {
+            font-size: 12px;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+
+        .stat-box {
+            background: rgba(0, 212, 255, 0.08);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            animation: stat-appear 0.8s ease backwards;
+        }
+
+        .stat-box:nth-child(1) { animation-delay: 0.2s; }
+        .stat-box:nth-child(2) { animation-delay: 0.25s; }
+        .stat-box:nth-child(3) { animation-delay: 0.3s; }
+        .stat-box:nth-child(4) { animation-delay: 0.35s; }
+
+        @keyframes stat-appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            margin-top: 80px;
+            padding: 60px 40px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+            animation: cta-appear 0.8s ease 0.4s both;
+        }
+
+        @keyframes cta-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .cta-section h2 {
+            font-size: 32px;
+            color: #00d4ff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            position: relative;
+            padding: 16px 50px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 2px solid #00d4ff;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0a0e27;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 42px;
+            }
+
+            .section-title {
+                font-size: 26px;
+            }
+
+            .story-section {
+                padding: 25px;
+            }
+
+            .features-grid,
+            .team-grid,
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section {
+                padding: 40px 20px;
+            }
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <a href="/" class="back-link">← Back to Home</a>
+            <h1>About Us</h1>
+            <p>Discover the story behind Nexus Chronicles and our mission to create immersive interactive experiences</p>
+        </header>
+
+        <!-- Story Section -->
+        <section class="story-section">
+            <h2>Our Story</h2>
+            <p>Nexus Chronicles was born from a passion for interactive storytelling and the desire to create games where player choice truly matters. We believe that every decision should shape the narrative, and that no two playthroughs should feel the same.</p>
+            <p>Starting as a small indie project, we've grown into a dedicated team of developers, designers, and storytellers committed to pushing the boundaries of choice-driven gaming. Our vision is to create experiences that captivate, challenge, and inspire players to explore new worlds and discover their own unique paths.</p>
+            <p>Whether you're seeking adventure, facing moral dilemmas, or chasing glory, Nexus Chronicles offers countless possibilities waiting to be discovered. Every choice you make echoes through the world, influencing not just your story, but the entire realm itself.</p>
+        </section>
+
+        <!-- What Makes Us Unique -->
+        <section class="features-section">
+            <h2 class="section-title">What Makes Us Unique</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎭</div>
+                    <h3>Dynamic Storytelling</h3>
+                    <p>Our advanced branching narrative system creates truly unique stories based on your decisions, with thousands of possible outcomes.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Complex Systems</h3>
+                    <p>Intricate stat systems and mechanics that evolve with your character, creating deep strategic gameplay.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Living Worlds</h3>
+                    <p>Richly detailed environments that react to your actions, creating a truly immersive and responsive experience.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Community First</h3>
+                    <p>Built with player feedback at our heart. We listen, adapt, and continuously improve based on community input.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stat-box">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Active Players</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">1M+</div>
+                <div class="stat-label">Story Variations</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Hours of Content</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Unique Endings</div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="team-section">
+            <h2 class="section-title">Meet The Team</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">🧙</div>
+                    <h3>Alex Rivers</h3>
+                    <p>Creative Director</p>
+                    <div class="team-bio">Visionary storyteller with a passion for creating worlds where choices truly matter.</div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">💻</div>
+                    <h3>Jordan Chen</h3>
+                    <p>Lead Developer</p>
+                    <div class="team-bio">Full-stack engineer dedicated to building systems that bring complex narratives to life.</div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">🎨</div>
+                    <h3>Maya Patel</h3>
+                    <p>Art Director</p>
+                    <div class="team-bio">Visual artist bringing fantastical worlds to vibrant life with stunning imagery.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2>Ready for Your Adventure?</h2>
+            <p>Join thousands of players in Nexus Chronicles and discover a world where your choices shape your destiny. Every decision matters, every path leads somewhere new.</p>
+            <a href="/" class="cta-button">Start Playing Now</a>
+        </section>
+    </div>
+
+    <script>
+        // Generate particles
+        function generateParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 25 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 20) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize
+        generateParticles();
+    </script>
+</body>
+</html>

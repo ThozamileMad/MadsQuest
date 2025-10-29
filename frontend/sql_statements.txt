@@ -1,0 +1,203 @@
+-- Scenes Table
+CREATE TABLE scenes (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Choices Table
+CREATE TABLE choices (
+    id SERIAL PRIMARY KEY,
+    scene_id INT NOT NULL REFERENCES scenes(id) ON DELETE CASCADE,
+    icon TEXT, 
+    choice_text TEXT NOT NULL,
+    next_scene_id INT NOT NULL REFERENCES scenes(id) ON DELETE CASCADE
+);
+
+
+-- Choice Effects Table
+CREATE TABLE choice_effects (
+    id SERIAL PRIMARY KEY,
+    choice_id INT NOT NULL REFERENCES choices(id) ON DELETE CASCADE,
+    life_change INT DEFAULT 0,
+    mana_change INT DEFAULT 0,
+    morale_change INT DEFAULT 0,
+    coin_change INT DEFAULT 0
+);
+
+-- Player Stats Table (users)
+CREATE TABLE player_stats (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    life INT DEFAULT 100,
+    mana INT DEFAULT 50,
+    morale INT DEFAULT 50,
+    coin INT DEFAULT 0,
+    last_updated TIMESTAMP DEFAULT NOW()
+);
+
+
+-- Player Stats Table
+CREATE TABLE player_stats (
+    id SERIAL PRIMARY KEY,
+    life INT DEFAULT 100,
+    mana INT DEFAULT 50,
+    morale INT DEFAULT 50,
+    coin INT DEFAULT 0,
+    last_updated TIMESTAMP DEFAULT NOW()
+);
+
+// Scene 1
+BEGIN;
+
+WITH new_scene AS (
+  INSERT INTO scenes (title, content, image_url)
+  VALUES (
+    'The Fortress Raid',
+    'Oh! The Gods shall cast me into hell for recruiting this lunatic.\n\nVictor—this psychotic animal just mutilated Horin''s wife and child with his bare hands. Currently, we''re attempting to loot coin from Horin''s keep while the castellan is away. So far, the paralysis spell I''ve been harnessing for two weeks has proven effective. All of Horin''s men lie helplessly on the ground, conscious but immobilized, as we plunder his hold.\n\nImmediately after Victor''s diabolical act, Horin''s men begin cursing, screaming, and weeping clamorously from where they lie frozen. The sound echoes through the stone halls like a chorus of the damned.\n\n\"You psychotic fool! Have you the slightest capacity to think?\" I roar with uncontrollable fury. \"Unbelievable—with your bare hands, a woman and a child! When we''re finished here, I''ll return you to the hell you came from! Mark my words!\"\n\n\"You would cry for a degenerate harlot and her filthy offspring? Spare me the nonsense, Sigarus,\" Victor remarks smugly, that sick smile spreading across his blood-stained face. \"Now let''s get to work.\"\n\nAs much as I want to slaughter him where he stands, I cannot. Time is against us. We must make haste and find Horin''s fortune before he returns with his witch, or before the spell—which consumed nearly all my mana to cast—dissipates.\n\n\"Have you forgotten why we''re here?\" I snap. \"Search for treasure, you fool! I need not remind you who this fortress belongs to.\"\n\nHe laughs without a shred of concern. \"Very well then. Conduct a search on this floor, and I''ll take to the stairs.\"',
+    NULL
+  )
+  RETURNING id
+),
+new_choice AS (
+  INSERT INTO choices (scene_id, icon, choice_text, next_scene_id)
+  SELECT id, '⚔️', 'Continue', id
+  FROM new_scene
+  RETURNING id
+)
+INSERT INTO choice_effects (choice_id, life_change, mana_change, morale_change, coin_change)
+SELECT id, 0, 0, 0, 0
+FROM new_choice
+RETURNING *;
+
+COMMIT;
+
+
+// Scene 2
+BEGIN;
+
+WITH new_scene AS (
+  INSERT INTO scenes (title, content, image_url)
+  VALUES (
+    'The Guarded Door',
+    'I step over numerous angry guards sprawled across the floor and make my way into a passage lit by burning lanterns that illuminate the path ahead. Their flames cast dancing shadows against the stone walls.\n\nAhead, I see an expensive-looking door adorned with sophisticated carvings and metalwork. That must be an important room, I think to myself as I observe its splendor. Likely where Horin keeps his most valuable possessions.\n\n\"Whoever you are, know this—your foolishness will be your undoing,\" a deep voice rumbles from below. \"Horin shan''t rest until you''re dead, so breathe while you still can, thief. Death looms closely upon you like a shadow.\"\n\nThe words come from a massive guard lying vulnerably on his back directly in front of the ornate door. Despite his paralysis, his eyes burn with defiance and rage. A large keychain is tied to his belt, the iron keys gleaming in the lantern light. He cannot move, but his spirit remains unbroken.\n\nThe keys are within reach. How will you take them?',
+    NULL
+  )
+  RETURNING id
+),
+insert_choices AS (
+  INSERT INTO choices (scene_id, icon, choice_text, next_scene_id)
+  SELECT ns.id, v.icon, v.text, ns.id
+  FROM new_scene ns
+  CROSS JOIN (VALUES
+    ('🤝','Take the keys peacefully'),
+    ('⚔️','Take the keys violently'),
+    ('😈','Take the keys dishonorably')
+  ) AS v(icon, text)
+  RETURNING id, choice_text
+)
+INSERT INTO choice_effects (choice_id, life_change, mana_change, morale_change, coin_change)
+SELECT ic.id,
+       0 AS life_change,
+       0 AS mana_change,
+       CASE ic.choice_text
+         WHEN 'Take the keys peacefully' THEN 1
+         WHEN 'Take the keys violently' THEN -2
+         WHEN 'Take the keys dishonorably' THEN -3
+         ELSE 0
+       END AS morale_change,
+       0 AS coin_change
+FROM insert_choices ic
+RETURNING *;
+
+COMMIT;
+
+
+// Scene 3 choices outcomes
+BEGIN;
+
+-- Scene 3A: The Peaceful Path
+WITH scene3a AS (
+  INSERT INTO scenes (title, content, image_url)
+  VALUES (
+    'The Peaceful Path (Following Choice 1)',
+    '"You know, I could kill you right now—Henry," I remark, staring down at him after lowering myself to grab the keychain.\n\nHe flinches in surprise, his eyes widening. "How the hell do you know my na—"\n\n"However, I shall not," I assert, interrupting him. "For I know your beautiful wife, Pholia, prepares a delicious stew for you and your children, Hagrid and Haros, in the city of Odia. She waits ever so patiently for your return."\n\nHe grows quiet, overwhelmed by my knowledge of his family. Fear and confusion war across his immobilized features.\n\n"So heed me, Henry. Renounce your service to Horin. Return to your happy wife and cherish her every day, because the man you speak so proudly of would not hesitate to defile her at first sight, then slaughter your children and dispose of them in the nearest river afterwards."\n\nThe truth of my words settles over him like a shroud. I release the keychain from his belt and make my way to the door, leaving him alive with his thoughts.',
+    NULL
+  )
+  RETURNING id
+),
+
+-- Insert Continue choice for 3A
+choice3a AS (
+  INSERT INTO choices (scene_id, icon, choice_text, next_scene_id)
+  SELECT id, '⚔️', 'Continue', id
+  FROM scene3a
+  RETURNING id
+)
+
+INSERT INTO choice_effects (choice_id, life_change, mana_change, morale_change, coin_change)
+SELECT id, 0, 0, 0, 0
+FROM choice3a
+RETURNING *;
+
+-- Commit the first scene group so we can continue cleanly
+COMMIT;
+
+BEGIN;
+
+-- Scene 3B: The Violent Path
+WITH scene3b AS (
+  INSERT INTO scenes (title, content, image_url)
+  VALUES (
+    'The Violent Path (Following Choice 2)',
+    '"I''m afraid you''re wrong, my friend. The shadow of death looms upon you," I say venomously, reaching for his neck as I unsheath a dagger from beneath my robe.\n\nHis eyes grow wide with terror as he desperately tries to move, but the paralysis spell holds him fast. He can only watch as I bring the blade to his throat.\n\nI hold the dagger against his skin and slowly shift it across, back and forth, cutting it open. Blood streams out, forming a dark red pool around him that stains my boots. His gurgling grows weaker, then stops entirely.\n\nAfter he falls silent, I unfasten the keys from his belt with my bloody hands and proceed towards the door. Behind me, the other guards'' curses intensify—they witnessed everything, helpless to intervene.',
+    NULL
+  )
+  RETURNING id
+),
+
+-- Insert Continue choice for 3B
+choice3b AS (
+  INSERT INTO choices (scene_id, icon, choice_text, next_scene_id)
+  SELECT id, '⚔️', 'Continue', id
+  FROM scene3b
+  RETURNING id
+)
+
+INSERT INTO choice_effects (choice_id, life_change, mana_change, morale_change, coin_change)
+SELECT id, 0, 0, 0, 0
+FROM choice3b
+RETURNING *;
+
+COMMIT;
+
+BEGIN;
+
+-- Scene 3C: The Dishonorable Path
+WITH scene3c AS (
+  INSERT INTO scenes (title, content, image_url)
+  VALUES (
+    'The Dishonorable Path (Following Choice 3)',
+    'I smile with immense glee and position myself beside him, unbuckling my belt.\n\n"Just what are your intentions, thief?" he asks, his voice quivering with sudden dread.\n\nI reach into my pants and withdraw my manhood. "Get away from me! Away, I say!"\n\nWith a long sigh, I release a stream of urine upon him. The warm liquid splashes across his face and chest.\n\n"You bastard! I shall end you—I shall end you—you abomination! You—" Most of his pathetic threats are garbled by my urine filling his mouth as he shouts.\n\nAfter draining myself, I give a little wiggle and return everything to its proper place, fastening my belt with satisfaction.\n\n"You repulsive lunatic! How dare you defile me in such a manner! Your audacity is infuriating! I''ll murder you! You filthy animal, do you hear me, thief? I''ll murder you!"\n\nI burst out into laughter, ambling towards the door after taking the keychain from his belt. Behind me, his impotent rage echoes through the corridor, joined by the disgusted shouts of the other paralyzed guards who witnessed my degrading act.',
+    NULL
+  )
+  RETURNING id
+),
+
+-- Insert Continue choice for 3C
+choice3c AS (
+  INSERT INTO choices (scene_id, icon, choice_text, next_scene_id)
+  SELECT id, '⚔️', 'Continue', id
+  FROM scene3c
+  RETURNING id
+)
+
+INSERT INTO choice_effects (choice_id, life_change, mana_change, morale_change, coin_change)
+SELECT id, 0, 0, 0, 0
+FROM choice3c
+RETURNING *;
+
+COMMIT;
+
