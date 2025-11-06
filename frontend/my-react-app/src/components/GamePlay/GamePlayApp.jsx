@@ -25,12 +25,17 @@ function GamePlayApp() {
     });
 
     const response = await get(`/get_scene/${sceneID}/${userID}`);
-    if (!response) return;
+    if (!response) {
+      return;
+    }
 
     const data = response.data;
-    console.log(data);
-    if (!data) return;
-    if (data.game_over) {
+    if (!data) {
+      return;
+    }
+
+    const isGameOver = data.game_over;
+    if (isGameOver) {
       return;
     }
 
@@ -42,8 +47,6 @@ function GamePlayApp() {
     const newPlayerStats = Object.values(data.playerStats[0]).map(
       (item, index) => item + newChoiceEffects[index]
     );
-
-    console.log("Data: ", content, options, newChoiceEffects, newPlayerStats);
 
     setParagraphs(content);
     setChoiceData(

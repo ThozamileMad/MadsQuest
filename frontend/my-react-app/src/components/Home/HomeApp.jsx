@@ -1,8 +1,11 @@
 import NavigationBar from "./NavigationBar";
 import HeaderDescription from "../common/HeaderDescription";
 import Card from "../common/Card";
+import { useNavigate } from "react-router-dom";
 
 function HomeApp() {
+  const navigate = useNavigate();
+
   return (
     <div className="home-container">
       <div className="particles" id="particles"></div>
@@ -51,7 +54,7 @@ function HomeApp() {
         </section>
 
         <section className="cta-section">
-          <button className="cta-button" onClick={() => {}}>
+          <button className="cta-button" onClick={() => navigate("/play")}>
             Start Your Adventure
           </button>
         </section>

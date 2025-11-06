@@ -201,3 +201,187 @@ RETURNING *;
 
 COMMIT;
 
+
+// new
+INSERT INTO choices 
+VALUES
+	(53, 40, '⚔️', 'Continue', 43),
+	(54, 41, '⚔️', 'Continue', 43),
+    (55, 42, '⚔️', 'Continue', 43),
+    (56, 43, '🫤💦', 'Spit on the bastard!', 44),
+    (57, 43, '🛡️', 'Cast Shield', 45),
+    (58, 43, '🧠', 'Cast Mind Control', 46),
+    (59, 44, '⚔️', 'Continue', 47),
+    (60, 45, '⚔️', 'Continue', 47),
+    (61, 46, '⚔️', 'Continue', 47),
+    (62, 47, '⚔️', 'Continue', 48),
+	(63, 48, '⚔️', 'Continue', 49);
+
+INSERT INTO choices 
+VALUES
+	(29, 23, '😴', 'Get some rest', 24),
+	(30, 23, '👀', 'Take a potion and power on through the night!', 25),
+	(31, 24, '⚔️', 'Continue', 26),
+	(32, 25, '⚔️', 'Continue', 26);
+INSERT INTO choices 
+VALUES
+	(33, 26, '🖕', 'Respond with and insult', 27),
+	(34, 26, '🤫', 'Tell him to be quiet', 28),
+	(35, 27, '⚔️', 'Continue', 29),
+	(36, 28, '⚔️', 'Continue', 29),
+	(37, 29, '😶‍🌫️', 'Cast Paralysis (Mana -3)', 30),
+	(38, 29, '🏹', 'Tell Victor to use his bow', 31),
+	(39, 29, '🧠', 'Cast Mind Control (Mana -4)', 32),
+	(40, 30, '⚔️', 'Continue', 33),
+	(41, 31, '⚔️', 'Continue', 33),
+	(42, 32, '⚔️', 'Continue', 33),
+	(43, 33, '⚔️', 'Continue', 34),
+	(44, 34, '⚔️', 'Continue', 35),
+	(45, 35, '⚔️', 'Continue', 36),
+	(46, 36, '⚔️', 'Attack with a sword', 37),
+	(47, 36, '💪', 'Cast Body Enhancement (Mana -2)', 38),
+	(48, 37, '⚔️', 'Continue', 39),
+	(49, 38, '⚔️', 'Continue', 39),
+	(50, 39, '🔥', 'Cast Fire Blast! (Mana -4)', 40),
+	(51, 39, '💨', 'Cast Gust (Mana -2)', 41),
+	(52, 39, '🧪', 'Cast Fireball + Smoke Potion (Mana -2)', 42);
+	
+
+INSERT INTO choices 
+VALUES
+	(16, 12, '⚔️', 'Continue', 13),
+	(17, 13, '⚔️', 'Continue', 14),
+	(18, 14, '⚔️', 'Continue', 15),
+	(19, 15, '🔥', 'Cast Fireball (Mana -3)', 16),
+	(20, 15, '🛡️', 'Cast Mage Armour (Mana -3)', 17),
+	(21, 16, '⚔️', 'Continue', 18),
+	(22, 17, '⚔️', 'Continue', 18),
+	(23, 18, '⚔️', 'Continue', 19),
+	(24, 19, '⚔️', 'Continue', 20),
+	(25, 20, '🐎', 'Trample the guard', 21),
+	(26, 20, '🤲', 'Spare the guard', 22),
+	(27, 21, '⚔️', 'Continue', 23),
+	(28, 22, '⚔️', 'Continue', 23);
+	
+INSERT INTO choice_effects
+VALUES 
+	(13, 13, 0, 0, 0, 0),
+	(14, 14, 0, 0, 0, 0),
+	(15, 15, 0, 0, 0, 0),
+	(16, 16, -4, -3, 0, 0),
+	(17, 17, -2, -3, 0, 0),
+	(18, 18, 0, 0, 0, 0),
+	(19, 19, 0, 0, 0, 0),
+	(20, 20, 0, 0, 0, 0),
+	(21, 21, 0, 0, -4, 0),
+	(22, 22, 0, 0, 4, 0);
+
+INSERT INTO choice_effects
+VALUES 
+	(23, 23, 0, 0, 0, 0),
+	(24, 24, -100, 0, 0, 0),
+	(25, 25, 0, 0, 0, 0),
+	(26, 26, 10, 10, 0, 0),
+	(27, 27, -1, 0, 0, 0),
+	(28, 28, 0, 0, 0, 0),
+	(29, 29, 0, 0, 0, 0),
+	(30, 30, 0, -3, 0, 0),
+	(31, 31, 0, 0, 0, 0),
+	(32, 32, 0, -4, 0, 0),
+	(33, 33, 0, 0, 0, 0),
+	(34, 34, 0, 0, 0, 0),
+	(35, 35, 0, 0, 0, 0),
+	(36, 36, -2, 0, 0, 0),
+	(37, 37, 0, 0, 0, 0),
+	(38, 38, 0, -3, 0, 0),
+	(39, 39, 0, 0, 0, 0);
+
+INSERT INTO choice_effects
+VALUES 
+	(40, 40, -2, -4, 0, 0),
+	(41, 41, 0, -3, 0, 0),
+	(42, 42, -4, -2, 0, 0),
+	(43, 43, 0, 0, 0, 0),
+	(44, 44, 0, 0, 0, 0),
+	(45, 45, -100, 0, 0, 0),
+	(46, 46, -5, -4, 0, 0),
+	(47, 47, -3, 0, 0, 0),
+	(48, 48, 0, 0, 0, 0),
+	(49, 49, 0, 0, 0, 0);
+	
+SELECT * FROM choices;
+
+/*INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  50,
+  'The King''s Sorcerer',
+  'I release a wide spread of flames from my palms. The blaze engulfs the royal guards and the mage. I cease after a while longer only to realize after that my flames didn''t faze them. The guards had their shields raised, damn. I can tell from the glow on their shields the mage is reinforcing their defences with magic, I should have expected this, however there''s no time to wallow. One of the mage''s guards are coming. I prepare another spell but the approaching guard hurls his spear with immense power striking me right in the chest.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  51,
+  'Cursed Transformation',
+  'I groan as the curse''s toxic mana floods me, warping muscle and bone until I become a massive brute. Pain radiates through every limb, but it fuels me; I lunge at the guards.\n\nThe first two raise their shields, but I ram my shoulder into them and smash through their defense. I seize one and hurl him at his comrade. Two more guards surge forward while the fifth stays by the mage; blades and spears rake at me, opening fresh wounds. I swing, catching one square on the jaw, then bash him dead with his own shield. With raw, brutal force I crush another''s neck with my bare hands.\n\nThe last guard cries out, "Lady Alacross, stand behind me—I will slay this abomination!" and waits for me to close. I grin and leap, but my hand passes through him as if he were smoke. He flickers, then fades away. "An illusion—the witch!" I shout, straining to see the mage, but she is gone.\n\nThe curse unravels. My body shrinks back toward its former shape, the roaring power dying away, but something is wrong: numbness blooms in my legs. I try to move, and nothing answers.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  52,
+  'Flash and Paralysis',
+  'With a wave of my hand I unleash a bright flash of light. Blinding the royal guards, without their sight they are vulnerable as the fighters around begin to swarm around them and attack tearing them to pieces. Mutilated the five guards lie in bloody heaps on the ground as the robed sorcerer stands alone and glares at me hatefully. I smirk until suddenly my entire body goes numb and I can''t move.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  53,
+  'The Sorcerer''s Gaze',
+  'I start to feel a burning sensation everywhere inside me. Latched onto my right leg is a black snake, it''s fangs buried deep into my flesh. The sorcerer takes her hood off, revealing a beautiful face framed by short onyx hair and with enchanting hazel eyes she looks at me, ''Humour me before you die wizard.'' she says telepathically, in a mellow voice. For some odd reason the warriors in the area seem to be ignoring her and fight amongst themselves instead.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  54,
+  'Serpent''s Embrace',
+  'With great effort I grab a handful of coins from my satchel then throw them in the air pathetically. ''Take the coins and let me be you - you whore'' I say as the coins clatter on the ground. She laughs then bellows imperiously, ''Occidere eum!'' The snake transforms into a terrifying serpent with menacing red eyes then wraps itself around me. I can feel my bones breaking as it tightens it''s body around me. After crushing me it lifts me into it''s mouth with it''s forked tongue then swallows me whole.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  55,
+  'The Sorcerer''s Test',
+  '"Forgive me, Lord Khazakian, for I have failed you," I say telepathically, letting my voice sound hollow with feigned sorrow.\n\n"Cessare Reka," she answers, the command cutting the air in the Oxcalrian tongue. The serpent loosens its grip and slides away, but I still cannot move properly—the poison courses through my veins, numbness and heat wrestling over my limbs.\n\nA few fighters nearby lurch toward me as if to finish the job, but at her bark they collapse, convulsing and foaming, toppled by whatever foul influence she commands. I watch the snake coil atop one of their bodies and, through gritted teeth, mutter, "What a useful creature you possess."\n\nShe leans forward, voice honeyed and dangerous. "Proclaim the words of the Holy King and Queen in their moments of death—or die." Her tone leaves no room for negotiation. She seeks proof of my fealty to the Khazakians; rumor says only their warriors truly know those last words.\n\nMy mind scrabbles for an answer. A memory surfaces—Victor reading Rehelieu''s letter, muttering something that sounded like those lines—but certainty slides away as quickly as it came. He might have been saying something else entirely. Safer, perhaps, to lie.\n\nI weigh my options even as the poison numbs them: speak the words I half-remember and risk exposure, or weave a convincing deception and pray it stands.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  56,
+  'The Sorceress''s Mercy',
+  '''Once upon a time there was a good man and a whore trapped in a room, the whore expected the man to make an attempt to woo her, but the man was strong he resisted temptation for many days. Until the whore grew tired of his resistance, so she tried to seduce him however the good man held strong. So one day she ripped his clothes off and fucked him so hard that his cock broke and he never fucked again.'' when I finished telling the story the sorceress bursts into laughter.\n\nI feel a painful stab to my shoulder from one of the fighters in the vicinity. Rapidly the snake detaches from my leg then bites the assailant, killing him instantly. ''I am still unable to move my legs the snakes venom must still be coursing within me, but wait why did that man die before me.'' I think to myself perplexed ''Because I deemed it so. I have killed a myriad of thieves today and to be honest I have grown tired of it so give me a good reason why I should not kill you where you stand.'' the sorceress says telepathically.',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  57,
+  'Sacred Words Recalled',
+  'I pause for a moment and strain to recall the words Victor read earlier. "If I am denied entry… I will…" I stammer, the phrase slipping through my fingers. I close my eyes and dive deeper into memory.\n\n"If I am denied entry to heaven, then I will dance in the fires of hell," I force out—finally finding the king''s line. The queen''s words come slower, fragmented at first: "Give me a sword and I shall… and I shall…" I falter, mouth dry, until Victor''s voice snaps the rest into place: "I shall show you—all my hearts and souls."\n\nThe sorceress watches me with slow, cruel interest. "It is obvious you are not a Khazakian warrior, given how you struggled to recite the sacred words," she says. "Still, however flawed your recital, you succeeded. I want to know how you obtained this knowledge. For now I will let you join me as an ally—but know this: betray me or hinder me on the battlefield, and I will kill you. And there are conditions."',
+  NULL
+);
+
+INSERT INTO scenes (id, title, content, image_url)
+VALUES (
+  58,
+  'The Serpent''s Wrath',
+  '"If I die, then I will fight the gods in heaven and the demons in hell," I say, forcing confidence into my voice. "Those were the King''s words, I believe."\n\nShe scoffs; anger darkens her gorgeous face. "Then the Queen''s words were: If I do not have a heart, I will make one. If I do not have a soul, I will take one."\n\n"How dare you taint the sacred words of the Holy King and Queen with your filthy lies," she snaps, venom coiling through each syllable. "I will end you for your insolence, you irreverent scum. Reka—occidere eum!"\n\nHer command tears the air. The snake shudders, grows, and becomes a terrible serpent with burning red eyes. Before I can move, it lunges, clamps me in its jaws, and swallows me whole.',
+  NULL
+);
+*/
+
+SELECT * FROM scenes ORDER BY id ASC;
