@@ -45,6 +45,17 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
   const sceneID = req.params.scene_id;
   const userID = req.params.user_id;
 
+  if (sceneID == 1) {
+    await db.query(
+      `
+       UPDATE player_stats 
+       SET life = 12, mana = 8, morale = 0, coin = 0
+       WHERE id = $1
+      `,
+      [userID]
+    );
+  }
+
   const sceneData = await getStoryData(
     "SELECT content, image_url  FROM scenes WHERE id = $1",
     parseInt(sceneID),
@@ -97,19 +108,26 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
     (item, index) => item + choiceEffects[index]
   );
 
-  if (newPlayerStats[0] <= 0) {
-    return res.json({ game_over: true });
-  }
   await db.query(
     "UPDATE player_stats SET life = $1, mana = $2, morale = $3, coin = $4",
     newPlayerStats
   );
 
+  const lifeStat = newPlayerStats[0];
+  if (lifeStat <= 0) {
+    return res.json({
+      scene: sceneData.result,
+      choiceEffects: choiceEffects,
+      playerStats: newPlayerStats,
+      game_over: true,
+    });
+  }
+
   res.json({
     scene: sceneData.result,
     choices: choicesData.result,
-    choiceEffects: choiceEffectsData.result,
-    playerStats: playerStatsData.result,
+    choiceEffects: choiceEffects,
+    playerStats: newPlayerStats,
     game_over: false,
   });
 });
