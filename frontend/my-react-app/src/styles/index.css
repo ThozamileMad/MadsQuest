@@ -1,5 +1,7 @@
 @import "./home.css";
 @import "./gameplay.css";
+@import "./checkpoint.css";
+@import "./gameover.css";
 
 * {
   margin: 0;

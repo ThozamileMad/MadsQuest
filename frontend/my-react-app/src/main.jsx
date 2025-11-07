@@ -9,12 +9,14 @@ import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import HomeApp from "./components/Home/HomeApp";
 import GamePlayApp from "./components/GamePlay/GamePlayApp";
+import CheckpointApp from "./components/Checkpoint/CheckpointApp";
 
 createRoot(document.getElementById("root")).render(
   <Router>
     <Routes>
       <Route path="/play" element={<GamePlayApp />} />
       <Route path="/" element={<HomeApp />} />
+      <Route path="/checkpoint" element={<CheckpointApp />} />
     </Routes>
   </Router>
 );
