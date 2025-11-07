@@ -3,6 +3,7 @@ import StatCard from "./StatCard";
 import StoryText from "./StoryText";
 import ChoiceButton from "./ChoiceButton";
 import { get, post } from "../../scripts/api";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function GamePlayApp() {
   const [paragraphs, setParagraphs] = useState([]);
@@ -17,6 +18,10 @@ function GamePlayApp() {
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
   const statsRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sceneID = 1, userID = 1 } = location.state || {};
+  console.log(location.state);
 
   const fetchData = async (sceneID, userID) => {
     statsRef.current.scrollIntoView({
@@ -34,31 +39,43 @@ function GamePlayApp() {
       return;
     }
 
-    const isGameOver = data.game_over;
-    if (isGameOver) {
-      return;
-    }
-
     const content = data.scene[0].content
       .split("\\n\\n")
       .map((item) => item.replace(/\\/g, ""));
     const options = data.choices;
-    const newChoiceEffects = Object.values(data.choiceEffects[0]);
-    const newPlayerStats = Object.values(data.playerStats[0]).map(
-      (item, index) => item + newChoiceEffects[index]
-    );
 
     setParagraphs(content);
-    setChoiceData(
-      Array(4).fill({
+    setPlayerStats(data.playerStats);
+    setChoiceEffects(data.choiceEffects);
+
+    const isGameOver = data.game_over;
+    if (isGameOver) {
+      setChoiceData([
+        {
+          styles: { display: "flex" },
+          icon: "💀",
+          text: "Continue",
+          nextSceneID: "dead",
+        },
+        ...Array(3).fill({
+          styles: { display: "none" },
+          icon: "",
+          text: "",
+          nextSceneID: null,
+        }),
+      ]);
+
+      return;
+    }
+
+    setChoiceData(() => {
+      let newState = Array(4).fill({
         styles: { display: "none" },
         icon: "",
         text: "",
         nextSceneID: null,
-      })
-    );
-    setChoiceData((prev) => {
-      let newState = [...prev];
+      });
+
       for (let i = 0; i < options.length; i++) {
         const icon = options[i].icon;
         const text = options[i].choice_text;
@@ -72,12 +89,10 @@ function GamePlayApp() {
       }
       return newState;
     });
-    setPlayerStats(newPlayerStats);
-    setChoiceEffects(newChoiceEffects);
   };
 
   useEffect(() => {
-    fetchData(1, 1);
+    fetchData(sceneID, userID);
   }, []);
 
   return (
@@ -127,7 +142,16 @@ function GamePlayApp() {
               <ChoiceButton
                 key={index}
                 onClick={() => {
-                  if (item.nextSceneID) {
+                  if (item.nextSceneID === "dead") {
+                    navigate("/gameover", {
+                      state: {
+                        life: playerStats[0],
+                        mana: playerStats[1],
+                        morale: playerStats[2],
+                        coin: playerStats[3],
+                      },
+                    });
+                  } else if (item.nextSceneID) {
                     fetchData(item.nextSceneID, 1);
                   }
                 }}

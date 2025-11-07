@@ -10,6 +10,7 @@ import "./styles/index.css";
 import HomeApp from "./components/Home/HomeApp";
 import GamePlayApp from "./components/GamePlay/GamePlayApp";
 import CheckpointApp from "./components/Checkpoint/CheckpointApp";
+import GameOverApp from "./components/GameOver/GameOverApp";
 
 createRoot(document.getElementById("root")).render(
   <Router>
@@ -17,6 +18,7 @@ createRoot(document.getElementById("root")).render(
       <Route path="/play" element={<GamePlayApp />} />
       <Route path="/" element={<HomeApp />} />
       <Route path="/checkpoint" element={<CheckpointApp />} />
+      <Route path="/gameover" element={<GameOverApp />} />
     </Routes>
   </Router>
 );
