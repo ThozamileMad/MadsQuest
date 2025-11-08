@@ -27,9 +27,9 @@ db.connect();
 
 let sceneID = 1;
 
-const getStoryData = async (sql, sqlParam, errorMsg) => {
+const getStoryData = async (sql, sqlParams, errorMsg) => {
   try {
-    let query = await db.query(sql, [sqlParam]);
+    let query = await db.query(sql, sqlParams);
     if (query.rows.length === 0) {
       return { success: false, result: errorMsg, status_code: 404 };
     }
@@ -57,8 +57,8 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
   }
 
   const sceneData = await getStoryData(
-    "SELECT content, image_url  FROM scenes WHERE id = $1",
-    parseInt(sceneID),
+    "SELECT id, content, image_url, is_checkpoint  FROM scenes WHERE id = $1",
+    [parseInt(sceneID)],
     "Scene not found."
   );
   if (!sceneData.success) {
@@ -67,7 +67,7 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
 
   const choicesData = await getStoryData(
     "SELECT id, icon, choice_text, next_scene_id  FROM choices WHERE scene_id = $1",
-    parseInt(sceneID),
+    [parseInt(sceneID)],
     "Choices not found."
   );
   if (!choicesData.success) {
@@ -76,7 +76,7 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
 
   const choiceEffectsData = await getStoryData(
     "SELECT life_change, mana_change, morale_change, coin_change FROM choice_effects WHERE scene_id = $1",
-    parseInt(sceneID),
+    [parseInt(sceneID)],
     "Choice effects not found."
   );
   if (!choiceEffectsData.success) {
@@ -85,11 +85,9 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
       .json(choiceEffectsData.result);
   }
 
-  console.log(choiceEffectsData);
-
   const playerStatsData = await getStoryData(
     "SELECT life, mana, morale, coin FROM player_stats WHERE id = $1",
-    parseInt(userID),
+    [parseInt(userID)],
     "Player stats not found."
   );
   if (!playerStatsData.success) {
@@ -112,6 +110,41 @@ app.get("/get_scene/:scene_id/:user_id", async (req, res) => {
     "UPDATE player_stats SET life = $1, mana = $2, morale = $3, coin = $4",
     newPlayerStats
   );
+
+  const isCheckpoint = sceneData.result[0].is_checkpoint;
+  console.log("isCheckpoint: ", isCheckpoint);
+  if (isCheckpoint) {
+    const checkpointData = await getStoryData(
+      "SELECT * FROM checkpoints WHERE scene_id = $1 AND user_id = $2",
+      [parseInt(sceneID), parseInt(userID)],
+      "Checkpoint not found"
+    );
+
+    const noRecord =
+      !checkpointData.success &&
+      checkpointData.result === "Checkpoint not found";
+
+    if (noRecord) {
+      await db.query(
+        `
+       INSERT INTO checkpoints (scene_id, user_id, life, mana, morale, coin)
+       VALUES ($1, $2, $3, $4, $5, $6)
+      `,
+        [sceneID, userID, ...newPlayerStats]
+      );
+      console.log("checkpoint reached!!!");
+    } else {
+      await db.query(
+        `
+        UPDATE checkpoints 
+        SET scene_id = $1, life = $2, mana = $3, morale = $4, coin = $5
+        WHERE user_id = $6
+        `,
+        [sceneID, ...newPlayerStats, userID]
+      );
+      console.log("checkpoint updated!!!");
+    }
+  }
 
   const lifeStat = newPlayerStats[0];
   if (lifeStat <= 0) {

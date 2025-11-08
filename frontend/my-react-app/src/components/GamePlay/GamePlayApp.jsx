@@ -17,19 +17,22 @@ function GamePlayApp() {
   );
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
+  const [checkpointSceneID, setCheckpointSceneID] = useState(null);
+
   const statsRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { sceneID = 1, userID = 1 } = location.state || {};
-  console.log(location.state);
 
-  const fetchData = async (sceneID, userID) => {
+  const fetchData = async (sceneID, userID, checkpointActivated) => {
     statsRef.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
 
-    const response = await get(`/get_scene/${sceneID}/${userID}`);
+    const response = await get(
+      `/get_scene/${sceneID}/${userID}/${checkpointActivated}`
+    );
     if (!response) {
       return;
     }
@@ -37,6 +40,12 @@ function GamePlayApp() {
     const data = response.data;
     if (!data) {
       return;
+    }
+
+    const isCheckpoint = data.scene[0].is_checkpoint;
+    if (isCheckpoint) {
+      const newCheckpointSceneID = data.scene[0].id;
+      setCheckpointSceneID(newCheckpointSceneID);
     }
 
     const content = data.scene[0].content
@@ -149,6 +158,17 @@ function GamePlayApp() {
                         mana: playerStats[1],
                         morale: playerStats[2],
                         coin: playerStats[3],
+                        sceneID: checkpointSceneID,
+                      },
+                    });
+                  } else if (item.nextSceneID === "checkpoint") {
+                    navigate("/checkpoint", {
+                      state: {
+                        life: data.playerStats[0],
+                        mana: data.playerStats[1],
+                        morale: data.playerStats[2],
+                        coin: data.playerStats[3],
+                        sceneID: newCheckpointSceneID,
                       },
                     });
                   } else if (item.nextSceneID) {

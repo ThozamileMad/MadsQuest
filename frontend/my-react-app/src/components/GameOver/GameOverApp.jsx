@@ -5,7 +5,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 function GameOverApp() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { life = 0, mana = 0, morale = 0, coin = 0 } = location.state || {};
+  const {
+    life = 0,
+    mana = 0,
+    morale = 0,
+    coin = 0,
+    sceneID,
+  } = location.state || {};
 
   return (
     <div className="game-over-container">
@@ -51,9 +57,18 @@ function GameOverApp() {
       </div>
 
       <div className="action-buttons">
-        <a href="#" className="action-button btn-checkpoint">
+        <button
+          type="button"
+          className={`action-button btn-checkpoint ${
+            !sceneID ? "btn-disabled" : ""
+          }`}
+          onClick={() =>
+            navigate("/play", { state: { sceneID: sceneID, userID: 1 } })
+          }
+          disabled={!sceneID ? true : false}
+        >
           ↻ Restart from Checkpoint
-        </a>
+        </button>
         <button
           type="button"
           className="action-button btn-restart"

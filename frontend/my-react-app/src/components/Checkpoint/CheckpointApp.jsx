@@ -1,8 +1,19 @@
 import HeaderDescription from "../common/HeaderDescription";
 import StatusCard from "../common/StatusCard";
 import ProgressCard from "../common/ProgressCard";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function CheckpointApp() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const {
+    life = 0,
+    mana = 0,
+    morale = 0,
+    coin = 0,
+    sceneID = null,
+  } = location.state || {};
+
   return (
     <div className="checkpoint-container">
       <div className="checkpoint-icon">💾</div>
@@ -28,34 +39,41 @@ function CheckpointApp() {
           labelClassName="progress-stat-label"
           valueClassName="progress-stat-value"
           label="Current Life"
-          value="85"
+          value={life}
         />
         <ProgressCard
           containerClassName="progress-stat"
           labelClassName="progress-stat-label"
           valueClassName="progress-stat-value"
-          label="Mana"
-          value="120"
+          label="Mana Used"
+          value={mana}
         />
         <ProgressCard
           containerClassName="progress-stat"
           labelClassName="progress-stat-label"
           valueClassName="progress-stat-value"
-          label="Completed"
-          value="35%"
+          label="Current Morale"
+          value={morale}
         />
         <ProgressCard
           containerClassName="progress-stat"
           labelClassName="progress-stat-label"
           valueClassName="progress-stat-value"
-          label="Achievements"
-          value="12"
+          label="Coin Earned"
+          value={coin}
         />
       </div>
 
-      <a href="#" className="continue-button">
+      <button
+        type="type"
+        className={`continue-button ${!sceneID ? "btn-disabled" : ""}`}
+        onClick={() =>
+          navigate("/play", { state: { sceneID: sceneID, userID: 1 } })
+        }
+        disabled={!sceneID ? true : false}
+      >
         Continue Journey →
-      </a>
+      </button>
     </div>
   );
 }
