@@ -57,7 +57,7 @@ function HomeApp() {
           <button
             className="cta-button"
             onClick={() =>
-              navigate("/play", { state: { sceneID: 1, userID: 1 } })
+              navigate("/play", { state: { sceneID: 25, userID: 1 } })
             }
           >
             Start Your Adventure

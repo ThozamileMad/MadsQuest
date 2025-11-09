@@ -384,4 +384,20 @@ VALUES (
 );
 */
 
+CREATE TABLE checkpoints (
+    id SERIAL PRIMARY KEY,
+    scene_id INTEGER REFERENCES scenes(id),
+	user_id INTEGER,
+    life INTEGER,
+    mana INTEGER,
+    morale INTEGER,
+    coin INTEGER
+);
+
+ALTER TABLE scenes
+ADD COLUMN is_checkpoint BOOLEAN DEFAULT FALSE;
+
+UPDATE scenes
+SET is_checkpoint = TRUE
+WHERE id = 26;
 SELECT * FROM scenes ORDER BY id ASC;

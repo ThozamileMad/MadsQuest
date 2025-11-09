@@ -14,6 +14,17 @@ function CheckpointApp() {
     sceneID = null,
   } = location.state || {};
 
+  useEffect(() => {
+    const handlePopState = (e) => {
+      navigate("/play", { state: { sceneID: sceneID, userID: 1 } });
+    };
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
+
   return (
     <div className="checkpoint-container">
       <div className="checkpoint-icon">💾</div>
@@ -67,9 +78,9 @@ function CheckpointApp() {
       <button
         type="type"
         className={`continue-button ${!sceneID ? "btn-disabled" : ""}`}
-        onClick={() =>
-          navigate("/play", { state: { sceneID: sceneID, userID: 1 } })
-        }
+        onClick={() => {
+          navigate("/play", { state: { sceneID: sceneID, userID: 1 } });
+        }}
         disabled={!sceneID ? true : false}
       >
         Continue Journey →

@@ -17,22 +17,19 @@ function GamePlayApp() {
   );
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
-  const [checkpointSceneID, setCheckpointSceneID] = useState(null);
 
   const statsRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { sceneID = 1, userID = 1 } = location.state || {};
 
-  const fetchData = async (sceneID, userID, checkpointActivated) => {
+  const fetchData = async (sceneID, userID) => {
     statsRef.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
 
-    const response = await get(
-      `/get_scene/${sceneID}/${userID}/${checkpointActivated}`
-    );
+    const response = await get(`/get_scene/${sceneID}/${userID}}`);
     if (!response) {
       return;
     }
@@ -40,12 +37,6 @@ function GamePlayApp() {
     const data = response.data;
     if (!data) {
       return;
-    }
-
-    const isCheckpoint = data.scene[0].is_checkpoint;
-    if (isCheckpoint) {
-      const newCheckpointSceneID = data.scene[0].id;
-      setCheckpointSceneID(newCheckpointSceneID);
     }
 
     const content = data.scene[0].content
@@ -89,6 +80,7 @@ function GamePlayApp() {
         const icon = options[i].icon;
         const text = options[i].choice_text;
         const nextSceneID = options[i].next_scene_id;
+
         newState[i] = {
           styles: { display: "flex" },
           icon: icon,
@@ -96,8 +88,44 @@ function GamePlayApp() {
           nextSceneID: nextSceneID,
         };
       }
+
       return newState;
     });
+
+    options.forEach((item, index) => {
+      showCheckpointOnClick(item.next_scene_id, userID, index);
+    });
+  };
+
+  const showCheckpointOnClick = async (sceneID, userID, index) => {
+    const response = await get(`/api/checkpoint/${sceneID}/${userID}}`);
+    if (!response) {
+      return;
+    }
+
+    const data = response.data;
+    if (!data) {
+      return;
+    }
+
+    const isCheckpoint =
+      data.success &&
+      (data.result === "checkpoint inserted" ||
+        data.result === "checkpoint updated");
+
+    if (!isCheckpoint) {
+      return;
+    }
+
+    setChoiceData((prev) => {
+      let newState = [...prev];
+      let newStateItem = newState[index];
+      newStateItem.nextSceneID = "checkpoint";
+      newState[index] = newStateItem;
+      return newState;
+    });
+
+    localStorage.setItem("checkpointSceneID", sceneID);
   };
 
   useEffect(() => {
@@ -151,26 +179,18 @@ function GamePlayApp() {
               <ChoiceButton
                 key={index}
                 onClick={() => {
+                  const state = {
+                    life: playerStats[0],
+                    mana: playerStats[1],
+                    morale: playerStats[2],
+                    coin: playerStats[3],
+                    sceneID: localStorage.getItem("checkpointSceneID"),
+                  };
+
                   if (item.nextSceneID === "dead") {
-                    navigate("/gameover", {
-                      state: {
-                        life: playerStats[0],
-                        mana: playerStats[1],
-                        morale: playerStats[2],
-                        coin: playerStats[3],
-                        sceneID: checkpointSceneID,
-                      },
-                    });
+                    navigate("/gameover", { state: state });
                   } else if (item.nextSceneID === "checkpoint") {
-                    navigate("/checkpoint", {
-                      state: {
-                        life: data.playerStats[0],
-                        mana: data.playerStats[1],
-                        morale: data.playerStats[2],
-                        coin: data.playerStats[3],
-                        sceneID: newCheckpointSceneID,
-                      },
-                    });
+                    navigate("/checkpoint", { state: state });
                   } else if (item.nextSceneID) {
                     fetchData(item.nextSceneID, 1);
                   }
