@@ -33,19 +33,20 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
   // Retrieve checkpoint
   const checkpointData = await checkpointService.getCheckpoint();
 
-  // Create new checkpoint if none exists
-  if (!checkpointData.success && checkpointData.statusCode === 404) {
-    const checkpointCreation = await checkpointService.createCheckpoint(
-      playerStatsData.result
-    );
-    return checkpointCreation;
-  }
-
   // Update existing checkpoint
   const newPlayerStats = playerService.applyStatChanges(
     choiceEffectsData.result[0],
     playerStatsData.result[0]
   );
+
+  // Create new checkpoint if none exists
+  if (!checkpointData.success && checkpointData.statusCode === 404) {
+    const checkpointCreation = await checkpointService.createCheckpoint(
+      newPlayerStats
+    );
+    return checkpointCreation;
+  }
+
   const checkpointUpdate = await checkpointService.updateCheckpoint(
     newPlayerStats
   );

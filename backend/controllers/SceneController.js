@@ -13,7 +13,7 @@ const getNecessaryInfo = (
   choiceData,
   choiceEffectsData,
   playerStatsData,
-  gameOver
+  isGameOver
 ) => {
   const newSceneData = sceneData.result[0].content;
 
@@ -26,21 +26,15 @@ const getNecessaryInfo = (
   );
 
   const newChoiceEffectsData = choiceEffectsData.result.map(
-    ({ life_change, mana_change, morale_change, coin_change }) => ({
-      life_change,
-      mana_change,
-      morale_change,
-      coin_change,
-    })
+    ({ life_change, mana_change, morale_change, coin_change }) => {
+      return [life_change, mana_change, morale_change, coin_change];
+    }
   );
 
   const newPlayerStats = playerStatsData.result.map(
-    ({ life, mana, morale, coin }) => ({
-      life,
-      mana,
-      morale,
-      coin,
-    })
+    ({ life, mana, morale, coin }) => {
+      return [life, mana, morale, coin];
+    }
   );
 
   return {
@@ -48,7 +42,7 @@ const getNecessaryInfo = (
     choiceData: newChoiceData,
     choiceEffectsData: newChoiceEffectsData,
     playerStatsData: newPlayerStats,
-    gameOver,
+    isGameOver,
   };
 };
 
