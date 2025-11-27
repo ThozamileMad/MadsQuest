@@ -12,41 +12,75 @@ function GamePlayApp() {
       styles: { display: "none" },
       icon: "",
       text: "",
-      nextSceneID: null,
+      nextSceneId: null,
     })
   );
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
-
   const statsRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { sceneID = 1, userID = 1 } = location.state || {};
+  const { sceneId = 1, userId = 1 } = location.state || {};
 
-  const fetchData = async (sceneID, userID) => {
+  {
+    /**
+     * Generate new page info
+     * @param {Object} data - Scene data { id, title, content, image_url, created_at, is_checkpoint }
+     */
+  }
+  const showPageInfo = (data) => {
+    const content = data.scene[0].content
+      .split("\\n\\n")
+      .map((item) => item.replace(/\\/g, ""));
+    setParagraphs(content);
+  };
+
+  {
+    /**
+     * Generate new page info
+     * @param {Object} data - Choice effect data { id, scene_id, life_change, mana_change, morale_change, coin_change }
+     */
+  }
+  const applyStatChanges = (data) => {
+    const { life_change, mana_change, morale_change, coin_change } =
+      data.choiceEffects;
+    const statChanges = Object.values({
+      life_change,
+      mana_change,
+      morale_change,
+      coin_change,
+    });
+    setChoiceEffects(statChanges);
+  };
+
+  const fetchData = async (sceneId, userId) => {
     statsRef.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
 
-    const response = await get(`/get_scene/${sceneID}/${userID}}`);
-    if (!response) {
-      return;
-    }
+    const response = await get(`/api/scene/${sceneId}/${userId}}`);
+    if (!response || !response.data) return;
 
     const data = response.data;
-    if (!data) {
-      return;
-    }
 
+    showPageInfo(data);
     const content = data.scene[0].content
       .split("\\n\\n")
       .map((item) => item.replace(/\\/g, ""));
-    const options = data.choices;
-
     setParagraphs(content);
+
+    const { life_change, mana_change, morale_change, coin_change } =
+      data.choiceEffects;
+    const statChanges = Object.values({
+      life_change,
+      mana_change,
+      morale_change,
+      coin_change,
+    });
+    setChoiceEffects(statChanges);
+
     setPlayerStats(data.playerStats);
-    setChoiceEffects(data.choiceEffects);
 
     const isGameOver = data.game_over;
     if (isGameOver) {
@@ -68,6 +102,7 @@ function GamePlayApp() {
       return;
     }
 
+    const choices = data.choices;
     setChoiceData(() => {
       let newState = Array(4).fill({
         styles: { display: "none" },
@@ -76,10 +111,10 @@ function GamePlayApp() {
         nextSceneID: null,
       });
 
-      for (let i = 0; i < options.length; i++) {
-        const icon = options[i].icon;
-        const text = options[i].choice_text;
-        const nextSceneID = options[i].next_scene_id;
+      for (let i = 0; i < choices.length; i++) {
+        const icon = choices[i].icon;
+        const text = choices[i].choice_text;
+        const nextSceneID = choices[i].next_scene_id;
 
         newState[i] = {
           styles: { display: "flex" },
@@ -92,13 +127,13 @@ function GamePlayApp() {
       return newState;
     });
 
-    options.forEach((item, index) => {
-      showCheckpointOnClick(item.next_scene_id, userID, index);
+    choices.forEach((item, index) => {
+      showCheckpointOnClick(item.next_scene_id, userId, index);
     });
   };
 
-  const showCheckpointOnClick = async (sceneID, userID, index) => {
-    const response = await get(`/api/checkpoint/${sceneID}/${userID}}`);
+  const showCheckpointOnClick = async (sceneId, userId, index) => {
+    const response = await get(`/api/checkpoint/${sceneId}/${userId}}`);
     if (!response) {
       return;
     }
@@ -110,8 +145,8 @@ function GamePlayApp() {
 
     const isCheckpoint =
       data.success &&
-      (data.result === "checkpoint inserted" ||
-        data.result === "checkpoint updated");
+      (data.result === "Checkpoint inserted" ||
+        data.result === "Checkpoint updated");
 
     if (!isCheckpoint) {
       return;
@@ -125,11 +160,11 @@ function GamePlayApp() {
       return newState;
     });
 
-    localStorage.setItem("checkpointSceneID", sceneID);
+    localStorage.setItem("checkpointSceneID", sceneId);
   };
 
   useEffect(() => {
-    fetchData(sceneID, userID);
+    fetchData(sceneId, userId);
   }, []);
 
   return (
@@ -184,15 +219,15 @@ function GamePlayApp() {
                     mana: playerStats[1],
                     morale: playerStats[2],
                     coin: playerStats[3],
-                    sceneID: localStorage.getItem("checkpointSceneID"),
+                    sceneId: localStorage.getItem("checkpointSceneID"),
                   };
 
-                  if (item.nextSceneID === "dead") {
+                  if (item.nextSceneId === "dead") {
                     navigate("/gameover", { state: state });
-                  } else if (item.nextSceneID === "checkpoint") {
+                  } else if (item.nextSceneId === "checkpoint") {
                     navigate("/checkpoint", { state: state });
-                  } else if (item.nextSceneID) {
-                    fetchData(item.nextSceneID, 1);
+                  } else if (item.nextSceneId) {
+                    fetchData(item.nextSceneId, 1);
                   }
                 }}
                 styles={item.styles}

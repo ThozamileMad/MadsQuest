@@ -2,6 +2,10 @@ import SceneService from "../services/SceneService.js";
 import PlayerService from "../services/PlayerService.js";
 import CheckpointService from "../services/CheckpointService.js";
 
+// ----------------------
+// Checkpoint Processing Logic
+// ----------------------
+
 /**
  * Orchestrates scene, player, and checkpoint services to make a checkpoint for the player
  * @param {Object} db - Database client/connection

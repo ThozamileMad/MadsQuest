@@ -1,72 +1,123 @@
 import SceneService from "../services/SceneService.js";
 import PlayerService from "../services/PlayerService.js";
 
+// ----------------------
+// Scene Processing Helpers
+// ----------------------
+
 /**
- * Orchestrates scene and player operations to prepare
- * all data required to present a scene to the player.
+ * Extracts only the data required by the frontend for a scene.
+ */
+const getNecessaryInfo = (
+  sceneData,
+  choiceData,
+  choiceEffectsData,
+  playerStatsData,
+  gameOver
+) => {
+  const newSceneData = sceneData.result[0].content;
+
+  const newChoiceData = choiceData.result.map(
+    ({ icon, choice_text, next_scene_id }) => ({
+      icon,
+      choice_text,
+      next_scene_id,
+    })
+  );
+
+  const newChoiceEffectsData = choiceEffectsData.result.map(
+    ({ life_change, mana_change, morale_change, coin_change }) => ({
+      life_change,
+      mana_change,
+      morale_change,
+      coin_change,
+    })
+  );
+
+  const newPlayerStats = playerStatsData.result.map(
+    ({ life, mana, morale, coin }) => ({
+      life,
+      mana,
+      morale,
+      coin,
+    })
+  );
+
+  return {
+    sceneData: newSceneData,
+    choiceData: newChoiceData,
+    choiceEffectsData: newChoiceEffectsData,
+    playerStatsData: newPlayerStats,
+    gameOver,
+  };
+};
+
+// ----------------------
+// Scene Processing Logic
+// ----------------------
+
+/**
+ * Orchestrates scene and player operations to assemble all data
+ * required to present a scene to the player.
  *
- * @param {Object} db - Database client/connection instance
+ * @param {Object} db - Database client instance
  * @param {number|string} userId - Player identifier
  * @param {number|string} sceneId - Scene identifier
- * @returns {Promise<Object>} Promise resolving to { success, result, statusCode }
+ * @returns {Promise<Object>} { success, result, statusCode }
  */
 const createSceneProcess = async (db, userId, sceneId) => {
   const sceneService = new SceneService(db, sceneId);
   const playerService = new PlayerService(db, userId);
 
-  // Reset player stats if entering the first scene
+  // Reset stats when player enters the first scene
   if (sceneId === 1) {
     await playerService.updatePlayerStats([12, 8, 0, 0]);
   }
 
-  // Fetch scene
+  // Fetch scene-related data
   const sceneData = await sceneService.getScene();
   if (!sceneData.success) return sceneData;
 
-  // Fetch choices
   const choiceData = await sceneService.getChoices();
   if (!choiceData.success) return choiceData;
 
-  // Fetch choice effects
   const choiceEffectsData = await sceneService.getChoiceEffects();
   if (!choiceEffectsData.success) return choiceEffectsData;
 
-  // Fetch player stats
-  const playerStatsData = await playerService.getPlayerStats();
+  // Fetch player stats for current user
+  let playerStatsData = await playerService.getPlayerStats();
   if (!playerStatsData.success) return playerStatsData;
 
-  // Apply stat changes based on chosen effects
-  const newPlayerStats = playerService.applyStatChanges(
-    choiceEffectsData.result[0],
-    playerStatsData.result[0]
+  // Compute updated stats based on effect modifiers
+  const { life_change, mana_change, morale_change, coin_change } =
+    choiceEffectsData.result[0];
+
+  const { life, mana, morale, coin } = playerStatsData.result[0];
+
+  const updatedPlayerStats = playerService.applyStatChanges(
+    { life_change, mana_change, morale_change, coin_change },
+    { life, mana, morale, coin }
   );
-  await playerService.updatePlayerStats(newPlayerStats);
 
-  const lifeStat = newPlayerStats[0];
+  // Persist stat changes and fetch the refreshed stats
+  await playerService.updatePlayerStats(updatedPlayerStats);
+  playerStatsData = await playerService.getPlayerStats();
+  if (!playerStatsData.success) return playerStatsData;
 
-  // Game over condition
-  if (lifeStat <= 0) {
-    return {
-      success: true,
-      result: {
-        scene: sceneData.result,
-        choiceEffects: choiceEffectsData.result,
-        playerStats: newPlayerStats,
-        gameOver: true,
-      },
-      statusCode: 200,
-    };
-  }
+  const updatedLife = updatedPlayerStats[0];
+
+  // Handle game-over condition
+  const isGameOver = updatedLife <= 0;
 
   return {
     success: true,
-    result: {
-      scene: sceneData.result,
-      choices: choiceData.result,
-      choiceEffects: choiceEffectsData.result,
-      playerStats: newPlayerStats,
-      gameOver: false,
-    },
+    result: getNecessaryInfo(
+      sceneData,
+      choiceData,
+      choiceEffectsData,
+      playerStatsData,
+      isGameOver
+    ),
     statusCode: 200,
   };
 };

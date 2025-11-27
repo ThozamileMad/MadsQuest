@@ -8,17 +8,20 @@ function HomeApp() {
 
   return (
     <div className="home-container">
+      {/* Background particle effect */}
       <div className="particles" id="particles"></div>
 
       <div className="container-main">
         <NavigationBar />
 
+        {/* Hero section */}
         <HeaderDescription
           containerClassName="hero"
           title="Choose Your Destiny"
           description="Embark on an epic journey where every decision shapes your fate. Create your legend in a world of infinite possibilities."
         />
 
+        {/* Feature showcase */}
         <section className="features" id="features">
           <Card
             icon="⚡"
@@ -53,6 +56,7 @@ function HomeApp() {
           />
         </section>
 
+        {/* Call-to-action */}
         <section className="cta-section">
           <button
             className="cta-button"
@@ -64,6 +68,7 @@ function HomeApp() {
           </button>
         </section>
 
+        {/* Footer */}
         <footer>
           <p>
             &copy; 2025 Nexus Chronicles. All rights reserved. | Made with ⚡

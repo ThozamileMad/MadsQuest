@@ -1,4 +1,4 @@
-import { ok, notFound, serverError } from "../utils/response";
+import { ok, notFound, serverError } from "../utils/response.js";
 
 class CheckpointService {
   constructor(db, sceneId, userId) {
