@@ -18,24 +18,22 @@ const getNecessaryInfo = (
   const newSceneData = sceneData.result[0].content;
 
   const newChoiceData = choiceData.result.map(
-    ({ icon, choice_text, next_scene_id }) => ({
+    ({ icon, choice_text, next_scene_id, nextSceneIsCheckpoint }) => ({
       icon,
-      choice_text,
-      next_scene_id,
+      text: choice_text,
+      nextSceneId: next_scene_id,
+      nextSceneIsCheckpoint,
     })
   );
 
-  const newChoiceEffectsData = choiceEffectsData.result.map(
-    ({ life_change, mana_change, morale_change, coin_change }) => {
-      return [life_change, mana_change, morale_change, coin_change];
-    }
-  );
+  let newChoiceEffectsData = choiceEffectsData.result[0];
+  const { life_change, mana_change, morale_change, coin_change } =
+    newChoiceEffectsData;
+  newChoiceEffectsData = [life_change, mana_change, morale_change, coin_change];
 
-  const newPlayerStats = playerStatsData.result.map(
-    ({ life, mana, morale, coin }) => {
-      return [life, mana, morale, coin];
-    }
-  );
+  let newPlayerStats = playerStatsData.result[0];
+  const { life, mana, morale, coin } = newPlayerStats;
+  newPlayerStats = [life, mana, morale, coin];
 
   return {
     sceneData: newSceneData,
@@ -72,7 +70,7 @@ const createSceneProcess = async (db, userId, sceneId) => {
   const sceneData = await sceneService.getScene();
   if (!sceneData.success) return sceneData;
 
-  const choiceData = await sceneService.getChoices();
+  let choiceData = await sceneService.getChoices();
   if (!choiceData.success) return choiceData;
 
   const choiceEffectsData = await sceneService.getChoiceEffects();
@@ -99,6 +97,21 @@ const createSceneProcess = async (db, userId, sceneId) => {
   if (!playerStatsData.success) return playerStatsData;
 
   const updatedLife = updatedPlayerStats[0];
+
+  // Check if next scenes is a checkpoint
+  choiceData = choiceData.result.map(async (item) => {
+    let nextSceneIsCheckpoint = await sceneService.sceneIsCheckpoint(
+      item.next_scene_id
+    );
+
+    if (nextSceneIsCheckpoint.success) {
+      item["nextSceneIsCheckpoint"] = nextSceneIsCheckpoint.result;
+    }
+
+    return item;
+  });
+
+  console.log("ChoiceData: ", choiceData);
 
   // Handle game-over condition
   const isGameOver = updatedLife <= 0;

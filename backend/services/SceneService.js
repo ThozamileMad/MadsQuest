@@ -29,8 +29,32 @@ class SceneService {
   };
 
   /**
+   * Checks if a particular scene is a checkpoint
+   * @param {number} sceneId Scene Identifier
+   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: boolean, statusCode: number }
+   */
+  sceneIsCheckpoint = async (sceneId) => {
+    try {
+      const query = await this.db.query(
+        "SELECT is_checkpoint FROM scenes WHERE id = $1",
+        [sceneId]
+      );
+
+      if (query.rows.length === 0) {
+        // Return empty array if no scene found
+        return notFound(false);
+      }
+
+      return ok(query.rows[0].is_checkpoint);
+    } catch (err) {
+      console.error("Database error in getScene:", err);
+      return serverError();
+    }
+  };
+
+  /**
    * Retrieves all choices available for a specific scene
-   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: any, statusCode: number }
+   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: Array, statusCode: number }
    */
   getChoices = async () => {
     try {

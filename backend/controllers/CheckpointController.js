@@ -20,7 +20,8 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
 
   // Fetch scene
   const sceneData = await sceneService.getScene();
-  if (!sceneData.success) return sceneData;
+  const isCheckpoint = sceneData.result[0].is_checkpoint;
+  if (!sceneData.success || !isCheckpoint) return sceneData;
 
   // Fetch choice effects
   const choiceEffectsData = await sceneService.getChoiceEffects();
@@ -33,23 +34,29 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
   // Retrieve checkpoint
   const checkpointData = await checkpointService.getCheckpoint();
 
+  // Create new checkpoint if none exists
+  if (!checkpointData.success && checkpointData.statusCode === 404) {
+    const { life, mana, coin, morale } = playerStatsData.result[0];
+    const checkpointCreation = await checkpointService.createCheckpoint([
+      life,
+      mana,
+      coin,
+      morale,
+    ]);
+    console.log(checkpointCreation);
+    return checkpointCreation;
+  }
+
   // Update existing checkpoint
   const newPlayerStats = playerService.applyStatChanges(
     choiceEffectsData.result[0],
     playerStatsData.result[0]
   );
-
-  // Create new checkpoint if none exists
-  if (!checkpointData.success && checkpointData.statusCode === 404) {
-    const checkpointCreation = await checkpointService.createCheckpoint(
-      newPlayerStats
-    );
-    return checkpointCreation;
-  }
-
+  console.log(newPlayerStats);
   const checkpointUpdate = await checkpointService.updateCheckpoint(
     newPlayerStats
   );
+  console.log(checkpointUpdate);
   return checkpointUpdate;
 };
 

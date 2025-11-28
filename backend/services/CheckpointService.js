@@ -9,7 +9,7 @@ class CheckpointService {
 
   /**
    * Checks if a checkpoint exists for a specific scene and user
-   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: any, statusCode: number }
+   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: Array, statusCode: number }
    */
   getCheckpoint = async () => {
     try {
@@ -33,7 +33,7 @@ class CheckpointService {
   /**
    * Creates a new checkpoint record
    * @param {Array} newPlayerStats - [life, mana, morale, coin]
-   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: any, statusCode: number }
+   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: string, statusCode: number }
    */
   createCheckpoint = async (newPlayerStats) => {
     try {
@@ -53,7 +53,7 @@ class CheckpointService {
   /**
    * Updates an existing checkpoint's data
    * @param {Array} newPlayerStats - [life, mana, morale, coin]
-   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: any, statusCode: number }
+   * @returns {Promise<Object>} Promise resolving to { success: boolean, result: string, statusCode: number }
    */
   updateCheckpoint = async (newPlayerStats) => {
     try {
