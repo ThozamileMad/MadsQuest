@@ -1,5 +1,5 @@
 function StatCard({ icon, label, value, changeClassname = "", change = 0 }) {
-  const getChangeClassname = () => {
+  const renderStatChangeClassname = () => {
     if (change < 0) {
       return "negative";
     } else if (change > 0) {
@@ -16,7 +16,7 @@ function StatCard({ icon, label, value, changeClassname = "", change = 0 }) {
         <div className="stat-label">{label}</div>
         <div className="stat-value">
           {value}
-          <span className={"stat-change " + getChangeClassname()}>
+          <span className={"stat-change " + renderStatChangeClassname()}>
             {change > 0 ? `+${change}` : change}
           </span>
         </div>

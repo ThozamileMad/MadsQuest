@@ -44,8 +44,8 @@ function GamePlayApp() {
         baseChoices[index] = {
           styles: { display: "flex" },
           icon: choice.icon,
-          text: choice.choice_text,
-          nextSceneId: choice.next_scene_id,
+          text: choice.text,
+          nextSceneId: choice.nextSceneId,
         };
       });
 
@@ -119,7 +119,14 @@ function GamePlayApp() {
    * @param {boolean} isGameOver - Indicates whether the scene represents a terminal state.
    */
 
-  const updateSceneUI = (info, effects, stats, choices, isGameOver) => {
+  const updateSceneUI = (
+    info,
+    effects,
+    stats,
+    choices,
+    isGameOver,
+    nextSceneIsCheckpoint
+  ) => {
     const formattedParagraphs = info
       .split("\\n\\n")
       .map((paragraph) => paragraph.replace(/\\/g, ""));
@@ -133,7 +140,7 @@ function GamePlayApp() {
 
     // Apply checkpoint logic to each choice
     choices.forEach((choice, index) => {
-      showCheckpointOnClick(choice.next_scene_id, userId, index);
+      showCheckpointOnClick(choice.nextSceneId, userId, index);
     });
   };
 
@@ -152,14 +159,13 @@ function GamePlayApp() {
     const response = await get(`/api/scene/${sceneId}/${userId}`);
     if (!response || !response.data) return;
 
-    console.log(response.data);
-
     const {
       sceneData,
       choiceEffectsData,
       playerStatsData,
       choiceData,
       isGameOver,
+      nextSceneIsCheckpoint,
     } = response.data;
 
     updateSceneUI(
@@ -167,7 +173,8 @@ function GamePlayApp() {
       choiceEffectsData,
       playerStatsData,
       choiceData,
-      isGameOver
+      isGameOver,
+      nextSceneIsCheckpoint
     );
   };
 
