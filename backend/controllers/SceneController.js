@@ -13,6 +13,7 @@ const getNecessaryInfo = (
   choiceData,
   choiceEffectsData,
   playerStatsData,
+  nextScenesAreCheckpoints,
   isGameOver
 ) => {
   const newSceneData = sceneData.result[0].content;
@@ -40,6 +41,7 @@ const getNecessaryInfo = (
     choiceData: newChoiceData,
     choiceEffectsData: newChoiceEffectsData,
     playerStatsData: newPlayerStats,
+    nextScenesAreCheckpoints,
     isGameOver,
   };
 };
@@ -55,9 +57,10 @@ const getNecessaryInfo = (
  * @param {Object} db - Database client instance
  * @param {number|string} userId - Player identifier
  * @param {number|string} sceneId - Scene identifier
+ * @param {boolean|string} updateStats - Dictates if stats are updated or not
  * @returns {Promise<Object>} { success, result, statusCode }
  */
-const createSceneProcess = async (db, userId, sceneId) => {
+const createSceneProcess = async (db, userId, sceneId, updateStats) => {
   const sceneService = new SceneService(db, sceneId);
   const playerService = new PlayerService(db, userId);
 
@@ -92,26 +95,28 @@ const createSceneProcess = async (db, userId, sceneId) => {
   );
 
   // Persist stat changes and fetch the refreshed stats
-  await playerService.updatePlayerStats(updatedPlayerStats);
-  playerStatsData = await playerService.getPlayerStats();
-  if (!playerStatsData.success) return playerStatsData;
+  if (updateStats) {
+    await playerService.updatePlayerStats(updatedPlayerStats);
+    playerStatsData = await playerService.getPlayerStats();
+    if (!playerStatsData.success) return playerStatsData;
+  }
 
   const updatedLife = updatedPlayerStats[0];
 
-  // Check if next scenes is a checkpoint
-  choiceData = choiceData.result.map(async (item) => {
+  // Check if next scenes are checkpoints
+  let nextScenesAreCheckpoints = [];
+
+  for (const item of choiceData.result) {
     let nextSceneIsCheckpoint = await sceneService.sceneIsCheckpoint(
       item.next_scene_id
     );
 
     if (nextSceneIsCheckpoint.success) {
-      item["nextSceneIsCheckpoint"] = nextSceneIsCheckpoint.result;
+      nextScenesAreCheckpoints.push(nextSceneIsCheckpoint.result);
+    } else {
+      nextScenesAreCheckpoints.push(false);
     }
-
-    return item;
-  });
-
-  console.log("ChoiceData: ", choiceData);
+  }
 
   // Handle game-over condition
   const isGameOver = updatedLife <= 0;
@@ -123,6 +128,7 @@ const createSceneProcess = async (db, userId, sceneId) => {
       choiceData,
       choiceEffectsData,
       playerStatsData,
+      nextScenesAreCheckpoints,
       isGameOver
     ),
     statusCode: 200,

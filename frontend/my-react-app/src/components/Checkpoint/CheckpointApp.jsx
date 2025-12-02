@@ -2,6 +2,7 @@ import HeaderDescription from "../common/HeaderDescription";
 import StatusCard from "../common/StatusCard";
 import ProgressCard from "../common/ProgressCard";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 function CheckpointApp() {
   const navigate = useNavigate();
@@ -11,19 +12,20 @@ function CheckpointApp() {
     mana = 0,
     morale = 0,
     coin = 0,
-    sceneID = null,
+    sceneId = null,
   } = location.state || {};
 
+  /**
+   * Redirect if the checkpoint has already been displayed
+   */
   useEffect(() => {
-    const handlePopState = (e) => {
-      navigate("/play", { state: { sceneID: sceneID, userID: 1 } });
-    };
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [navigate]);
+    const checkpointDisplayed = localStorage.getItem("checkpointDisplayed");
+    if (checkpointDisplayed) {
+      navigate("/play", {
+        state: { sceneId: sceneId, userId: 1, updateStats: false },
+      });
+    }
+  }, []);
 
   return (
     <div className="checkpoint-container">
@@ -77,11 +79,13 @@ function CheckpointApp() {
 
       <button
         type="type"
-        className={`continue-button ${!sceneID ? "btn-disabled" : ""}`}
+        className={`continue-button`}
         onClick={() => {
-          navigate("/play", { state: { sceneID: sceneID, userID: 1 } });
+          localStorage.setItem("checkpointDisplayed", true);
+          navigate("/play", {
+            state: { sceneId: sceneId, userId: 1, updateStats: true },
+          });
         }}
-        disabled={!sceneID ? true : false}
       >
         Continue Journey →
       </button>

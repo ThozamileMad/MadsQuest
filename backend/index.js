@@ -58,12 +58,13 @@ app.get("/api/checkpoint/:sceneId/:userId", async (req, res) => {
  * GET /api/scene/:sceneId/:userId
  * Retrieves or initializes the scene process for the given user.
  */
-app.get("/api/scene/:sceneId/:userId", async (req, res) => {
+app.get("/api/scene/:sceneId/:userId/:updateStats", async (req, res) => {
   const sceneId = req.params.sceneId;
   const userId = req.params.userId;
+  const updateStats = req.params.updateStats === "true";
 
-  const response = await createSceneProcess(db, userId, sceneId);
-  console.log(response);
+  const response = await createSceneProcess(db, userId, sceneId, updateStats);
+  console.log(sceneId, userId, updateStats);
 
   return res.status(response.statusCode).json(response.result);
 });

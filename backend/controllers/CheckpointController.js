@@ -35,27 +35,19 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
   const checkpointData = await checkpointService.getCheckpoint();
 
   // Create new checkpoint if none exists
+  const { life, mana, coin, morale } = playerStatsData.result[0];
+  const statsArray = Object.values({ life, mana, coin, morale });
+
   if (!checkpointData.success && checkpointData.statusCode === 404) {
-    const { life, mana, coin, morale } = playerStatsData.result[0];
-    const checkpointCreation = await checkpointService.createCheckpoint([
-      life,
-      mana,
-      coin,
-      morale,
-    ]);
+    const checkpointCreation = await checkpointService.createCheckpoint(
+      statsArray
+    );
     console.log(checkpointCreation);
     return checkpointCreation;
   }
 
   // Update existing checkpoint
-  const newPlayerStats = playerService.applyStatChanges(
-    choiceEffectsData.result[0],
-    playerStatsData.result[0]
-  );
-  console.log(newPlayerStats);
-  const checkpointUpdate = await checkpointService.updateCheckpoint(
-    newPlayerStats
-  );
+  const checkpointUpdate = await checkpointService.updateCheckpoint(statsArray);
   console.log(checkpointUpdate);
   return checkpointUpdate;
 };

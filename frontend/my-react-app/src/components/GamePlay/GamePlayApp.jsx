@@ -12,7 +12,7 @@ function GamePlayApp() {
       styles: { display: "none" },
       icon: "",
       text: "",
-      nextSceneId: null,
+      nextSceneId: { isCheckpoint: false, id: null },
     })
   );
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
@@ -21,7 +21,7 @@ function GamePlayApp() {
   const statsRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { sceneId = 1, userId = 1 } = location.state || {};
+  const { sceneId = 1, userId = 1, updateStats = true } = location.state || {};
 
   /**
    * Renders the available choices when the game is active.
@@ -37,7 +37,7 @@ function GamePlayApp() {
         styles: { display: "none" },
         icon: "",
         text: "",
-        nextSceneId: null,
+        nextSceneId: { isCheckpoint: false, id: null },
       });
 
       choices.forEach((choice, index) => {
@@ -79,30 +79,20 @@ function GamePlayApp() {
   };
 
   /**
-   * Updates a specific choice slot to route the player to the checkpoint
-   * if the current scene is flagged as a checkpoint.
+   * Sends API to updates user checkpoint in database
    *
    * @param {number} sceneId
    * @param {number} userId
    * @param {number} index - Choice button index
    */
-  const showCheckpointOnClick = async (sceneId, userId, index) => {
+  const applyCheckpoint = async (sceneId, userId) => {
     const response = await get(`/api/checkpoint/${sceneId}/${userId}`);
     if (!response || !response.data) return;
 
     const { success, result } = response.data;
-    const isCheckpoint = success && result.includes("Checkpoint");
+    const checkpointApplied = success && result.includes("Checkpoint");
 
-    if (!isCheckpoint) return;
-
-    setChoiceData((prev) => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
-        nextSceneId: "checkpoint",
-      };
-      return updated;
-    });
+    return checkpointApplied;
   };
 
   /**
@@ -124,8 +114,8 @@ function GamePlayApp() {
     effects,
     stats,
     choices,
-    isGameOver,
-    nextSceneIsCheckpoint
+    nextScenesAreCheckpoints,
+    isGameOver
   ) => {
     const formattedParagraphs = info
       .split("\\n\\n")
@@ -140,7 +130,17 @@ function GamePlayApp() {
 
     // Apply checkpoint logic to each choice
     choices.forEach((choice, index) => {
-      showCheckpointOnClick(choice.nextSceneId, userId, index);
+      const nextSceneIsCheckpoint = nextScenesAreCheckpoints[index];
+      if (!nextSceneIsCheckpoint) return;
+
+      setChoiceData((prev) => {
+        const updated = [...prev];
+        updated[index] = {
+          ...updated[index],
+          nextSceneId: "checkpoint",
+        };
+        return updated;
+      });
     });
   };
 
@@ -150,13 +150,15 @@ function GamePlayApp() {
    * @param {number} sceneId
    * @param {number} userId
    */
-  const fetchData = async (sceneId, userId) => {
+  const fetchData = async (sceneId, userId, updateStats) => {
     statsRef.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
 
-    const response = await get(`/api/scene/${sceneId}/${userId}`);
+    const response = await get(
+      `/api/scene/${sceneId}/${userId}/${updateStats}`
+    );
     if (!response || !response.data) return;
 
     const {
@@ -164,8 +166,8 @@ function GamePlayApp() {
       choiceEffectsData,
       playerStatsData,
       choiceData,
+      nextScenesAreCheckpoints,
       isGameOver,
-      nextSceneIsCheckpoint,
     } = response.data;
 
     updateSceneUI(
@@ -173,8 +175,8 @@ function GamePlayApp() {
       choiceEffectsData,
       playerStatsData,
       choiceData,
-      isGameOver,
-      nextSceneIsCheckpoint
+      nextScenesAreCheckpoints,
+      isGameOver
     );
   };
 
@@ -193,8 +195,10 @@ function GamePlayApp() {
       mana: playerStats[1],
       morale: playerStats[2],
       coin: playerStats[3],
-      sceneId: localStorage.getItem("checkpointSceneID"),
+      sceneId: item.nextSceneId,
     };
+
+    console.log(state);
 
     // No valid next scene — do nothing
     if (!item?.nextSceneId) return;
@@ -206,18 +210,22 @@ function GamePlayApp() {
         break;
 
       case "checkpoint":
+        const checkpointApplied = applyCheckpoint(item.nextSceneId, userId);
+        if (!checkpointApplied) return;
+
+        localStorage.setItem("checkpointDisplayed", false);
         navigate("/checkpoint", { state });
         break;
 
       default:
         // Normal scene transition
-        fetchData(item.nextSceneId, userId);
+        fetchData(item.nextSceneId, userId, true);
         break;
     }
   };
 
   useEffect(() => {
-    fetchData(sceneId, userId);
+    fetchData(sceneId, userId, updateStats);
   }, []);
 
   return (
