@@ -13,17 +13,15 @@ const getNecessaryInfo = (
   choiceData,
   choiceEffectsData,
   playerStatsData,
-  nextScenesAreCheckpoints,
-  isGameOver
+  status
 ) => {
   const newSceneData = sceneData.result[0].content;
 
   const newChoiceData = choiceData.result.map(
-    ({ icon, choice_text, next_scene_id, nextSceneIsCheckpoint }) => ({
+    ({ icon, choice_text, next_scene_id }) => ({
       icon,
       text: choice_text,
       nextSceneId: next_scene_id,
-      nextSceneIsCheckpoint,
     })
   );
 
@@ -41,8 +39,7 @@ const getNecessaryInfo = (
     choiceData: newChoiceData,
     choiceEffectsData: newChoiceEffectsData,
     playerStatsData: newPlayerStats,
-    nextScenesAreCheckpoints,
-    isGameOver,
+    status,
   };
 };
 
@@ -103,23 +100,23 @@ const createSceneProcess = async (db, userId, sceneId, updateStats) => {
 
   const updatedLife = updatedPlayerStats[0];
 
-  // Check if next scenes are checkpoints
-  let nextScenesAreCheckpoints = [];
-
-  for (const item of choiceData.result) {
-    let nextSceneIsCheckpoint = await sceneService.sceneIsCheckpoint(
-      item.next_scene_id
-    );
-
-    if (nextSceneIsCheckpoint.success) {
-      nextScenesAreCheckpoints.push(nextSceneIsCheckpoint.result);
-    } else {
-      nextScenesAreCheckpoints.push(false);
-    }
-  }
+  // Check if scene is checkpoint
+  let isCheckpoint = await sceneService.sceneIsCheckpoint(
+    choiceData.result[0].next_scene_id
+  );
+  isCheckpoint = isCheckpoint.result;
 
   // Handle game-over condition
   const isGameOver = updatedLife <= 0;
+
+  // Set player status
+  let status = "active";
+
+  if (isGameOver) {
+    status = "dead";
+  } else if (isCheckpoint) {
+    status = "checkpoint";
+  }
 
   return {
     success: true,
@@ -128,8 +125,7 @@ const createSceneProcess = async (db, userId, sceneId, updateStats) => {
       choiceData,
       choiceEffectsData,
       playerStatsData,
-      nextScenesAreCheckpoints,
-      isGameOver
+      status
     ),
     statusCode: 200,
   };

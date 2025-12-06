@@ -12,11 +12,12 @@ function GamePlayApp() {
       styles: { display: "none" },
       icon: "",
       text: "",
-      nextSceneId: { isCheckpoint: false, id: null },
+      nextSceneId: null,
     })
   );
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
+  const [playerStatus, setPlayerStatus] = useState("");
 
   const statsRef = useRef(null);
   const navigate = useNavigate();
@@ -26,18 +27,17 @@ function GamePlayApp() {
   /**
    * Renders the available choices when the game is active.
    *
-   * @param {boolean} isGameOver - Indicates if the player reached a terminal state.
    * @param {Array} choices - List of choices for the current scene.
    */
-  const renderActiveChoices = (isGameOver, choices) => {
-    if (isGameOver) return;
+  const renderActiveChoices = (choices) => {
+    if (playerStatus === "dead") return;
 
     setChoiceData(() => {
       const baseChoices = Array(4).fill({
         styles: { display: "none" },
         icon: "",
         text: "",
-        nextSceneId: { isCheckpoint: false, id: null },
+        nextSceneId: null,
       });
 
       choices.forEach((choice, index) => {
@@ -56,18 +56,16 @@ function GamePlayApp() {
   /**
    * When the game is over, show a single "Continue" button
    * and hide all other choice slots.
-   *
-   * @param {boolean} isGameOver
    */
-  const renderGameOverChoice = (isGameOver) => {
-    if (!isGameOver) return;
+  const renderGameOverChoice = () => {
+    if (playerStatus !== "dead") return;
 
     setChoiceData([
       {
         styles: { display: "flex" },
         icon: "💀",
         text: "Continue",
-        nextSceneId: "dead",
+        nextSceneId: null,
       },
       ...Array(3).fill({
         styles: { display: "none" },
@@ -109,39 +107,19 @@ function GamePlayApp() {
    * @param {boolean} isGameOver - Indicates whether the scene represents a terminal state.
    */
 
-  const updateSceneUI = (
-    info,
-    effects,
-    stats,
-    choices,
-    nextScenesAreCheckpoints,
-    isGameOver
-  ) => {
+  const updateSceneUI = (info, effects, stats, choices) => {
     const formattedParagraphs = info
       .split("\\n\\n")
       .map((paragraph) => paragraph.replace(/\\/g, ""));
 
+    // Render the scene information (story, stat and stat changes)
     setParagraphs(formattedParagraphs);
     setChoiceEffects(effects);
     setPlayerStats(stats);
 
-    renderActiveChoices(isGameOver, choices);
-    renderGameOverChoice(isGameOver);
-
-    // Apply checkpoint logic to each choice
-    choices.forEach((choice, index) => {
-      const nextSceneIsCheckpoint = nextScenesAreCheckpoints[index];
-      if (!nextSceneIsCheckpoint) return;
-
-      setChoiceData((prev) => {
-        const updated = [...prev];
-        updated[index] = {
-          ...updated[index],
-          nextSceneId: "checkpoint",
-        };
-        return updated;
-      });
-    });
+    // Render the players options
+    renderActiveChoices(choices);
+    renderGameOverChoice();
   };
 
   /**
@@ -166,18 +144,11 @@ function GamePlayApp() {
       choiceEffectsData,
       playerStatsData,
       choiceData,
-      nextScenesAreCheckpoints,
-      isGameOver,
+      status,
     } = response.data;
 
-    updateSceneUI(
-      sceneData,
-      choiceEffectsData,
-      playerStatsData,
-      choiceData,
-      nextScenesAreCheckpoints,
-      isGameOver
-    );
+    setPlayerStatus(status);
+    updateSceneUI(sceneData, choiceEffectsData, playerStatsData, choiceData);
   };
 
   /**
@@ -203,8 +174,8 @@ function GamePlayApp() {
     // No valid next scene — do nothing
     if (!item?.nextSceneId) return;
 
-    // Route handling based on nextSceneId keyword
-    switch (item.nextSceneId) {
+    // Route handling based on playerStatus keyword
+    switch (playerStatus) {
       case "dead":
         navigate("/gameover", { state });
         break;
@@ -213,7 +184,9 @@ function GamePlayApp() {
         const checkpointApplied = applyCheckpoint(item.nextSceneId, userId);
         if (!checkpointApplied) return;
 
+        // The following allows CheckpointApp page to render if it has not been displayed yet
         localStorage.setItem("checkpointDisplayed", false);
+
         navigate("/checkpoint", { state });
         break;
 

@@ -19,7 +19,9 @@ function CheckpointApp() {
    * Redirect if the checkpoint has already been displayed
    */
   useEffect(() => {
-    const checkpointDisplayed = localStorage.getItem("checkpointDisplayed");
+    const checkpointDisplayed =
+      localStorage.getItem("checkpointDisplayed") === "true";
+
     if (checkpointDisplayed) {
       navigate("/play", {
         state: { sceneId: sceneId, userId: 1, updateStats: false },
