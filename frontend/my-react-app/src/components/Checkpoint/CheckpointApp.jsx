@@ -1,6 +1,7 @@
 import HeaderDescription from "../common/HeaderDescription";
 import StatusCard from "../common/StatusCard";
 import ProgressCard from "../common/ProgressCard";
+import { get, post } from "../../scripts/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -16,17 +17,48 @@ function CheckpointApp() {
   } = location.state || {};
 
   /**
-   * Redirect if the checkpoint has already been displayed
+   *
+   * @returns
    */
-  useEffect(() => {
-    const checkpointDisplayed =
-      localStorage.getItem("checkpointDisplayed") === "true";
+  const continueBtnOnClick = async () => {
+    const response = await post("/api/checkpoint/true");
 
-    if (checkpointDisplayed) {
-      navigate("/play", {
-        state: { sceneId: sceneId, userId: 1, updateStats: false },
-      });
+    // Network error could be the clients internet
+    if (!response) {
+      console.error("Network error!");
+      return;
     }
+
+    navigate("/play", {
+      state: { sceneId: sceneId, userId: 1, updateStats: true },
+    });
+  };
+
+  /**
+   * Redirect if the checkpoint has already been displayed
+   *
+   * @returns
+   */
+  const checkpointProtected = async () => {
+    const response = await get("/api/checkpoint/protected");
+
+    // Network error could be the clients internet
+    if (!response) {
+      console.error("Network error!");
+      return;
+    }
+
+    // Verify if checkpoint was displayed, if true redirect to new scene otherwise render pages
+    console.log(response.data !== undefined, response.data, response);
+    if (response.data !== "") return;
+
+    navigate("/play", {
+      state: { sceneId: sceneId, userId: 1, updateStats: false },
+    });
+  };
+
+  useEffect(() => {
+    checkpointProtected();
   }, []);
 
   return (
@@ -82,12 +114,7 @@ function CheckpointApp() {
       <button
         type="type"
         className={`continue-button`}
-        onClick={() => {
-          localStorage.setItem("checkpointDisplayed", true);
-          navigate("/play", {
-            state: { sceneId: sceneId, userId: 1, updateStats: true },
-          });
-        }}
+        onClick={async () => await continueBtnOnClick()}
       >
         Continue Journey →
       </button>

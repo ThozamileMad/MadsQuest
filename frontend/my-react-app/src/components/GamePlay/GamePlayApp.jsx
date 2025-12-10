@@ -1,9 +1,16 @@
+/* React modules */
 import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
+/* Component modules */
 import StatCard from "./StatCard";
 import StoryText from "./StoryText";
 import ChoiceButton from "./ChoiceButton";
-import { get, post } from "../../scripts/api";
-import { useNavigate, useLocation } from "react-router-dom";
+import CheckpointPopup from "./CheckpointPopup";
+import DeathPopup from "./DeathPopup";
+
+/* API modules */
+import { get } from "../../scripts/api";
 
 function GamePlayApp() {
   const [paragraphs, setParagraphs] = useState([]);
@@ -18,6 +25,9 @@ function GamePlayApp() {
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
   const [playerStatus, setPlayerStatus] = useState("");
+  const [checkpointClassName, setCheckpointClassName] = useState("hidden");
+  const [deathClassName, setDeathClassName] = useState("hidden");
+  const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
 
   const statsRef = useRef(null);
   const navigate = useNavigate();
@@ -83,12 +93,24 @@ function GamePlayApp() {
    * @param {number} userId
    * @param {number} index - Choice button index
    */
-  const applyCheckpoint = async (sceneId, userId) => {
+  const applyCheckpoint = async (sceneId) => {
     const response = await get(`/api/checkpoint/${sceneId}/${userId}`);
-    if (!response || !response.data) return;
 
-    const { success, result } = response.data;
-    const checkpointApplied = success && result.includes("Checkpoint");
+    // Network error could be the client's internet
+    if (!response) {
+      console.error("Network error!");
+      return false;
+    }
+
+    // Connected to server but process failed due to an error
+    if (!response.data) {
+      console.error("Server Error!");
+      return false;
+    }
+
+    // Checks if checkpoint was successfully applied and returns result
+    let { data: checkpointApplied } = response;
+    checkpointApplied = checkpointApplied.includes("Checkpoint");
 
     return checkpointApplied;
   };
@@ -137,8 +159,20 @@ function GamePlayApp() {
     const response = await get(
       `/api/scene/${sceneId}/${userId}/${updateStats}`
     );
-    if (!response || !response.data) return;
 
+    // Network error could be the clients internet
+    if (!response) {
+      console.error("Network error!");
+      return;
+    }
+
+    // Connected to server but process failed due to an error
+    if (!response.data) {
+      console.error("Server Error!");
+      return;
+    }
+
+    // Sets the players current status (dead|checkpoint|active) and renders new scene
     const {
       sceneData,
       choiceEffectsData,
@@ -151,6 +185,48 @@ function GamePlayApp() {
     updateSceneUI(sceneData, choiceEffectsData, playerStatsData, choiceData);
   };
 
+  const getCheckpointId = async () => {
+    const response = await get(`/api/get_checkpoint/${userId}`);
+
+    // Network error could be the client's internet
+    if (!response) {
+      console.error("Network error!");
+      return false;
+    }
+
+    // Connected to server but process failed due to an error
+    if (!response.data) {
+      console.error("Server Error!");
+      return false;
+    }
+
+    // Checks if checkpoint data was successfully retreived and returns result
+    const { scene_id: checkpointId } = response.data[0];
+
+    return checkpointId;
+  };
+
+  const onContinueAdventure = async () => {
+    const checkpointApplied = await applyCheckpoint(popUpNextSceneId);
+    if (!checkpointApplied) return;
+
+    setCheckpointClassName("hidden");
+    setTimeout(() => fetchData(popUpNextSceneId, userId, true));
+  };
+
+  const onReturnToCheckpoint = async () => {
+    const checkpointId = await getCheckpointId();
+    if (!checkpointId) return;
+
+    setDeathClassName("hidden");
+    setTimeout(() => fetchData(checkpointId, userId, true));
+  };
+
+  const onRestartGame = () => {
+    setDeathClassName("hidden");
+    setTimeout(() => fetchData(1, userId, true));
+  };
+
   /**
    * Handles user interaction with a choice button.
    * Navigates to the correct route or loads the next scene depending on
@@ -160,39 +236,24 @@ function GamePlayApp() {
    * @param {number} item.nextSceneId - The ID or keyword that determines navigation.
    */
   const handleChoiceClick = (item) => {
-    // Build navigation state object (sent across routes)
-    const state = {
-      life: playerStats[0],
-      mana: playerStats[1],
-      morale: playerStats[2],
-      coin: playerStats[3],
-      sceneId: item.nextSceneId,
-    };
+    const { nextSceneId } = item;
+    if (!nextSceneId) return;
 
-    console.log(state);
-
-    // No valid next scene — do nothing
-    if (!item?.nextSceneId) return;
-
-    // Route handling based on playerStatus keyword
+    // Popup handling based on playerStatus keyword
     switch (playerStatus) {
       case "dead":
-        navigate("/gameover", { state });
+        setDeathClassName("");
+        setPopUpNextSceneId(nextSceneId);
         break;
 
       case "checkpoint":
-        const checkpointApplied = applyCheckpoint(item.nextSceneId, userId);
-        if (!checkpointApplied) return;
-
-        // The following allows CheckpointApp page to render if it has not been displayed yet
-        localStorage.setItem("checkpointDisplayed", false);
-
-        navigate("/checkpoint", { state });
+        setCheckpointClassName("");
+        setPopUpNextSceneId(nextSceneId);
         break;
 
       default:
         // Normal scene transition
-        fetchData(item.nextSceneId, userId, true);
+        fetchData(nextSceneId, userId, true);
         break;
     }
   };
@@ -256,6 +317,17 @@ function GamePlayApp() {
           })}
         </div>
       </div>
+
+      <CheckpointPopup
+        className={checkpointClassName}
+        onContinueAdventure={onContinueAdventure}
+      />
+
+      <DeathPopup
+        className={deathClassName}
+        onReturnToCheckpoint={onReturnToCheckpoint}
+        onRestartGame={onRestartGame}
+      />
     </div>
   );
 }

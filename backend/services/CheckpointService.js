@@ -14,8 +14,8 @@ class CheckpointService {
   getCheckpoint = async () => {
     try {
       const query = await this.db.query(
-        "SELECT * FROM checkpoints WHERE scene_id = $1 AND user_id = $2",
-        [this.sceneId, this.userId]
+        "SELECT * FROM checkpoints WHERE user_id = $1",
+        [this.userId]
       );
 
       if (query.rows.length === 0) {

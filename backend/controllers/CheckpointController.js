@@ -52,4 +52,23 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
   return checkpointUpdate;
 };
 
-export default createCheckpointProcess;
+// ----------------------
+// Checkpoint Data
+// ----------------------
+
+/**
+ * Retreieves checkpoint data: (scene_id, user_id, life, mana, morale, coin)
+ * @param {Object} db - Database client/connection
+ * @param {number|string} userId - Player identifier
+ * @param {number|string} sceneId - Scene identifier
+ * @returns {Promise<Object>} Promise resolving to { success: boolean, result: any, statusCode: number }
+ */
+
+const getCheckpointData = async (db, sceneId, userId) => {
+  const checkpointService = new CheckpointService(db, sceneId, userId);
+  const checkpointData = await checkpointService.getCheckpoint();
+  console.log(checkpointData);
+  return checkpointData;
+};
+
+export { createCheckpointProcess, getCheckpointData };
