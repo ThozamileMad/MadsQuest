@@ -1,6 +1,6 @@
 /* React modules */
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 /* Component modules */
 import StatCard from "./StatCard";
@@ -8,11 +8,25 @@ import StoryText from "./StoryText";
 import ChoiceButton from "./ChoiceButton";
 import CheckpointPopup from "./CheckpointPopup";
 import DeathPopup from "./DeathPopup";
+import ErrorPopup from "./ErrorPopup";
 
 /* API modules */
 import { get } from "../../scripts/api";
 
+/**
+ * GamePlayApp
+ *
+ * Main gameplay container responsible for:
+ * - Fetching and rendering scene content
+ * - Displaying player stats, choices, and narrative text
+ * - Handling gameplay transitions (death, checkpoints, restarts)
+ * - Coordinating all interactive UI states related to scenes
+ */
 function GamePlayApp() {
+  /* -----------------------------
+   * Component State
+   * ----------------------------- */
+
   const [paragraphs, setParagraphs] = useState([]);
   const [choiceData, setChoiceData] = useState(
     Array(4).fill({
@@ -22,46 +36,34 @@ function GamePlayApp() {
       nextSceneId: null,
     })
   );
+
   const [playerStats, setPlayerStats] = useState(Array(4).fill(0));
   const [choiceEffects, setChoiceEffects] = useState(Array(4).fill(0));
   const [playerStatus, setPlayerStatus] = useState("");
+
   const [checkpointClassName, setCheckpointClassName] = useState("hidden");
   const [deathClassName, setDeathClassName] = useState("hidden");
+  const [errorClassName, setErrorClassName] = useState("hidden");
+
   const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
 
+  // btnDisabled[] indexes map to various UI buttons; see handleChoiceClick()
+  const [btnDisabled, setBtnDisabled] = useState([
+    ...Array(4).fill(false), // Choice buttons
+    ...Array(4).fill(true), // Popup/action buttons
+  ]);
+
+  const [errorCode, setErrorCode] = useState("???");
+
   const statsRef = useRef(null);
-  const navigate = useNavigate();
   const location = useLocation();
+
+  // Defaulting for direct-page-access scenarios
   const { sceneId = 1, userId = 1, updateStats = true } = location.state || {};
 
-  /**
-   * Renders the available choices when the game is active.
-   *
-   * @param {Array} choices - List of choices for the current scene.
-   */
-  const renderActiveChoices = (choices) => {
-    if (playerStatus === "dead") return;
-
-    setChoiceData(() => {
-      const baseChoices = Array(4).fill({
-        styles: { display: "none" },
-        icon: "",
-        text: "",
-        nextSceneId: null,
-      });
-
-      choices.forEach((choice, index) => {
-        baseChoices[index] = {
-          styles: { display: "flex" },
-          icon: choice.icon,
-          text: choice.text,
-          nextSceneId: choice.nextSceneId,
-        };
-      });
-
-      return baseChoices;
-    });
-  };
+  /* -----------------------------
+   * UI Rendering Helpers
+   * ----------------------------- */
 
   /**
    * When the game is over, show a single "Continue" button
@@ -87,92 +89,94 @@ function GamePlayApp() {
   };
 
   /**
-   * Sends API to updates user checkpoint in database
+   * Renders the available choices for the active scene.
+   * Ensures unused choice slots remain hidden but structurally stable.
+   */
+  const renderActiveChoices = (choices) => {
+    setChoiceData(() => {
+      const baseChoices = Array(4).fill({
+        styles: { display: "none" },
+        icon: "",
+        text: "",
+        nextSceneId: null,
+      });
+
+      choices.forEach((choice, index) => {
+        baseChoices[index] = {
+          styles: { display: "flex" },
+          icon: choice.icon,
+          text: choice.text,
+          nextSceneId: choice.nextSceneId,
+        };
+      });
+
+      return baseChoices;
+    });
+  };
+
+  /* -----------------------------
+   * Backend Actions
+   * ----------------------------- */
+
+  /**
+   * Applies a checkpoint for the current user.
+   * Called when the player reaches a checkpoint scene.
    *
-   * @param {number} sceneId
-   * @param {number} userId
-   * @param {number} index - Choice button index
+   * @returns {boolean} true if checkpoint applied, false on any failure
    */
   const applyCheckpoint = async (sceneId) => {
     const response = await get(`/api/checkpoint/${sceneId}/${userId}`);
 
-    // Network error could be the client's internet
     if (!response) {
-      console.error("Network error!");
+      showError(400);
       return false;
     }
 
-    // Connected to server but process failed due to an error
     if (!response.data) {
-      console.error("Server Error!");
+      showError(response.status);
       return false;
     }
 
-    // Checks if checkpoint was successfully applied and returns result
-    let { data: checkpointApplied } = response;
-    checkpointApplied = checkpointApplied.includes("Checkpoint");
-
-    return checkpointApplied;
+    return response.data.includes("Checkpoint");
   };
 
   /**
-   * Updates UI state based on the newly loaded scene.
-   * - Formats scene text into paragraphs
-   * - Updates stats and choice effects
-   * - Renders active choices or game-over UI
-   * - Applies checkpoint logic to each choice
-   *
-   * @param {string} info - Raw narrative/scene content.
-   * @param {Array<number>} effects - Choice effect modifiers for the scene.
-   * @param {Array<number>} stats - Player stats returned from the server.
-   * @param {Array<Object>} choices - List of available choices for this scene.
-   * @param {boolean} isGameOver - Indicates whether the scene represents a terminal state.
+   * Updates all major UI states for a loaded scene:
+   * - Story paragraphs
+   * - Player stats
+   * - Choice effects
+   * - Visible choices
    */
-
   const updateSceneUI = (info, effects, stats, choices) => {
     const formattedParagraphs = info
       .split("\\n\\n")
-      .map((paragraph) => paragraph.replace(/\\/g, ""));
+      .map((p) => p.replace(/\\/g, ""));
 
-    // Render the scene information (story, stat and stat changes)
     setParagraphs(formattedParagraphs);
     setChoiceEffects(effects);
     setPlayerStats(stats);
-
-    // Render the players options
     renderActiveChoices(choices);
-    renderGameOverChoice();
   };
 
   /**
-   * Fetches scene details and updates UI state.
-   *
-   * @param {number} sceneId
-   * @param {number} userId
+   * Fetches full scene data from the server and applies
+   * all necessary UI updates.
    */
   const fetchData = async (sceneId, userId, updateStats) => {
-    statsRef.current.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
     const response = await get(
       `/api/scene/${sceneId}/${userId}/${updateStats}`
     );
 
-    // Network error could be the clients internet
     if (!response) {
-      console.error("Network error!");
-      return;
+      showError(400);
+      return false;
     }
 
-    // Connected to server but process failed due to an error
     if (!response.data) {
-      console.error("Server Error!");
-      return;
+      showError(response.status);
+      return false;
     }
 
-    // Sets the players current status (dead|checkpoint|active) and renders new scene
     const {
       sceneData,
       choiceEffectsData,
@@ -183,87 +187,212 @@ function GamePlayApp() {
 
     setPlayerStatus(status);
     updateSceneUI(sceneData, choiceEffectsData, playerStatsData, choiceData);
+
+    // Keep stats visible when transitioning scenes
+    statsRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   };
 
-  const getCheckpointId = async () => {
-    const response = await get(`/api/get_checkpoint/${userId}`);
+  /**
+   * Retrieves the user’s last checkpoint.
+   * Used when the player dies and chooses to continue.
+   */
+  const returnToCheckpoint = async () => {
+    const response = await get(`/api/return_to_checkpoint/${userId}`);
 
-    // Network error could be the client's internet
     if (!response) {
-      console.error("Network error!");
+      showError(400);
       return false;
     }
 
-    // Connected to server but process failed due to an error
     if (!response.data) {
-      console.error("Server Error!");
+      showError(response.status);
       return false;
     }
 
-    // Checks if checkpoint data was successfully retreived and returns result
-    const { scene_id: checkpointId } = response.data[0];
-
-    return checkpointId;
+    return response.data[0]?.scene_id;
   };
 
+  /**
+   * Resets the user’s stats and restarts the game from scene 1.
+   */
+  const restartGame = async () => {
+    const response = await get(`/api/restart_game/${userId}`);
+
+    if (!response) {
+      showError(400);
+      return false;
+    }
+
+    if (!response.data) {
+      showError(response.status);
+      return false;
+    }
+
+    return response.data.includes("updated");
+  };
+
+  /* -----------------------------
+   * UI State Helpers
+   * ----------------------------- */
+
+  /**
+   * Enables/disables UI button slots by index.
+   * Maintains predictable control mapping for popups.
+   */
+  const toggleButtonDisabled = (index, isDisabled) => {
+    setBtnDisabled((prev) => {
+      const updated = [...prev];
+      updated[index] = isDisabled;
+      return updated;
+    });
+  };
+
+  /* -----------------------------
+   * Popup Handlers
+   * ----------------------------- */
+
+  /**
+   * Hides the "Checkpoint Reached" popup.
+   */
+  const hideCheckpointPopup = () => {
+    toggleButtonDisabled(4, true);
+    setCheckpointClassName("hidden");
+  };
+
+  /**
+   * Hides the "Game Over" popup.
+   */
+  const hideGameOverPopup = () => {
+    toggleButtonDisabled(5, true);
+    toggleButtonDisabled(6, true);
+    setDeathClassName("hidden");
+  };
+
+  /**
+   * Handler for continuing after a checkpoint popup.
+   */
   const onContinueAdventure = async () => {
     const checkpointApplied = await applyCheckpoint(popUpNextSceneId);
     if (!checkpointApplied) return;
 
-    setCheckpointClassName("hidden");
+    hideCheckpointPopup();
     setTimeout(() => fetchData(popUpNextSceneId, userId, true));
   };
 
+  /**
+   * Handler for returning to the last checkpoint after death.
+   */
   const onReturnToCheckpoint = async () => {
-    const checkpointId = await getCheckpointId();
+    const checkpointId = await returnToCheckpoint();
     if (!checkpointId) return;
 
-    setDeathClassName("hidden");
-    setTimeout(() => fetchData(checkpointId, userId, true));
-  };
-
-  const onRestartGame = () => {
-    setDeathClassName("hidden");
-    setTimeout(() => fetchData(1, userId, true));
+    hideGameOverPopup();
+    setTimeout(() => fetchData(checkpointId, userId, false));
   };
 
   /**
-   * Handles user interaction with a choice button.
-   * Navigates to the correct route or loads the next scene depending on
-   * the assigned `nextSceneId` of the selected choice.
-   *
-   * @param {Object} item - The choice object for the clicked button.
-   * @param {number} item.nextSceneId - The ID or keyword that determines navigation.
+   * Handler for restarting the game after death.
+   */
+  const onRestartGame = async () => {
+    const statsUpdated = await restartGame();
+    if (!statsUpdated) return;
+
+    hideGameOverPopup();
+    setTimeout(() => fetchData(1, userId, true));
+  };
+
+  /* -----------------------------
+   * Choice Handling
+   * ----------------------------- */
+
+  /**
+   * Primary handler for user interactions with choice buttons.
+   * Routing logic is based on the player's current status:
+   * - Dead → show death popup
+   * - Checkpoint → show checkpoint popup
+   * - Active → load next scene normally
    */
   const handleChoiceClick = (item) => {
     const { nextSceneId } = item;
     if (!nextSceneId) return;
 
-    // Popup handling based on playerStatus keyword
     switch (playerStatus) {
       case "dead":
+        setBtnDisabled((prev) => {
+          const updated = [...prev];
+          updated[5] = false; // return to checkpoint
+          updated[6] = false; // restart
+          return updated;
+        });
+
         setDeathClassName("");
         setPopUpNextSceneId(nextSceneId);
         break;
 
       case "checkpoint":
+        setBtnDisabled((prev) => {
+          const updated = [...prev];
+          updated[4] = false;
+          return updated;
+        });
+
         setCheckpointClassName("");
         setPopUpNextSceneId(nextSceneId);
         break;
 
       default:
-        // Normal scene transition
         fetchData(nextSceneId, userId, true);
         break;
     }
   };
 
+  /* -----------------------------
+   * Error Handling
+   * ----------------------------- */
+
+  const showError = (errorCode) => {
+    setErrorClassName("");
+    setErrorCode(errorCode);
+
+    setBtnDisabled((prev) => {
+      const updated = [...prev];
+      updated[7] = false;
+      return updated;
+    });
+  };
+
+  const hideError = () => {
+    hideCheckpointPopup();
+    hideGameOverPopup();
+
+    setErrorClassName("hidden");
+    setErrorCode("???");
+
+    setBtnDisabled((prev) => {
+      const updated = [...prev];
+      updated[7] = true;
+      return updated;
+    });
+  };
+
+  /* -----------------------------
+   * Lifecycle
+   * ----------------------------- */
+
   useEffect(() => {
     fetchData(sceneId, userId, updateStats);
   }, []);
 
+  /* -----------------------------
+   * Render
+   * ----------------------------- */
+
   return (
     <div className="game-container">
+      {/* Player Stats Bar */}
       <div ref={statsRef} className="stats-bar">
         <StatCard
           icon="❤️"
@@ -291,42 +420,54 @@ function GamePlayApp() {
         />
       </div>
 
+      {/* Story Content */}
       <div className="story-section">
         <img
           src="https://wallpaperaccess.com/full/10761557.jpg"
           alt="Story scene"
           className="story-image"
         />
-
         <StoryText paragraphs={paragraphs} />
       </div>
 
+      {/* Choices */}
       <div className="choices-section">
         <div className="choices-title">What do you do?</div>
+
         <div className="choices-grid">
-          {choiceData.map((item, index) => {
-            return (
-              <ChoiceButton
-                key={index}
-                onClick={() => handleChoiceClick(item)}
-                styles={item.styles}
-                icon={item.icon}
-                text={item.text}
-              />
-            );
-          })}
+          {choiceData.map((item, index) => (
+            <ChoiceButton
+              key={index}
+              onClick={() => handleChoiceClick(item)}
+              styles={item.styles}
+              icon={item.icon}
+              text={item.text}
+              disabled={btnDisabled[index]}
+            />
+          ))}
         </div>
       </div>
 
+      {/* Popups */}
       <CheckpointPopup
         className={checkpointClassName}
         onContinueAdventure={onContinueAdventure}
+        disabled={btnDisabled[4]}
       />
 
       <DeathPopup
         className={deathClassName}
         onReturnToCheckpoint={onReturnToCheckpoint}
         onRestartGame={onRestartGame}
+        returnToCheckpointDisabled={btnDisabled[5]}
+        restartGameDisabled={btnDisabled[6]}
+      />
+
+      <ErrorPopup
+        className={errorClassName}
+        errorCode={errorCode}
+        onAcknowledge={hideError}
+        disabled={btnDisabled[7]}
       />
     </div>
   );

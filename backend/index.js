@@ -5,9 +5,12 @@ import session from "express-session";
 
 import {
   createCheckpointProcess,
-  getCheckpointData,
+  returnToCheckpointProcess,
 } from "./controllers/CheckpointController.js";
-import createSceneProcess from "./controllers/SceneController.js";
+import {
+  createSceneProcess,
+  restartGameProcess,
+} from "./controllers/SceneController.js";
 import { ok } from "./utils/response.js";
 
 const app = express();
@@ -22,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "*",
     methods: ["GET", "POST"],
   })
 );
@@ -70,14 +73,14 @@ app.get("/api/checkpoint/:sceneId/:userId", async (req, res) => {
 });
 
 /**
- * GET /api/get_checkpoint/:sceneId/:userId
+ * GET /api/return_to_checkpoint/:userId
  * Runs the checkpoint process for a specific user and scene.
  */
-app.get("/api/get_checkpoint/:userId", async (req, res) => {
+app.get("/api/return_to_checkpoint/:userId", async (req, res) => {
   const sceneId = 0;
   const userId = req.params.userId;
 
-  const response = await getCheckpointData(db, sceneId, userId);
+  const response = await returnToCheckpointProcess(db, sceneId, userId);
 
   return res.status(response.statusCode).json(response.result);
 });
@@ -100,10 +103,22 @@ app.get("/api/scene/:sceneId/:userId/:updateStats", async (req, res) => {
   return res.status(response.statusCode).json(response.result);
 });
 
+/**
+ * GET /api/restart_game/:userId
+ * Resets the player's stats and restarts the game from the first scene.
+ */
+app.get("/api/restart_game/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  const response = await restartGameProcess(db, userId);
+
+  return res.status(response.statusCode).json(response.result);
+});
+
 // -------------------------------
 // Server Startup
 // -------------------------------
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log("Listening on port:", port);
 });

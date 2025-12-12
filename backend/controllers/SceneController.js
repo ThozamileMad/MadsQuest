@@ -98,6 +98,11 @@ const createSceneProcess = async (db, userId, sceneId, updateStats) => {
     if (!playerStatsData.success) return playerStatsData;
   }
 
+  // Do not set choice effects if updateStats is false
+  if (!updateStats) {
+    choiceEffectsData.result = [0, 0, 0, 0];
+  }
+
   const updatedLife = updatedPlayerStats[0];
 
   // Check if scene is checkpoint
@@ -131,4 +136,22 @@ const createSceneProcess = async (db, userId, sceneId, updateStats) => {
   };
 };
 
-export default createSceneProcess;
+/**
+ * Resets the player's stats to their initial values,
+ * effectively restarting the game.
+ *
+ * @param {Object} db - Database client instance
+ * @param {number|string} userId - Player identifier
+ * @returns {Promise<Object>} Database operation result indicating success or failure
+ */
+const restartGameProcess = async (db, userId) => {
+  const playerService = new PlayerService(db, userId);
+
+  // Apply the new base stats to the player (reset state)
+  const defaultStats = [12, 8, 0, 0];
+  const statsUpdated = await playerService.updatePlayerStats(defaultStats);
+
+  return statsUpdated;
+};
+
+export { createSceneProcess, restartGameProcess };

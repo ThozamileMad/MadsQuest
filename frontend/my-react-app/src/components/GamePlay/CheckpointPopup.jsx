@@ -1,8 +1,22 @@
-function CheckpointPopup({ className = "", onContinueAdventure = null }) {
+import React from "react";
+
+/**
+ * CheckpointPopup Component
+ *
+ * @param {string} className - Additional CSS classes for the overlay
+ * @param {function} onContinueAdventure - Function to call when button is clicked
+ * @param {boolean} disabled - Controls the disabled state of the action button
+ */
+function CheckpointPopup({
+  className = "",
+  onContinueAdventure = null,
+  disabled = false,
+}) {
   return (
     <div className={`popup-overlay ${className}`} id="checkpointOverlay">
       <div className="popup checkpoint">
-        {[Array(5)].map((item, index) => (
+        {/* Generates 5 particle elements */}
+        {[...Array(5)].map((_, index) => (
           <div className="particle" key={index}></div>
         ))}
 
@@ -14,7 +28,11 @@ function CheckpointPopup({ className = "", onContinueAdventure = null }) {
           accomplishments into the tapestry of time. Should darkness claim you,
           you may return to this moment.
         </p>
-        <button className="popup-button" onClick={onContinueAdventure}>
+        <button
+          className="popup-button"
+          onClick={onContinueAdventure}
+          disabled={disabled}
+        >
           Continue Your Quest
         </button>
       </div>

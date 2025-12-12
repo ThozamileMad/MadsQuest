@@ -312,6 +312,20 @@
   animation-delay: 0.3s;
 }
 
+/*
+|--------------------------------------------------------------------------
+| UNIVERSAL POPUP SYSTEM
+|--------------------------------------------------------------------------
+| A flexible popup system that supports multiple types:
+| - checkpoint (success/save)
+| - death (failure)
+| - error (system issues)
+| - warning (caution)
+| - info (information)
+| - success (general success)
+|--------------------------------------------------------------------------
+*/
+
 /* Overlay */
 .popup-overlay {
   position: fixed;
@@ -367,9 +381,17 @@
   }
 }
 
-/* Checkpoint Popup */
+/*
+|--------------------------------------------------------------------------
+| POPUP TYPES - Background Glows
+|--------------------------------------------------------------------------
+*/
+
+/* Checkpoint Popup (Success/Save - Cyan) */
 .popup.checkpoint {
   border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 60px rgba(0, 212, 255, 0.3),
+    inset 0 0 30px rgba(0, 212, 255, 0.05);
 }
 
 .popup.checkpoint::before {
@@ -399,9 +421,11 @@
   }
 }
 
-/* Death Popup */
+/* Death Popup (Failure - Red) */
 .popup.death {
   border-color: rgba(255, 51, 51, 0.6);
+  box-shadow: 0 0 60px rgba(255, 51, 51, 0.3),
+    inset 0 0 30px rgba(255, 51, 51, 0.05);
 }
 
 .popup.death::before {
@@ -431,7 +455,148 @@
   }
 }
 
-/* Icon */
+/* Error Popup (System Error - Orange) */
+.popup.error {
+  border-color: rgba(255, 165, 0, 0.6);
+  box-shadow: 0 0 60px rgba(255, 165, 0, 0.3),
+    inset 0 0 30px rgba(255, 165, 0, 0.05);
+}
+
+.popup.error::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 165, 0, 0.1) 0%,
+    transparent 70%
+  );
+  animation: error-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes error-pulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.15) rotate(2deg);
+    opacity: 0.7;
+  }
+}
+
+/* Warning Popup (Caution - Yellow) */
+.popup.warning {
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.05);
+}
+
+.popup.warning::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.1) 0%,
+    transparent 70%
+  );
+  animation: warning-pulse 2s ease-in-out infinite;
+}
+
+@keyframes warning-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+/* Info Popup (Information - Blue) */
+.popup.info {
+  border-color: rgba(100, 149, 237, 0.6);
+  box-shadow: 0 0 60px rgba(100, 149, 237, 0.3),
+    inset 0 0 30px rgba(100, 149, 237, 0.05);
+}
+
+.popup.info::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(100, 149, 237, 0.1) 0%,
+    transparent 70%
+  );
+  animation: info-pulse 3s ease-in-out infinite;
+}
+
+@keyframes info-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* Success Popup (General Success - Green) */
+.popup.success {
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 60px rgba(34, 197, 94, 0.3),
+    inset 0 0 30px rgba(34, 197, 94, 0.05);
+}
+
+.popup.success::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.1) 0%,
+    transparent 70%
+  );
+  animation: success-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes success-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| POPUP ICON
+|--------------------------------------------------------------------------
+*/
+
 .popup-icon {
   font-size: 80px;
   text-align: center;
@@ -451,6 +616,7 @@
   }
 }
 
+/* Checkpoint Icon Animation */
 .popup.checkpoint .popup-icon {
   animation: checkpoint-icon 2s ease-in-out infinite;
 }
@@ -467,6 +633,7 @@
   }
 }
 
+/* Death Icon Animation */
 .popup.death .popup-icon {
   animation: death-icon 1.5s ease-in-out infinite;
 }
@@ -483,7 +650,86 @@
   }
 }
 
-/* Title */
+/* Error Icon Animation */
+.popup.error .popup-icon {
+  animation: error-icon 2s ease-in-out infinite;
+}
+
+@keyframes error-icon {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.5));
+  }
+  25% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.8));
+  }
+  75% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+}
+
+/* Warning Icon Animation */
+.popup.warning .popup-icon {
+  animation: warning-icon 1.8s ease-in-out infinite;
+}
+
+@keyframes warning-icon {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+  }
+  50% {
+    transform: scale(1.15) translateY(-8px);
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+  }
+}
+
+/* Info Icon Animation */
+.popup.info .popup-icon {
+  animation: info-icon 2.5s ease-in-out infinite;
+}
+
+@keyframes info-icon {
+  0%,
+  100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 10px rgba(100, 149, 237, 0.5));
+  }
+  50% {
+    transform: translateY(-10px);
+    filter: drop-shadow(0 0 20px rgba(100, 149, 237, 0.8));
+  }
+}
+
+/* Success Icon Animation */
+.popup.success .popup-icon {
+  animation: success-icon 2s ease-in-out infinite;
+}
+
+@keyframes success-icon {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
+  }
+  50% {
+    transform: scale(1.1) rotate(10deg);
+    filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.8));
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| POPUP TITLE
+|--------------------------------------------------------------------------
+*/
+
 .popup-title {
   font-size: 36px;
   font-weight: bold;
@@ -506,6 +752,26 @@
   text-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
 }
 
+.popup.error .popup-title {
+  color: #ffa500;
+  text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+}
+
+.popup.warning .popup-title {
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.popup.info .popup-title {
+  color: #6495ed;
+  text-shadow: 0 0 20px rgba(100, 149, 237, 0.5);
+}
+
+.popup.success .popup-title {
+  color: #22c55e;
+  text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+}
+
 @keyframes title-glow {
   0%,
   100% {
@@ -516,7 +782,12 @@
   }
 }
 
-/* Message */
+/*
+|--------------------------------------------------------------------------
+| POPUP MESSAGE
+|--------------------------------------------------------------------------
+*/
+
 .popup-message {
   text-align: center;
   font-size: 16px;
@@ -527,7 +798,33 @@
   z-index: 1;
 }
 
-/* Decorative Line */
+/* Error/Warning Code Display */
+.error-code,
+.warning-code {
+  display: inline-block;
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  color: #ffa500;
+  margin-top: 15px;
+  letter-spacing: 1px;
+}
+
+.warning-code {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+}
+
+/*
+|--------------------------------------------------------------------------
+| DECORATIVE DIVIDER
+|--------------------------------------------------------------------------
+*/
+
 .popup-divider {
   width: 60%;
   height: 2px;
@@ -544,6 +841,26 @@
 .popup.death .popup-divider {
   background: linear-gradient(90deg, transparent, #ff3333, transparent);
   box-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+
+.popup.error .popup-divider {
+  background: linear-gradient(90deg, transparent, #ffa500, transparent);
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+.popup.warning .popup-divider {
+  background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.popup.info .popup-divider {
+  background: linear-gradient(90deg, transparent, #6495ed, transparent);
+  box-shadow: 0 0 10px rgba(100, 149, 237, 0.5);
+}
+
+.popup.success .popup-divider {
+  background: linear-gradient(90deg, transparent, #22c55e, transparent);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
 }
 
 .popup-divider::before {
@@ -572,7 +889,12 @@
   }
 }
 
-/* Button */
+/*
+|--------------------------------------------------------------------------
+| POPUP BUTTONS
+|--------------------------------------------------------------------------
+*/
+
 .popup-button {
   display: block;
   width: 100%;
@@ -610,6 +932,43 @@
   );
 }
 
+.popup.error .popup-button {
+  border-color: #ffa500;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 165, 0, 0.1),
+    rgba(255, 165, 0, 0.05)
+  );
+}
+
+.popup.warning .popup-button {
+  border-color: #ffd700;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1),
+    rgba(255, 215, 0, 0.05)
+  );
+}
+
+.popup.info .popup-button {
+  border-color: #6495ed;
+  background: linear-gradient(
+    135deg,
+    rgba(100, 149, 237, 0.1),
+    rgba(100, 149, 237, 0.05)
+  );
+}
+
+.popup.success .popup-button {
+  border-color: #22c55e;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.1),
+    rgba(34, 197, 94, 0.05)
+  );
+}
+
+/* Button Shine Effect */
 .popup-button::before {
   content: "";
   position: absolute;
@@ -638,6 +997,43 @@
   );
 }
 
+.popup.error .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 165, 0, 0.2),
+    transparent
+  );
+}
+
+.popup.warning .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 215, 0, 0.2),
+    transparent
+  );
+}
+
+.popup.info .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 149, 237, 0.2),
+    transparent
+  );
+}
+
+.popup.success .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 197, 94, 0.2),
+    transparent
+  );
+}
+
+/* Button Hover States */
 .popup.checkpoint .popup-button:hover {
   border-color: #00d4ff;
   box-shadow: 0 0 25px rgba(0, 212, 255, 0.4),
@@ -652,11 +1048,94 @@
   transform: translateY(-2px);
 }
 
+.popup.error .popup-button:hover {
+  border-color: #ffa500;
+  box-shadow: 0 0 25px rgba(255, 165, 0, 0.4),
+    inset 0 0 15px rgba(255, 165, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.popup.warning .popup-button:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.4),
+    inset 0 0 15px rgba(255, 215, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.popup.info .popup-button:hover {
+  border-color: #6495ed;
+  box-shadow: 0 0 25px rgba(100, 149, 237, 0.4),
+    inset 0 0 15px rgba(100, 149, 237, 0.1);
+  transform: translateY(-2px);
+}
+
+.popup.success .popup-button:hover {
+  border-color: #22c55e;
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.4),
+    inset 0 0 15px rgba(34, 197, 94, 0.1);
+  transform: translateY(-2px);
+}
+
 .popup-button:hover::before {
   left: 100%;
 }
 
-/* Floating Particles */
+/*
+|--------------------------------------------------------------------------
+| DISABLED STATE
+|--------------------------------------------------------------------------
+*/
+
+.popup-button:disabled,
+.popup-button.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  border-color: rgba(100, 100, 100, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(50, 50, 50, 0.1),
+    rgba(40, 40, 40, 0.1)
+  );
+  color: #666;
+  transform: none;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.popup-button:disabled::before,
+.popup-button.disabled::before {
+  display: none;
+}
+
+.popup-button:disabled:hover,
+.popup-button.disabled:hover {
+  border-color: rgba(100, 100, 100, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(50, 50, 50, 0.1),
+    rgba(40, 40, 40, 0.1)
+  );
+  box-shadow: none;
+  transform: none;
+}
+
+.popup-button:disabled::after,
+.popup-button.disabled::after {
+  content: "🔒";
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  opacity: 0.4;
+}
+
+/*
+|--------------------------------------------------------------------------
+| FLOATING PARTICLES
+|--------------------------------------------------------------------------
+*/
+
 .particle {
   position: absolute;
   width: 4px;
@@ -694,6 +1173,26 @@
   box-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
 }
 
+.popup.error .particle {
+  background: #ffa500;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+}
+
+.popup.warning .particle {
+  background: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.popup.info .particle {
+  background: #6495ed;
+  box-shadow: 0 0 10px rgba(100, 149, 237, 0.8);
+}
+
+.popup.success .particle {
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+}
+
 /* Distribute particles randomly */
 .particle:nth-child(1) {
   left: 10%;
@@ -716,40 +1215,26 @@
   animation-delay: 1.5s;
 }
 
-/* Toggle Buttons for Demo */
-.demo-controls {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 15px;
-  z-index: 2000;
-}
-
-.demo-btn {
-  padding: 12px 24px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid #00d4ff;
-  border-radius: 8px;
-  color: #00d4ff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.demo-btn:hover {
-  background: rgba(0, 212, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-}
+/*
+|--------------------------------------------------------------------------
+| UTILITY CLASSES
+|--------------------------------------------------------------------------
+*/
 
 .hidden {
-  display: none;
+  display: none !important;
 }
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE DESIGN
+|--------------------------------------------------------------------------
+*/
 
 @media (max-width: 768px) {
   .popup {
     padding: 40px 30px;
+    max-width: 90%;
   }
 
   .popup-icon {
@@ -758,6 +1243,7 @@
 
   .popup-title {
     font-size: 28px;
+    letter-spacing: 2px;
   }
 
   .popup-message {
@@ -769,8 +1255,36 @@
     padding: 15px;
   }
 
-  .demo-controls {
-    flex-direction: column;
-    gap: 10px;
+  .error-code,
+  .warning-code {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .popup {
+    padding: 30px 20px;
+  }
+
+  .popup-icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+  }
+
+  .popup-title {
+    font-size: 24px;
+    letter-spacing: 1.5px;
+  }
+
+  .popup-message {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .popup-button {
+    font-size: 14px;
+    padding: 12px;
+    letter-spacing: 1px;
   }
 }

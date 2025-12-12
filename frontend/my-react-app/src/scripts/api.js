@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000", // your Flask backend
+  baseURL: "http://192.168.18.66:5000", // your Flask backend
 });
 
 API.interceptors.request.use((req) => {

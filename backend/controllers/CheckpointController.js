@@ -8,6 +8,7 @@ import CheckpointService from "../services/CheckpointService.js";
 
 /**
  * Orchestrates scene, player, and checkpoint services to make a checkpoint for the player
+ *
  * @param {Object} db - Database client/connection
  * @param {number|string} userId - Player identifier
  * @param {number|string} sceneId - Scene identifier
@@ -42,7 +43,6 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
     const checkpointCreation = await checkpointService.createCheckpoint(
       statsArray
     );
-    console.log(checkpointCreation);
     return checkpointCreation;
   }
 
@@ -57,18 +57,36 @@ const createCheckpointProcess = async (db, sceneId, userId) => {
 // ----------------------
 
 /**
- * Retreieves checkpoint data: (scene_id, user_id, life, mana, morale, coin)
+ * Retreieves checkpoint data (scene_id, user_id, life, mana, morale, coin)
+ * and updates old player stats with new stats
+ *
  * @param {Object} db - Database client/connection
  * @param {number|string} userId - Player identifier
  * @param {number|string} sceneId - Scene identifier
  * @returns {Promise<Object>} Promise resolving to { success: boolean, result: any, statusCode: number }
  */
 
-const getCheckpointData = async (db, sceneId, userId) => {
+const returnToCheckpointProcess = async (db, sceneId, userId) => {
   const checkpointService = new CheckpointService(db, sceneId, userId);
+  const playerService = new PlayerService(db, userId);
+
+  // Fetch checkpoint
   const checkpointData = await checkpointService.getCheckpoint();
-  console.log(checkpointData);
+
+  if (!checkpointData.success) {
+    return checkpointData;
+  }
+
+  // Update stats
+  const { life, mana, morale, coin } = checkpointData.result[0];
+  const newStats = [life, mana, morale, coin];
+  const statsUpdated = await playerService.updatePlayerStats(newStats);
+
+  if (!statsUpdated.success) {
+    return statsUpdated;
+  }
+
   return checkpointData;
 };
 
-export { createCheckpointProcess, getCheckpointData };
+export { createCheckpointProcess, returnToCheckpointProcess };
