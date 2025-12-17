@@ -1,9 +1,15 @@
-import NavigationBar from "./NavigationBar";
-import HeaderDescription from "../common/HeaderDescription";
-import Card from "../common/Card";
+/* React modules */
 import { useNavigate } from "react-router-dom";
 
-function HomeApp() {
+/* Component modules */
+import NavigationBar from "../components/NavigationBar";
+import HeaderDescription from "../components/HeaderDescription";
+import Card from "../components/Card";
+
+/* CSS Stylesheet */
+import "../styles/home.css";
+
+function Home() {
   const navigate = useNavigate();
 
   return (
@@ -82,4 +88,4 @@ function HomeApp() {
   );
 }
 
-export default HomeApp;
+export default Home;

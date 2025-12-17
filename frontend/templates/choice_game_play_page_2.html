@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - The Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.08);
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item.increased {
+            border-left-color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
+        }
+
+        .stat-item.decreased {
+            border-left-color: #ff3333;
+            background: rgba(255, 51, 51, 0.15);
+        }
+
+        .stat-item.changed {
+            animation: stat-pulse 0.6s ease;
+        }
+
+        @keyframes stat-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item.increased .stat-value {
+            color: #00ff88;
+        }
+
+        .stat-item.decreased .stat-value {
+            color: #ff3333;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .stat-change.positive {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-change.negative {
+            color: #ff3333;
+            background: rgba(255, 51, 51, 0.2);
+        }
+
+        /* Story Section */
+        .story-section {
+            margin-bottom: 50px;
+        }
+
+        .story-image {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            object-fit: cover;
+        }
+
+        .story-image.top {
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .story-image.middle {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .story-image.bottom {
+            margin-top: 30px;
+            margin-bottom: 0;
+        }
+
+        .story-text {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #7c3aed;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .story-text p {
+            margin-bottom: 15px;
+            color: #d0d0d0;
+        }
+
+        .story-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Choices Section */
+        .choices-section {
+            margin-top: 40px;
+        }
+
+        .choices-title {
+            font-size: 18px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .choice-button {
+            position: relative;
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: left;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            word-wrap: break-word;
+            min-height: 80px;
+        }
+
+        .choice-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .choice-button:hover {
+            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .choice-button:hover::before {
+            left: 100%;
+        }
+
+        .choice-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-text {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .stat-item {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .stat-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+
+            .stat-change {
+                font-size: 10px;
+            }
+
+            .choices-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .story-image {
+                max-height: 250px;
+                margin-bottom: 20px;
+            }
+
+            .story-text {
+                padding: 20px;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .choice-button {
+                padding: 15px 18px;
+                font-size: 14px;
+                gap: 12px;
+                min-height: 70px;
+            }
+
+            .choice-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 20px;
+            }
+
+            .choices-title {
+                font-size: 16px;
+            }
+        }
+
+        /* Tablet Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .choices-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .story-image {
+                max-height: 350px;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .game-container {
+                padding: 10px;
+            }
+
+            .stats-bar {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .stat-item {
+                padding: 10px;
+            }
+
+            .stat-value {
+                font-size: 16px;
+            }
+
+            .story-text {
+                padding: 15px;
+                font-size: 13px;
+            }
+
+            .choice-button {
+                padding: 12px 15px;
+                font-size: 13px;
+                min-height: 65px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item decreased changed">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Life</div>
+                    <div class="stat-value">
+                        85
+                        <span class="stat-change negative">-5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item increased changed">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                    <div class="stat-label">Mana</div>
+                    <div class="stat-value">
+                        120
+                        <span class="stat-change positive">+10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">⚔️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Power</div>
+                    <div class="stat-value">45</div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-label">Gold</div>
+                    <div class="stat-value">250</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Section -->
+        <div class="story-section">
+            <img src="https://images.unsplash.com/photo-1526374965328-7f5ae4e8b12f?w=800&h=400&fit=crop" alt="Story scene" class="story-image top">
+
+            <div class="story-text">
+                <p>You find yourself standing at the edge of the Obsidian Canyon, the wind whipping through your hair as you survey the vast landscape before you. Dark clouds gather on the horizon, and you can feel the presence of ancient magic in the air.</p>
+                <p>A path diverges before you. To the left, you see the glow of a distant village—smoke rising from chimneys suggests safety and respite. To the right, a narrow trail winds up the mountain, disappearing into mist and mystery. Strange symbols are carved into the stone, glowing faintly with otherworldly light.</p>
+                <p>Your decisions now will shape your destiny. What will you do?</p>
+            </div>
+        </div>
+
+        <!-- Choices Section -->
+        <div class="choices-section">
+            <div class="choices-title">What do you do?</div>
+            <div class="choices-grid">
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">🏘️</div>
+                    <div class="choice-text">Head toward the village for shelter and information</div>
+                </a>
+
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">⛰️</div>
+                    <div class="choice-text">Climb the mountain path and investigate the mysterious glowing symbols</div>
+                </a>
+
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">✨</div>
+                    <div class="choice-text">Use your magic to sense the presence ahead</div>
+                </a>
+
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">🗺️</div>
+                    <div class="choice-text">Set up camp and observe from a safe distance</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

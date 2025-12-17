@@ -1,8 +1,10 @@
+/* General Modules */
 import express from "express";
 import pg from "pg";
 import cors from "cors";
 import session from "express-session";
 
+/* Controller Modules */
 import {
   createCheckpointProcess,
   returnToCheckpointProcess,
@@ -11,6 +13,8 @@ import {
   createSceneProcess,
   restartGameProcess,
 } from "./controllers/SceneController.js";
+
+/* Response Utility Module */
 import { ok } from "./utils/response.js";
 
 const app = express();

@@ -1,13 +1,13 @@
 import React from "react";
 
 function Card({
-  containerClassName = "",
-  iconClassName = "",
-  headerClassName = "",
-  descriptionClassName = "",
-  icon = "",
-  title = "",
-  description = "",
+  containerClassName,
+  iconClassName,
+  headerClassName,
+  descriptionClassName,
+  icon,
+  title,
+  description,
 }) {
   return (
     <div className={containerClassName}>

@@ -1,10 +1,11 @@
+/* ===== GAME CONTAINER ===== */
 .game-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-/* Stats Bar */
+/* ===== STATS BAR ===== */
 .stats-bar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -100,7 +101,7 @@
   background: rgba(255, 51, 51, 0.1);
 }
 
-/* Story Section */
+/* ===== STORY SECTION ===== */
 .story-section {
   margin-bottom: 50px;
 }
@@ -159,7 +160,7 @@
   margin-bottom: 0;
 }
 
-/* Choices Section */
+/* ===== CHOICES SECTION ===== */
 .choices-section {
   margin-top: 40px;
 }
@@ -203,10 +204,6 @@
   justify-content: center;
   gap: 5px;
   animation: button-appear 0.6s ease;
-}
-
-.hide {
-  display: none;
 }
 
 @keyframes button-appear {
@@ -270,63 +267,24 @@
   z-index: 1;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .stats-bar {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .choices-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .story-image {
-    max-height: 300px;
-  }
-
-  .story-text {
-    padding: 20px;
-    font-size: 14px;
-  }
-
-  .choice-button {
-    padding: 15px 20px;
-    font-size: 14px;
-  }
+.hide {
+  display: none;
 }
 
-/* Stagger animations for multiple buttons */
 .choice-button:nth-child(1) {
   animation-delay: 0s;
 }
-
 .choice-button:nth-child(2) {
   animation-delay: 0.1s;
 }
-
 .choice-button:nth-child(3) {
   animation-delay: 0.2s;
 }
-
 .choice-button:nth-child(4) {
   animation-delay: 0.3s;
 }
 
-/*
-|--------------------------------------------------------------------------
-| UNIVERSAL POPUP SYSTEM
-|--------------------------------------------------------------------------
-| A flexible popup system that supports multiple types:
-| - checkpoint (success/save)
-| - death (failure)
-| - error (system issues)
-| - warning (caution)
-| - info (information)
-| - success (general success)
-|--------------------------------------------------------------------------
-*/
-
-/* Overlay */
+/* ===== POPUP OVERLAY ===== */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -351,7 +309,7 @@
   }
 }
 
-/* Popup Container */
+/* ===== POPUP BASE ===== */
 .popup {
   background: linear-gradient(
     135deg,
@@ -381,17 +339,41 @@
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| POPUP TYPES - Background Glows
-|--------------------------------------------------------------------------
-*/
-
-/* Checkpoint Popup (Success/Save - Cyan) */
+/* ===== POPUP TYPES ===== */
 .popup.checkpoint {
   border-color: rgba(0, 212, 255, 0.6);
   box-shadow: 0 0 60px rgba(0, 212, 255, 0.3),
     inset 0 0 30px rgba(0, 212, 255, 0.05);
+}
+
+.popup.death {
+  border-color: rgba(255, 51, 51, 0.6);
+  box-shadow: 0 0 60px rgba(255, 51, 51, 0.3),
+    inset 0 0 30px rgba(255, 51, 51, 0.05);
+}
+
+.popup.error {
+  border-color: rgba(255, 165, 0, 0.6);
+  box-shadow: 0 0 60px rgba(255, 165, 0, 0.3),
+    inset 0 0 30px rgba(255, 165, 0, 0.05);
+}
+
+.popup.warning {
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.05);
+}
+
+.popup.info {
+  border-color: rgba(100, 149, 237, 0.6);
+  box-shadow: 0 0 60px rgba(100, 149, 237, 0.3),
+    inset 0 0 30px rgba(100, 149, 237, 0.05);
+}
+
+.popup.success {
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 60px rgba(34, 197, 94, 0.3),
+    inset 0 0 30px rgba(34, 197, 94, 0.05);
 }
 
 .popup.checkpoint::before {
@@ -421,13 +403,6 @@
   }
 }
 
-/* Death Popup (Failure - Red) */
-.popup.death {
-  border-color: rgba(255, 51, 51, 0.6);
-  box-shadow: 0 0 60px rgba(255, 51, 51, 0.3),
-    inset 0 0 30px rgba(255, 51, 51, 0.05);
-}
-
 .popup.death::before {
   content: "";
   position: absolute;
@@ -453,13 +428,6 @@
     transform: scale(1.1);
     opacity: 0.6;
   }
-}
-
-/* Error Popup (System Error - Orange) */
-.popup.error {
-  border-color: rgba(255, 165, 0, 0.6);
-  box-shadow: 0 0 60px rgba(255, 165, 0, 0.3),
-    inset 0 0 30px rgba(255, 165, 0, 0.05);
 }
 
 .popup.error::before {
@@ -489,13 +457,6 @@
   }
 }
 
-/* Warning Popup (Caution - Yellow) */
-.popup.warning {
-  border-color: rgba(255, 215, 0, 0.6);
-  box-shadow: 0 0 60px rgba(255, 215, 0, 0.3),
-    inset 0 0 30px rgba(255, 215, 0, 0.05);
-}
-
 .popup.warning::before {
   content: "";
   position: absolute;
@@ -521,13 +482,6 @@
     transform: scale(1.1);
     opacity: 0.7;
   }
-}
-
-/* Info Popup (Information - Blue) */
-.popup.info {
-  border-color: rgba(100, 149, 237, 0.6);
-  box-shadow: 0 0 60px rgba(100, 149, 237, 0.3),
-    inset 0 0 30px rgba(100, 149, 237, 0.05);
 }
 
 .popup.info::before {
@@ -557,13 +511,6 @@
   }
 }
 
-/* Success Popup (General Success - Green) */
-.popup.success {
-  border-color: rgba(34, 197, 94, 0.6);
-  box-shadow: 0 0 60px rgba(34, 197, 94, 0.3),
-    inset 0 0 30px rgba(34, 197, 94, 0.05);
-}
-
 .popup.success::before {
   content: "";
   position: absolute;
@@ -591,12 +538,7 @@
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| POPUP ICON
-|--------------------------------------------------------------------------
-*/
-
+/* ===== POPUP ICONS ===== */
 .popup-icon {
   font-size: 80px;
   text-align: center;
@@ -616,7 +558,6 @@
   }
 }
 
-/* Checkpoint Icon Animation */
 .popup.checkpoint .popup-icon {
   animation: checkpoint-icon 2s ease-in-out infinite;
 }
@@ -633,7 +574,6 @@
   }
 }
 
-/* Death Icon Animation */
 .popup.death .popup-icon {
   animation: death-icon 1.5s ease-in-out infinite;
 }
@@ -650,7 +590,6 @@
   }
 }
 
-/* Error Icon Animation */
 .popup.error .popup-icon {
   animation: error-icon 2s ease-in-out infinite;
 }
@@ -673,7 +612,6 @@
   }
 }
 
-/* Warning Icon Animation */
 .popup.warning .popup-icon {
   animation: warning-icon 1.8s ease-in-out infinite;
 }
@@ -690,7 +628,6 @@
   }
 }
 
-/* Info Icon Animation */
 .popup.info .popup-icon {
   animation: info-icon 2.5s ease-in-out infinite;
 }
@@ -707,7 +644,6 @@
   }
 }
 
-/* Success Icon Animation */
 .popup.success .popup-icon {
   animation: success-icon 2s ease-in-out infinite;
 }
@@ -724,12 +660,7 @@
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| POPUP TITLE
-|--------------------------------------------------------------------------
-*/
-
+/* ===== POPUP TITLES ===== */
 .popup-title {
   font-size: 36px;
   font-weight: bold;
@@ -742,36 +673,6 @@
   animation: title-glow 2s ease-in-out infinite;
 }
 
-.popup.checkpoint .popup-title {
-  color: #00d4ff;
-  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-}
-
-.popup.death .popup-title {
-  color: #ff3333;
-  text-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
-}
-
-.popup.error .popup-title {
-  color: #ffa500;
-  text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
-}
-
-.popup.warning .popup-title {
-  color: #ffd700;
-  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-}
-
-.popup.info .popup-title {
-  color: #6495ed;
-  text-shadow: 0 0 20px rgba(100, 149, 237, 0.5);
-}
-
-.popup.success .popup-title {
-  color: #22c55e;
-  text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
-}
-
 @keyframes title-glow {
   0%,
   100% {
@@ -782,12 +683,31 @@
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| POPUP MESSAGE
-|--------------------------------------------------------------------------
-*/
+.popup.checkpoint .popup-title {
+  color: #00d4ff;
+}
 
+.popup.death .popup-title {
+  color: #ff3333;
+}
+
+.popup.error .popup-title {
+  color: #ffa500;
+}
+
+.popup.warning .popup-title {
+  color: #ffd700;
+}
+
+.popup.info .popup-title {
+  color: #6495ed;
+}
+
+.popup.success .popup-title {
+  color: #22c55e;
+}
+
+/* ===== POPUP MESSAGES ===== */
 .popup-message {
   text-align: center;
   font-size: 16px;
@@ -798,7 +718,6 @@
   z-index: 1;
 }
 
-/* Error/Warning Code Display */
 .error-code,
 .warning-code {
   display: inline-block;
@@ -819,12 +738,7 @@
   color: #ffd700;
 }
 
-/*
-|--------------------------------------------------------------------------
-| DECORATIVE DIVIDER
-|--------------------------------------------------------------------------
-*/
-
+/* ===== POPUP DIVIDER ===== */
 .popup-divider {
   width: 60%;
   height: 2px;
@@ -889,12 +803,7 @@
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| POPUP BUTTONS
-|--------------------------------------------------------------------------
-*/
-
+/* ===== POPUP BUTTONS ===== */
 .popup-button {
   display: block;
   width: 100%;
@@ -968,7 +877,6 @@
   );
 }
 
-/* Button Shine Effect */
 .popup-button::before {
   content: "";
   position: absolute;
@@ -1033,7 +941,10 @@
   );
 }
 
-/* Button Hover States */
+.popup-button:hover::before {
+  left: 100%;
+}
+
 .popup.checkpoint .popup-button:hover {
   border-color: #00d4ff;
   box-shadow: 0 0 25px rgba(0, 212, 255, 0.4),
@@ -1075,16 +986,6 @@
     inset 0 0 15px rgba(34, 197, 94, 0.1);
   transform: translateY(-2px);
 }
-
-.popup-button:hover::before {
-  left: 100%;
-}
-
-/*
-|--------------------------------------------------------------------------
-| DISABLED STATE
-|--------------------------------------------------------------------------
-*/
 
 .popup-button:disabled,
 .popup-button.disabled {
@@ -1130,12 +1031,7 @@
   opacity: 0.4;
 }
 
-/*
-|--------------------------------------------------------------------------
-| FLOATING PARTICLES
-|--------------------------------------------------------------------------
-*/
-
+/* ===== POPUP PARTICLES ===== */
 .particle {
   position: absolute;
   width: 4px;
@@ -1193,45 +1089,60 @@
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
 }
 
-/* Distribute particles randomly */
 .particle:nth-child(1) {
   left: 10%;
   animation-delay: 0s;
 }
+
 .particle:nth-child(2) {
   left: 30%;
   animation-delay: 1s;
 }
+
 .particle:nth-child(3) {
   left: 50%;
   animation-delay: 2s;
 }
+
 .particle:nth-child(4) {
   left: 70%;
   animation-delay: 0.5s;
 }
+
 .particle:nth-child(5) {
   left: 90%;
   animation-delay: 1.5s;
 }
 
-/*
-|--------------------------------------------------------------------------
-| UTILITY CLASSES
-|--------------------------------------------------------------------------
-*/
-
+/* ===== UTILITY CLASSES ===== */
 .hidden {
   display: none !important;
 }
 
-/*
-|--------------------------------------------------------------------------
-| RESPONSIVE DESIGN
-|--------------------------------------------------------------------------
-*/
-
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
+  .stats-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .choices-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .story-image {
+    max-height: 300px;
+  }
+
+  .story-text {
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .choice-button {
+    padding: 15px 20px;
+    font-size: 14px;
+  }
+
   .popup {
     padding: 40px 30px;
     max-width: 90%;

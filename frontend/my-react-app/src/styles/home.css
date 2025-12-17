@@ -1,3 +1,4 @@
+/* ===== PARTICLES BACKGROUND ===== */
 .particles {
   position: fixed;
   top: 0;
@@ -35,7 +36,7 @@
   }
 }
 
-/* Main container */
+/* ===== LAYOUT STRUCTURE ===== */
 .container-main {
   position: relative;
   z-index: 2;
@@ -48,7 +49,7 @@
   justify-content: space-between;
 }
 
-/* Header/Navigation */
+/* ===== HEADER & NAVIGATION ===== */
 header {
   display: flex;
   justify-content: space-between;
@@ -82,7 +83,7 @@ nav a:hover {
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
 }
 
-/* Hero section */
+/* ===== HERO SECTION ===== */
 .hero {
   text-align: center;
   margin: 80px 0;
@@ -120,7 +121,7 @@ nav a:hover {
   line-height: 1.6;
 }
 
-/* Feature grid */
+/* ===== FEATURE CARDS ===== */
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -185,7 +186,7 @@ nav a:hover {
   line-height: 1.6;
 }
 
-/* CTA Button */
+/* ===== CALL TO ACTION ===== */
 .cta-section {
   text-align: center;
   margin: 80px 0;
@@ -206,6 +207,7 @@ nav a:hover {
   transition: all 0.3s ease;
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
   overflow: hidden;
+  animation: float-button 3s ease-in-out infinite;
 }
 
 .cta-button::before {
@@ -223,6 +225,7 @@ nav a:hover {
   transform: scale(1.05);
   box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
   letter-spacing: 3px;
+  animation: none;
 }
 
 .cta-button:hover::before {
@@ -233,7 +236,17 @@ nav a:hover {
   transform: scale(0.98);
 }
 
-/* Footer */
+@keyframes float-button {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ===== FOOTER ===== */
 footer {
   text-align: center;
   padding: 30px 0;
@@ -243,7 +256,7 @@ footer {
   margin-top: 50px;
 }
 
-/* Responsive */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 48px;
@@ -268,23 +281,4 @@ footer {
   .features {
     grid-template-columns: 1fr;
   }
-}
-
-/* Floating animation for button */
-@keyframes float-button {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.cta-button {
-  animation: float-button 3s ease-in-out infinite;
-}
-
-.cta-button:hover {
-  animation: none;
 }

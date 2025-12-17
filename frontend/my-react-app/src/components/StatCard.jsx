@@ -1,3 +1,5 @@
+import React from "react";
+
 function StatCard({ icon, label, value, changeClassname = "", change = 0 }) {
   const renderStatChangeClassname = () => {
     if (change < 0) {

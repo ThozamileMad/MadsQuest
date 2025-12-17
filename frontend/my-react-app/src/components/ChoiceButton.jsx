@@ -1,10 +1,6 @@
-function ChoiceButton({
-  onClick = null,
-  styles = {},
-  icon = null,
-  text = "",
-  disabled = false,
-}) {
+import React from "react";
+
+function ChoiceButton({ onClick, styles, icon, text, disabled }) {
   return (
     <button
       type="button"

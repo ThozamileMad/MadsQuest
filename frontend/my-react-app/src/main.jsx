@@ -1,3 +1,4 @@
+/* React Modules */
 import { StrictMode } from "react";
 import {
   BrowserRouter as Router,
@@ -6,19 +7,19 @@ import {
   BrowserRouter,
 } from "react-router-dom";
 import { createRoot } from "react-dom/client";
+
+/* CSS Stylesheet */
 import "./styles/index.css";
-import HomeApp from "./components/Home/HomeApp";
-import GamePlayApp from "./components/GamePlay/GamePlayApp";
-import CheckpointApp from "./components/Checkpoint/CheckpointApp";
-import GameOverApp from "./components/GameOver/GameOverApp";
+
+/* Component Modules */
+import Home from "./pages/Home";
+import GamePlay from "./pages/GamePlay";
 
 createRoot(document.getElementById("root")).render(
   <Router>
     <Routes>
-      <Route path="/play" element={<GamePlayApp />} />
-      <Route path="/" element={<HomeApp />} />
-      <Route path="/checkpoint" element={<CheckpointApp />} />
-      <Route path="/gameover" element={<GameOverApp />} />
+      <Route path="/play" element={<GamePlay />} />
+      <Route path="/" element={<Home />} />
     </Routes>
   </Router>
 );

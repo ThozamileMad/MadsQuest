@@ -3,15 +3,18 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 /* Component modules */
-import StatCard from "./StatCard";
-import StoryText from "./StoryText";
-import ChoiceButton from "./ChoiceButton";
-import CheckpointPopup from "./CheckpointPopup";
-import DeathPopup from "./DeathPopup";
-import ErrorPopup from "./ErrorPopup";
+import StatCard from "../components/StatCard";
+import StoryText from "../components/StoryText";
+import ChoiceButton from "../components/ChoiceButton";
+import CheckpointPopup from "../components/CheckpointPopup";
+import DeathPopup from "../components/DeathPopup";
+import ErrorPopup from "../components/ErrorPopup";
 
 /* API modules */
-import { get } from "../../scripts/api";
+import { get } from "../scripts/api";
+
+/* CSS Stylesheet */
+import "../styles/gameplay.css";
 
 /**
  * GamePlayApp
@@ -22,7 +25,7 @@ import { get } from "../../scripts/api";
  * - Handling gameplay transitions (death, checkpoints, restarts)
  * - Coordinating all interactive UI states related to scenes
  */
-function GamePlayApp() {
+function GamePlay() {
   /* -----------------------------
    * Component State
    * ----------------------------- */
@@ -121,8 +124,6 @@ function GamePlayApp() {
   /**
    * Applies a checkpoint for the current user.
    * Called when the player reaches a checkpoint scene.
-   *
-   * @returns {boolean} true if checkpoint applied, false on any failure
    */
   const applyCheckpoint = async (sceneId) => {
     const response = await get(`/api/checkpoint/${sceneId}/${userId}`);
@@ -473,4 +474,4 @@ function GamePlayApp() {
   );
 }
 
-export default GamePlayApp;
+export default GamePlay;

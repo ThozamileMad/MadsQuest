@@ -6,15 +6,15 @@ function NavigationBar() {
     <header>
       <div className="logo">Nexus Chronicles</div>
       <nav>
-        <a href="/about" className="nav-link">
+        <NavLink to="/about" className="nav-link">
           ABOUT
-        </a>
-        <a href="/features" className="nav-link">
+        </NavLink>
+        <NavLink to="/features" className="nav-link">
           FEATURES
-        </a>
-        <a href="/contact" className="nav-link">
+        </NavLink>
+        <NavLink to="/contact" className="nav-link">
           CONTACT
-        </a>
+        </NavLink>
       </nav>
     </header>
   );

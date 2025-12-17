@@ -1,3 +1,5 @@
+import React from "react";
+
 function StoryText({ paragraphs }) {
   return (
     <div className="story-text">

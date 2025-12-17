@@ -1,11 +1,11 @@
 import React from "react";
 
 function HeaderDescription({
-  containerClassName = "",
-  headerClassName = "",
-  descriptionClassName = "",
-  title = "",
-  description = "",
+  containerClassName,
+  headerClassName,
+  descriptionClassName,
+  title,
+  description,
 }) {
   return (
     <section className={containerClassName}>

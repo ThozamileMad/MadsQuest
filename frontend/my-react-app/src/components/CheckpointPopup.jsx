@@ -7,11 +7,7 @@ import React from "react";
  * @param {function} onContinueAdventure - Function to call when button is clicked
  * @param {boolean} disabled - Controls the disabled state of the action button
  */
-function CheckpointPopup({
-  className = "",
-  onContinueAdventure = null,
-  disabled = false,
-}) {
+function CheckpointPopup({ className, onContinueAdventure, disabled }) {
   return (
     <div className={`popup-overlay ${className}`} id="checkpointOverlay">
       <div className="popup checkpoint">

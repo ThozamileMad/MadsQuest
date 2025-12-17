@@ -1,10 +1,11 @@
-function StatusCard({
-  containerClassName = "",
-  thirdDescriptionClassname = "",
+import React from "react";
 
-  firstDescription = "",
-  secondDescription = "",
-  thirdDescription = "",
+function StatusCard({
+  containerClassName,
+  thirdDescriptionClassname,
+  firstDescription,
+  secondDescription,
+  thirdDescription,
 }) {
   return (
     <div className={containerClassName} _>
