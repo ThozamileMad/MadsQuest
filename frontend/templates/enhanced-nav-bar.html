@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Enhanced Top Navigation Bar */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+            border-radius: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .top-nav::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: nav-shimmer 3s infinite;
+        }
+
+        @keyframes nav-shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Navigation Buttons */
+        .nav-btn {
+            position: relative;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(124, 58, 237, 0.15));
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(124, 58, 237, 0.3));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+
+        .nav-btn:hover::before {
+            opacity: 1;
+        }
+
+        .nav-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4), 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .nav-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Icon styling */
+        .nav-btn i {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-btn:hover i {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* Specific button colors */
+        .nav-btn.navigate {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 193, 7, 0.15));
+        }
+
+        .nav-btn.navigate:hover {
+            border-color: rgba(255, 152, 0, 0.6);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+        }
+
+        .nav-btn.boost {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(139, 195, 74, 0.15));
+        }
+
+        .nav-btn.boost:hover {
+            border-color: rgba(76, 175, 80, 0.6);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .nav-btn.achievements {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 193, 7, 0.15));
+        }
+
+        .nav-btn.achievements:hover {
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Enhanced Settings Button */
+        .settings-btn {
+            position: relative;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.2));
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e0e0e0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .settings-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(168, 85, 247, 0.4));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .settings-btn:hover::before {
+            opacity: 1;
+        }
+
+        .settings-btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(124, 58, 237, 0.8);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5), 0 0 30px rgba(168, 85, 247, 0.3);
+        }
+
+        .settings-btn i {
+            font-size: 18px;
+            transition: transform 0.6s ease;
+        }
+
+        .settings-btn:hover i {
+            transform: rotate(120deg);
+        }
+
+        /* Badge/Notification indicator */
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ff3366, #ff6b9d);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            border: 2px solid #0a0e27;
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.7);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 8px rgba(255, 51, 102, 0);
+            }
+        }
+
+        /* Tooltip */
+        .nav-btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 60, 0.95));
+            color: #00d4ff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid rgba(0, 0, 0, 0.95);
+        }
+
+        .nav-btn-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Quick action menu (appears on settings hover) */
+        .quick-actions {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 60, 0.95));
+            border: 2px solid rgba(124, 58, 237, 0.4);
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+
+        .settings-btn-wrapper:hover .quick-actions {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .quick-action-item {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .quick-action-item:hover {
+            background: rgba(124, 58, 237, 0.3);
+            transform: translateX(5px);
+        }
+
+        .quick-action-item i {
+            font-size: 16px;
+            width: 20px;
+            color: #9d6bff;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 15px 20px;
+                gap: 12px;
+            }
+
+            .nav-buttons {
+                gap: 10px;
+            }
+
+            .nav-btn, .settings-btn {
+                padding: 12px 18px;
+                font-size: 13px;
+            }
+
+            .nav-btn i, .settings-btn i {
+                font-size: 16px;
+            }
+
+            .badge {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+            }
+
+            .quick-actions {
+                right: 0;
+                left: auto;
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-btn span, .settings-btn span {
+                display: none;
+            }
+
+            .nav-btn, .settings-btn {
+                padding: 12px;
+            }
+
+            .nav-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+
+        /* Demo container styling */
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-info {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .demo-info h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .demo-info p {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- Enhanced Top Navigation Bar -->
+        <div class="top-nav">
+            <div class="nav-buttons">
+                <div class="nav-btn-wrapper">
+                    <button class="nav-btn navigate" onclick="alert('Navigate menu opened!')">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Navigate</span>
+                    </button>
+                    <div class="tooltip">Go back or restart</div>
+                </div>
+
+                <div class="nav-btn-wrapper">
+                    <button class="nav-btn boost" onclick="alert('Boost Stats opened!')">
+                        <i class="fas fa-bolt"></i>
+                        <span>Boost Stats</span>
+                    </button>
+                    <div class="tooltip">Enhance your character</div>
+                </div>
+
+                <div class="nav-btn-wrapper">
+                    <button class="nav-btn achievements" onclick="alert('Achievements opened!')">
+                        <i class="fas fa-trophy"></i>
+                        <span>Achievements</span>
+                        <span class="badge">3</span>
+                    </button>
+                    <div class="tooltip">View your progress</div>
+                </div>
+            </div>
+
+            <div class="settings-btn-wrapper" style="position: relative;">
+                <button class="settings-btn" onclick="alert('Settings opened!')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                
+                <!-- Quick Actions Menu -->
+                <div class="quick-actions">
+                    <div class="quick-action-item" onclick="alert('Theme changed!')">
+                        <i class="fas fa-palette"></i>
+                        <span>Change Theme</span>
+                    </div>
+                    <div class="quick-action-item" onclick="alert('Sound toggled!')">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Toggle Sound</span>
+                    </div>
+                    <div class="quick-action-item" onclick="alert('Text size changed!')">
+                        <i class="fas fa-text-height"></i>
+                        <span>Text Size</span>
+                    </div>
+                    <div class="quick-action-item" onclick="alert('Fullscreen toggled!')">
+                        <i class="fas fa-expand"></i>
+                        <span>Fullscreen</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Info -->
+        <div class="demo-info">
+            <h2><i class="fas fa-sparkles"></i> Enhanced Navigation Bar Features</h2>
+            <p><strong>✨ Hover effects:</strong> Each button has unique animations and color schemes</p>
+            <p><strong>🎯 Tooltips:</strong> Hover over buttons to see helpful descriptions</p>
+            <p><strong>🔔 Badge notifications:</strong> Achievements button shows unread count</p>
+            <p><strong>⚡ Quick actions:</strong> Hover over Settings for instant access to common options</p>
+            <p><strong>📱 Fully responsive:</strong> Adapts beautifully to mobile devices</p>
+            <p><strong>🎨 FontAwesome icons:</strong> Professional, scalable vector icons</p>
+        </div>
+    </div>
+</body>
+</html>

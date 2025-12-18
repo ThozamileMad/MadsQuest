@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - The Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Theme Variations */
+        body.theme-white {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 50%, #d0d0d0 100%);
+            color: #2a2a2a;
+        }
+
+        body.theme-parchment {
+            background: linear-gradient(135deg, #f4e8d0 0%, #e8d5b7 50%, #d4c5a9 100%);
+            color: #3a2a1a;
+        }
+
+        body.text-small { font-size: 14px; }
+        body.text-medium { font-size: 16px; }
+        body.text-large { font-size: 18px; }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .theme-white .top-nav {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 100, 200, 0.3);
+        }
+
+        .theme-parchment .top-nav {
+            background: rgba(212, 180, 140, 0.5);
+            border-color: rgba(139, 90, 43, 0.4);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn, .settings-btn {
+            padding: 10px 18px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 8px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .theme-white .nav-btn, .theme-white .settings-btn {
+            background: rgba(0, 100, 200, 0.15);
+            border-color: rgba(0, 100, 200, 0.4);
+            color: #0064c8;
+        }
+
+        .theme-parchment .nav-btn, .theme-parchment .settings-btn {
+            background: rgba(139, 90, 43, 0.2);
+            border-color: rgba(139, 90, 43, 0.5);
+            color: #8b5a2b;
+        }
+
+        .nav-btn:hover, .settings-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .settings-btn {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: rgba(124, 58, 237, 0.4);
+            color: #9d6bff;
+        }
+
+        .settings-btn:hover {
+            background: rgba(124, 58, 237, 0.3);
+            border-color: #7c3aed;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3e, #16213e);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .theme-white .modal-content {
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            border-color: rgba(0, 100, 200, 0.4);
+        }
+
+        .theme-parchment .modal-content {
+            background: linear-gradient(135deg, #f4e8d0, #e8d5b7);
+            border-color: rgba(139, 90, 43, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .theme-white .modal-title {
+            color: #0064c8;
+        }
+
+        .theme-parchment .modal-title {
+            color: #8b5a2b;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            cursor: pointer;
+            color: #ff3333;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 10px #ff3333;
+        }
+
+        .modal-option {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-white .modal-option {
+            background: rgba(0, 100, 200, 0.1);
+            border-color: rgba(0, 100, 200, 0.3);
+        }
+
+        .theme-parchment .modal-option {
+            background: rgba(139, 90, 43, 0.1);
+            border-color: rgba(139, 90, 43, 0.3);
+        }
+
+        .modal-option:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateX(10px);
+        }
+
+        .modal-option-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .modal-option-desc {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* Settings Specific Styles */
+        .setting-group {
+            margin: 20px 0;
+        }
+
+        .setting-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            color: #00d4ff;
+        }
+
+        .theme-white .setting-label {
+            color: #0064c8;
+        }
+
+        .theme-parchment .setting-label {
+            color: #8b5a2b;
+        }
+
+        .theme-options, .sound-options, .text-size-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn, .sound-btn, .text-size-btn {
+            padding: 10px 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: inherit;
+        }
+
+        .theme-btn.active, .sound-btn.active, .text-size-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Boost Stats Section */
+        .boost-stats {
+            margin: 20px 0;
+        }
+
+        .boost-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .boost-item {
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .boost-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .boost-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .boost-cost {
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .boost-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .boost-current {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .boost-btn {
+            padding: 8px 16px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            border-radius: 6px;
+            color: #00ff88;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .boost-btn:hover {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .boost-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Achievements Section */
+        .achievements-list {
+            display: grid;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .achievement-item.unlocked {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.4);
+        }
+
+        .achievement-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .achievement-item.unlocked .achievement-icon {
+            filter: grayscale(0);
+        }
+
+        .achievement-item:not(.unlocked) .achievement-icon {
+            filter: grayscale(1);
+            opacity: 0.4;
+        }
+
+        .achievement-info {
+            flex: 1;
+        }
+
+        .achievement-name {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .achievement-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .achievement-item.unlocked .achievement-status {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .achievement-item:not(.unlocked) .achievement-status {
+            background: rgba(255, 255, 255, 0.1);
+            color: #999;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .theme-white .stats-bar {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: rgba(0, 100, 200, 0.3);
+        }
+
+        .theme-parchment .stats-bar {
+            background: rgba(212, 180, 140, 0.4);
+            border-color: rgba(139, 90, 43, 0.4);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.08);
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+            transition: all 0.3s ease;
+        }
+
+        .theme-white .stat-item {
+            background: rgba(0, 100, 200, 0.1);
+            border-left-color: #0064c8;
+        }
+
+        .theme-parchment .stat-item {
+            background: rgba(139, 90, 43, 0.15);
+            border-left-color: #8b5a2b;
+        }
+
+        .stat-item.increased {
+            border-left-color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
+        }
+
+        .stat-item.decreased {
+            border-left-color: #ff3333;
+            background: rgba(255, 51, 51, 0.15);
+        }
+
+        .stat-item.changed {
+            animation: stat-pulse 0.6s ease;
+        }
+
+        @keyframes stat-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .theme-white .stat-label {
+            color: #666;
+        }
+
+        .theme-parchment .stat-label {
+            color: #6b4423;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .theme-white .stat-value {
+            color: #0064c8;
+        }
+
+        .theme-parchment .stat-value {
+            color: #8b5a2b;
+        }
+
+        .stat-item.increased .stat-value {
+            color: #00ff88;
+        }
+
+        .stat-item.decreased .stat-value {
+            color: #ff3333;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .stat-change.positive {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-change.negative {
+            color: #ff3333;
+            background: rgba(255, 51, 51, 0.2);
+        }
+
+        /* Story Section */
+        .story-section {
+            margin-bottom: 50px;
+        }
+
+        .story-image {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            object-fit: cover;
+        }
+
+        .theme-white .story-image {
+            border-color: rgba(0, 100, 200, 0.4);
+            box-shadow: 0 0 20px rgba(0, 100, 200, 0.2);
+        }
+
+        .theme-parchment .story-image {
+            border-color: rgba(139, 90, 43, 0.5);
+            box-shadow: 0 0 20px rgba(139, 90, 43, 0.2);
+        }
+
+        .story-image.middle {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .story-text {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #7c3aed;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .theme-white .story-text {
+            background: rgba(255, 255, 255, 0.7);
+            border-left-color: #7c3aed;
+            color: #2a2a2a;
+        }
+
+        .theme-parchment .story-text {
+            background: rgba(212, 180, 140, 0.5);
+            border-left-color: #8b5a2b;
+            color: #3a2a1a;
+        }
+
+        .story-text p {
+            margin-bottom: 15px;
+            color: #d0d0d0;
+        }
+
+        .theme-white .story-text p {
+            color: #2a2a2a;
+        }
+
+        .theme-parchment .story-text p {
+            color: #3a2a1a;
+        }
+
+        .story-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Choices Section */
+        .choices-section {
+            margin-top: 40px;
+        }
+
+        .choices-title {
+            font-size: 18px;
+            color: #00d4ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .theme-white .choices-title {
+            color: #0064c8;
+        }
+
+        .theme-parchment .choices-title {
+            color: #8b5a2b;
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .choice-button {
+            position: relative;
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: left;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            word-wrap: break-word;
+            min-height: 80px;
+        }
+
+        .theme-white .choice-button {
+            background: linear-gradient(135deg, rgba(0, 100, 200, 0.1), rgba(100, 60, 200, 0.1));
+            border-color: rgba(0, 100, 200, 0.4);
+            color: #2a2a2a;
+        }
+
+        .theme-parchment .choice-button {
+            background: linear-gradient(135deg, rgba(139, 90, 43, 0.15), rgba(139, 90, 43, 0.1));
+            border-color: rgba(139, 90, 43, 0.5);
+            color: #3a2a1a;
+        }
+
+        .choice-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .choice-button:hover {
+            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .choice-button:hover::before {
+            left: 100%;
+        }
+
+        .choice-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-text {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+
+            .top-nav {
+                padding: 12px 15px;
+            }
+
+            .nav-btn, .settings-btn {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 20px;
+            }
+
+            .choices-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="text-medium">
+    <div class="game-container">
+        <!-- Top Navigation Bar -->
+        <div class="top-nav">
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="openNavigationModal()">🔙 Navigate</button>
+                <button class="nav-btn" onclick="openBoostModal()">⚡ Boost Stats</button>
+                <button class="nav-btn" onclick="openAchievementsModal()">🏆 Achievements</button>
+            </div>
+            <button class="settings-btn" onclick="openSettingsModal()">⚙️ Settings</button>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item decreased changed">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Life</div>
+                    <div class="stat-value">
+                        <span id="life-value">85</span>
+                        <span class="stat-change negative">-5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item increased changed">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                    <div class="stat-label">Mana</div>
+                    <div class="stat-value">
+                        <span id="mana-value">120</span>
+                        <span class="stat-change positive">+10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">⚔️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Power</div>
+                    <div class="stat-value"><span id="power-value">45</span></div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">🍀</div>
+                <div class="stat-content">
+                    <div class="stat-label">Luck</div>
+                    <div class="stat-value"><span id="luck-value">12</span></div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-label">Gold</div>
+                    <div class="stat-value"><span id="gold-value">250</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Section -->
+        <div class="story-section">
+            <div class="story-text">
+                <p>You find yourself standing at the edge of the Obsidian Canyon, the wind whipping through your hair as you survey the vast landscape before you. Dark clouds gather on the horizon, and you can feel the presence of ancient magic in the air.</p>
+                <img src="https://as1.ftcdn.net/v2/jpg/05/41/21/04/1000_F_541210442_LbL4WSW94M9bTr1bGmICD8DZBoIIASUS.jpg" alt="Story scene" class="story-image middle">
+                <p>A path diverges before you. To the left, you see the glow of a distant village—smoke rising from chimneys suggests safety and respite. To the right, a narrow trail winds up the mountain, disappearing into mist and mystery. Strange symbols are carved into the stone, glowing faintly with otherworldly light.</p>
+                <p>Your decisions now will shape your destiny. What will you do?</p>
+            </div>
+        </div>
+
+        <!-- Choices Section -->
+        <div class="choices-section">
+            <div class="choices-title">What do you do?</div>
+            <div class="choices-grid">
+                <a href="#" class="choice-button" onclick="playSound()">
+                    <div class="choice-icon">🏘️</div>
+                    <div class="choice-text">Head toward the village for shelter and information</div>
+                </a>
+
+                <a href="#" class="choice-button" onclick="playSound()">
+                    <div class="choice-icon">⛰️</div>
+                    <div class="choice-text">Climb the mountain path and investigate the mysterious glowing symbols</div>
+                </a>
+
+                <a href="#" class="choice-button" onclick="playSound()">
+                    <div class="choice-icon">✨</div>
+                    <div class="choice-text">Use your magic to sense the presence ahead</div>
+                </a>
+
+                <a href="#" class="choice-button" onclick="playSound()">
+                    <div class="choice-icon">🗺️</div>
+                    <div class="choice-text">Set up camp and observe from a safe distance</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Modal -->
+    <div id="navigationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔙 Navigation</div>
+                <span class="close-btn" onclick="closeModal('navigationModal')">&times;</span>
+            </div>
+            <div class="modal-option" onclick="redoLastChoice()">
+                <div class="modal-option-title">🔄 Redo Last Choice</div>
+                <div class="modal-option-desc">Go back and make a different decision</div>
+            </div>
+            <div class="modal-option" onclick="goToCheckpoint()">
+                <div class="modal-option-title">💾 Last Checkpoint</div>
+                <div class="modal-option-desc">Return to the last saved checkpoint</div>
+            </div>
+            <div class="modal-option" onclick="restartChapter()">
+                <div class="modal-option-title">📖 Start Chapter Over</div>
+                <div class="modal-option-desc">Begin this chapter from the start</div>
+            </div>
+            <div class="modal-option" onclick="closeModal('navigationModal')">
+                <div class="modal-option-title">❌ Cancel</div>
+                <div class="modal-option-desc">Return to the game</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boost Stats Modal -->
+    <div id="boostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">⚡ Boost Stats</div>
+                <span class="close-btn" onclick="closeModal('boostModal')">&times;</span>
+            </div>
+            <div class="boost-stats">
+                <div class="boost-container">
+                    <div class="boost-item">
+                        <div class="boost-header">
+                            <div class="boost-name">❤️ Life Boost</div>
+                            <div class="boost-cost">💰 50 Gold</div>
+                        </div>
+                        <div class="boost-info">
+                            <div class="boost-current">Current: <span id="boost-life-display">85</span></div>
+                            <button class="boost-btn" onclick="boostStat('life')">Boost +<span id="life-boost-amount">10</span></button>
+                        </div>
+                    </div>
+                    
+                    <div class="boost-item">
+                        <div class="boost-header">
+                            <div class="boost-name">⚡ Mana Boost</div>
+                            <div class="boost-cost">💰 50 Gold</div>
+                        </div>
+                        <div class="boost-info">
+                            <div class="boost-current">Current: <span id="boost-mana-display">120</span></div>
+                            <button class="boost-btn" onclick="boostStat('mana')">Boost +<span id="mana-boost-amount">15</span></button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(255, 215, 0, 0.15); border-radius: 8px; border: 2px solid rgba(255, 215, 0, 0.3);">
+                        <div style="font-size: 13px; opacity: 0.9;">
+                            <strong>🍀 Luck Bonus:</strong> Your luck stat affects boost amounts!<br>
+                            <strong>💰 Spending Limit:</strong> <span id="spending-limit">500</span> gold available for boosts
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievementsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🏆 Achievements</div>
+                <span class="close-btn" onclick="closeModal('achievementsModal')">&times;</span>
+            </div>
+            <div class="achievements-list">
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon">🎮</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">First Steps</div>
+                        <div class="achievement-desc">Begin your journey in the Nexus Chronicles</div>
+                    </div>
+                    <div class="achievement-status">Unlocked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon">⚔️</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Warrior's Path</div>
+                        <div class="achievement-desc">Win 5 battles without using magic</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon">🧙</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Master Sorcerer</div>
+                        <div class="achievement-desc">Cast 50 spells successfully</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+                
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon">💰</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Treasure Hunter</div>
+                        <div class="achievement-desc">Collect 500 gold</div>
+                    </div>
+                    <div class="achievement-status">Unlocked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon">🗺️</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Explorer</div>
+                        <div class="achievement-desc">Discover all locations in Chapter 1</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon">🌟</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Legend</div>
+                        <div class="achievement-desc">Complete the game with all achievements</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ Settings</div>
+                <span class="close-btn" onclick="closeModal('settingsModal')">&times;</span>
+            </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">🎨 Theme</div>
+                <div class="theme-options">
+                    <button class="theme-btn active" data-theme="black" onclick="changeTheme('black')">Dark</button>
+                    <button class="theme-btn" data-theme="white" onclick="changeTheme('white')">Light</button>
+                    <button class="theme-btn" data-theme="parchment" onclick="changeTheme('parchment')">Parchment</button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">🔊 Sound</div>
+                <div class="sound-options">
+                    <button class="sound-btn active" data-sound="on" onclick="toggleSound(true)">On</button>
+                    <button class="sound-btn" data-sound="off" onclick="toggleSound(false)">Off</button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">📏 Text Size</div>
+                <div class="text-size-options">
+                    <button class="text-size-btn" data-size="small" onclick="changeTextSize('small')">Small</button>
+                    <button class="text-size-btn active" data-size="medium" onclick="changeTextSize('medium')">Medium</button>
+                    <button class="text-size-btn" data-size="large" onclick="changeTextSize('large')">Large</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            life: 85,
+            mana: 120,
+            power: 45,
+            luck: 12,
+            gold: 250,
+            soundEnabled: true,
+            spendingLimit: 500,
+            usedBoostGold: 0
+        };
+
+        // Modal Functions
+        function openNavigationModal() {
+            document.getElementById('navigationModal').classList.add('active');
+            playSound();
+        }
+
+        function openBoostModal() {
+            updateBoostDisplay();
+            document.getElementById('boostModal').classList.add('active');
+            playSound();
+        }
+
+        function openAchievementsModal() {
+            document.getElementById('achievementsModal').classList.add('active');
+            playSound();
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+            playSound();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            playSound();
+        }
+
+        // Navigation Functions
+        function redoLastChoice() {
+            playSound();
+            alert('🔄 Going back to redo your last choice...');
+            closeModal('navigationModal');
+        }
+
+        function goToCheckpoint() {
+            playSound();
+            alert('💾 Returning to last checkpoint...');
+            closeModal('navigationModal');
+        }
+
+        function restartChapter() {
+            playSound();
+            if (confirm('📖 Are you sure you want to restart this chapter?')) {
+                alert('Restarting chapter...');
+                closeModal('navigationModal');
+            }
+        }
+
+        // Boost Stats Functions
+        function updateBoostDisplay() {
+            document.getElementById('boost-life-display').textContent = gameState.life;
+            document.getElementById('boost-mana-display').textContent = gameState.mana;
+            
+            // Calculate boost amounts based on luck
+            let lifeBoost = 10 + Math.floor(gameState.luck / 2);
+            let manaBoost = 15 + Math.floor(gameState.luck / 2);
+            
+            document.getElementById('life-boost-amount').textContent = lifeBoost;
+            document.getElementById('mana-boost-amount').textContent = manaBoost;
+            document.getElementById('spending-limit').textContent = gameState.spendingLimit - gameState.usedBoostGold;
+        }
+
+        function boostStat(stat) {
+            const cost = 50;
+            const remainingLimit = gameState.spendingLimit - gameState.usedBoostGold;
+            
+            if (gameState.gold < cost) {
+                alert('💰 Not enough gold! You need ' + cost + ' gold.');
+                return;
+            }
+            
+            if (remainingLimit < cost) {
+                alert('⚠️ You have reached your boost spending limit!');
+                return;
+            }
+            
+            playSound();
+            
+            // Calculate boost amount based on luck
+            let boostAmount = stat === 'life' ? 10 + Math.floor(gameState.luck / 2) : 15 + Math.floor(gameState.luck / 2);
+            
+            // Update stats
+            gameState.gold -= cost;
+            gameState.usedBoostGold += cost;
+            
+            if (stat === 'life') {
+                gameState.life += boostAmount;
+                document.getElementById('life-value').textContent = gameState.life;
+            } else if (stat === 'mana') {
+                gameState.mana += boostAmount;
+                document.getElementById('mana-value').textContent = gameState.mana;
+            }
+            
+            document.getElementById('gold-value').textContent = gameState.gold;
+            updateBoostDisplay();
+            
+            alert('✨ Boost successful! +' + boostAmount + ' ' + (stat === 'life' ? 'Life' : 'Mana'));
+        }
+
+        // Settings Functions
+        function changeTheme(theme) {
+            playSound();
+            document.body.className = document.body.className.replace(/theme-\w+/g, '');
+            
+            if (theme !== 'black') {
+                document.body.classList.add('theme-' + theme);
+            }
+            
+            // Update active button
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === theme) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function toggleSound(enabled) {
+            gameState.soundEnabled = enabled;
+            
+            // Update active button
+            document.querySelectorAll('.sound-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((btn.dataset.sound === 'on' && enabled) || (btn.dataset.sound === 'off' && !enabled)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            if (enabled) {
+                playSound();
+            }
+        }
+
+        function changeTextSize(size) {
+            playSound();
+            document.body.className = document.body.className.replace(/text-\w+/g, '');
+            document.body.classList.add('text-' + size);
+            
+            // Update active button
+            document.querySelectorAll('.text-size-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.size === size) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Sound Function (placeholder for actual sound)
+        function playSound() {
+            if (gameState.soundEnabled) {
+                // You can add actual sound here using Web Audio API or HTML5 Audio
+                console.log('🔊 Click sound played');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // Initialize
+        updateBoostDisplay();
+    </script>
+</body>
+</html>

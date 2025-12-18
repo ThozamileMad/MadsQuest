@@ -9,6 +9,7 @@ import ChoiceButton from "../components/ChoiceButton";
 import CheckpointPopup from "../components/CheckpointPopup";
 import DeathPopup from "../components/DeathPopup";
 import ErrorPopup from "../components/ErrorPopup";
+import GameNavBar from "../components/GameNavBar";
 
 /* API modules */
 import { get } from "../scripts/api";
@@ -385,6 +386,9 @@ function GamePlay() {
 
   useEffect(() => {
     fetchData(sceneId, userId, updateStats);
+    if (sceneId === 1) {
+      onRestartGame();
+    }
   }, []);
 
   /* -----------------------------
@@ -393,6 +397,9 @@ function GamePlay() {
 
   return (
     <div className="game-container">
+      {/* Navigation Bar */}
+      <GameNavBar />
+
       {/* Player Stats Bar */}
       <div ref={statsRef} className="stats-bar">
         <StatCard

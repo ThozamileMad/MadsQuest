@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Modals Only</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3e, #16213e);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.4);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .modal-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-title i {
+            font-size: 28px;
+        }
+
+        .close-btn {
+            font-size: 32px;
+            cursor: pointer;
+            color: #ff3333;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 51, 51, 0.1);
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: rgba(255, 51, 51, 0.2);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+        }
+
+        /* Modal Options */
+        .modal-option {
+            padding: 18px 20px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(124, 58, 237, 0.08));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-option:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            border-color: #00d4ff;
+            transform: translateX(10px);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .modal-option i {
+            font-size: 24px;
+            width: 30px;
+            color: #00d4ff;
+        }
+
+        .modal-option-content {
+            flex: 1;
+        }
+
+        .modal-option-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+        }
+
+        .modal-option-desc {
+            font-size: 13px;
+            opacity: 0.8;
+            color: #b0b0b0;
+        }
+
+        /* Settings Specific */
+        .setting-group {
+            margin: 25px 0;
+        }
+
+        .setting-label {
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #00d4ff;
+            font-size: 15px;
+        }
+
+        .setting-label i {
+            font-size: 18px;
+        }
+
+        .theme-options, .sound-options, .text-size-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn, .sound-btn, .text-size-btn {
+            padding: 12px 22px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .theme-btn:hover, .sound-btn:hover, .text-size-btn:hover {
+            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .theme-btn.active, .sound-btn.active, .text-size-btn.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(124, 58, 237, 0.3));
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Boost Stats */
+        .boost-container {
+            display: grid;
+            gap: 18px;
+        }
+
+        .boost-item {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .boost-item:hover {
+            border-color: rgba(76, 175, 80, 0.6);
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.2);
+        }
+
+        .boost-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .boost-name {
+            font-weight: bold;
+            font-size: 17px;
+            color: #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .boost-cost {
+            color: #ffd700;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .boost-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .boost-current {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .boost-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(76, 175, 80, 0.2));
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            border-radius: 8px;
+            color: #00ff88;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .boost-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(76, 175, 80, 0.3));
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+            transform: scale(1.05);
+        }
+
+        .boost-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .boost-info-box {
+            margin-top: 18px;
+            padding: 18px;
+            background: rgba(255, 215, 0, 0.12);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .boost-info-box div {
+            font-size: 13px;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        /* Achievements */
+        .achievements-list {
+            display: grid;
+            gap: 12px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 18px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(124, 58, 237, 0.08));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .achievement-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .achievement-item.unlocked {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(76, 175, 80, 0.15));
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+
+        .achievement-icon {
+            font-size: 36px;
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0, 212, 255, 0.15);
+        }
+
+        .achievement-item.unlocked .achievement-icon {
+            filter: grayscale(0);
+            background: rgba(0, 255, 136, 0.2);
+            animation: achievement-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes achievement-glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+            }
+        }
+
+        .achievement-item:not(.unlocked) .achievement-icon {
+            filter: grayscale(1);
+            opacity: 0.4;
+        }
+
+        .achievement-info {
+            flex: 1;
+        }
+
+        .achievement-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+        }
+
+        .achievement-desc {
+            font-size: 13px;
+            opacity: 0.8;
+            color: #b0b0b0;
+        }
+
+        .achievement-status {
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .achievement-item.unlocked .achievement-status {
+            background: rgba(0, 255, 136, 0.25);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.5);
+        }
+
+        .achievement-item:not(.unlocked) .achievement-status {
+            background: rgba(255, 255, 255, 0.08);
+            color: #999;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Scrollbar */
+        .modal-content::-webkit-scrollbar,
+        .achievements-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track,
+        .achievements-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb,
+        .achievements-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.4);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover,
+        .achievements-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.6);
+        }
+
+        /* Demo button for testing */
+        .demo-btn {
+            padding: 15px 30px;
+            margin: 10px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .demo-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(124, 58, 237, 0.3));
+            border-color: #00d4ff;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Buttons to Test Modals -->
+    <div style="text-align: center; padding: 40px;">
+        <h1 style="color: #00d4ff; margin-bottom: 30px;">Enhanced Modals</h1>
+        <button class="demo-btn" onclick="openModal('navigationModal')">Open Navigation Modal</button>
+        <button class="demo-btn" onclick="openModal('boostModal')">Open Boost Stats Modal</button>
+        <button class="demo-btn" onclick="openModal('achievementsModal')">Open Achievements Modal</button>
+        <button class="demo-btn" onclick="openModal('settingsModal')">Open Settings Modal</button>
+    </div>
+
+    <!-- Navigation Modal -->
+    <div id="navigationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-arrow-left"></i>
+                    Navigation
+                </div>
+                <span class="close-btn" onclick="closeModal('navigationModal')">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            <div class="modal-option" onclick="redoLastChoice()">
+                <i class="fas fa-redo-alt"></i>
+                <div class="modal-option-content">
+                    <div class="modal-option-title">Redo Last Choice</div>
+                    <div class="modal-option-desc">Go back and make a different decision</div>
+                </div>
+            </div>
+            <div class="modal-option" onclick="goToCheckpoint()">
+                <i class="fas fa-save"></i>
+                <div class="modal-option-content">
+                    <div class="modal-option-title">Last Checkpoint</div>
+                    <div class="modal-option-desc">Return to the last saved checkpoint</div>
+                </div>
+            </div>
+            <div class="modal-option" onclick="restartChapter()">
+                <i class="fas fa-book-open"></i>
+                <div class="modal-option-content">
+                    <div class="modal-option-title">Start Chapter Over</div>
+                    <div class="modal-option-desc">Begin this chapter from the start</div>
+                </div>
+            </div>
+            <div class="modal-option" onclick="closeModal('navigationModal')">
+                <i class="fas fa-times-circle"></i>
+                <div class="modal-option-content">
+                    <div class="modal-option-title">Cancel</div>
+                    <div class="modal-option-desc">Return to the game</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boost Stats Modal -->
+    <div id="boostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-bolt"></i>
+                    Boost Stats
+                </div>
+                <span class="close-btn" onclick="closeModal('boostModal')">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            <div class="boost-container">
+                <div class="boost-item">
+                    <div class="boost-header">
+                        <div class="boost-name">
+                            <i class="fas fa-heart"></i>
+                            Life Boost
+                        </div>
+                        <div class="boost-cost"><i class="fas fa-coins"></i> 50 Gold</div>
+                    </div>
+                    <div class="boost-info">
+                        <div class="boost-current">Current: <strong id="boost-life-display">85</strong></div>
+                        <button class="boost-btn" onclick="boostStat('life')">
+                            Boost +<span id="life-boost-amount">10</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="boost-item">
+                    <div class="boost-header">
+                        <div class="boost-name">
+                            <i class="fas fa-magic"></i>
+                            Mana Boost
+                        </div>
+                        <div class="boost-cost"><i class="fas fa-coins"></i> 50 Gold</div>
+                    </div>
+                    <div class="boost-info">
+                        <div class="boost-current">Current: <strong id="boost-mana-display">120</strong></div>
+                        <button class="boost-btn" onclick="boostStat('mana')">
+                            Boost +<span id="mana-boost-amount">15</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="boost-info-box">
+                    <div>
+                        <strong><i class="fas fa-clover"></i> Luck Bonus:</strong> Your luck stat affects boost amounts!<br>
+                        <strong><i class="fas fa-coins"></i> Spending Limit:</strong> <span id="spending-limit">500</span> gold available for boosts
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievementsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-trophy"></i>
+                    Achievements
+                </div>
+                <span class="close-btn" onclick="closeModal('achievementsModal')">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            <div class="achievements-list">
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon"><i class="fas fa-gamepad"></i></div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">First Steps</div>
+                        <div class="achievement-desc">Begin your journey in the Nexus Chronicles</div>
+                    </div>
+                    <div class="achievement-status">Unlocked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon"><i class="fas fa-sword"></i></div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Warrior's Path</div>
+                        <div class="achievement-desc">Win 5 battles without using magic</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon"><i class="fas fa-hat-wizard"></i></div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Master Sorcerer</div>
+                        <div class="achievement-desc">Cast 50 spells successfully</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+                
+                <div class="achievement-item unlocked">
+                    <div class="achievement-icon"><i class="fas fa-coins"></i></div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Treasure Hunter</div>
+                        <div class="achievement-desc">Collect 500 gold</div>
+                    </div>
+                    <div class="achievement-status">Unlocked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Explorer</div>
+                        <div class="achievement-desc">Discover all locations in Chapter 1</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+                
+                <div class="achievement-item">
+                    <div class="achievement-icon"><i class="fas fa-star"></i></div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Legend</div>
+                        <div class="achievement-desc">Complete the game with all achievements</div>
+                    </div>
+                    <div class="achievement-status">Locked</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </div>
+                <span class="close-btn" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </span>
+            </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">
+                    <i class="fas fa-palette"></i>
+                    Theme
+                </div>
+                <div class="theme-options">
+                    <button class="theme-btn active" data-theme="black" onclick="changeTheme('black', this)">Dark</button>
+                    <button class="theme-btn" data-theme="white" onclick="changeTheme('white', this)">Light</button>
+                    <button class="theme-btn" data-theme="parchment" onclick="changeTheme('parchment', this)">Parchment</button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">
+                    <i class="fas fa-volume-up"></i>
+                    Sound
+                </div>
+                <div class="sound-options">
+                    <button class="sound-btn active" data-sound="on" onclick="toggleSound(true, this)">On</button>
+                    <button class="sound-btn" data-sound="off" onclick="toggleSound(false, this)">Off</button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <div class="setting-label">
+                    <i class="fas fa-text-height"></i>
+                    Text Size
+                </div>
+                <div class="text-size-options">
+                    <button class="text-size-btn" data-size="small" onclick="changeTextSize('small', this)">Small</button>
+                    <button class="text-size-btn active" data-size="medium" onclick="changeTextSize('medium', this)">Medium</button>
+                    <button class="text-size-btn" data-size="large" onclick="changeTextSize('large', this)">Large</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            life: 85,
+            mana: 120,
+            power: 45,
+            luck: 12,
+            gold: 250,
+            soundEnabled: true,
+            spendingLimit: 500,
+            usedBoostGold: 0
+        };
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            if (modalId === 'boostModal') {
+                updateBoostDisplay();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // Navigation Functions
+        function redoLastChoice() {
+            alert('🔄 Going back to redo your last choice...');
+            closeModal('navigationModal');
+        }
+
+        function goToCheckpoint() {
+            alert('💾 Returning to last checkpoint...');
+            closeModal('navigationModal');
+        }
+
+        function restartChapter() {
+            if (confirm('📖 Are you sure you want to restart this chapter?')) {
+                alert('Restarting chapter...');
+                closeModal('navigationModal');
+            }
+        }
+
+        // Boost Stats Functions
+        function updateBoostDisplay() {
+            document.getElementById('boost-life-display').textContent = gameState.life;
+            document.getElementById('boost-mana-display').textContent = gameState.mana;
+            
+            let lifeBoost = 10 + Math.floor(gameState.luck / 2);
+            let manaBoost = 15 + Math.floor(gameState.luck / 2);
+            
+            document.getElementById('life-boost-amount').textContent = lifeBoost;
+            document.getElementById('mana-boost-amount').textContent = manaBoost;
+            document.getElementById('spending-limit').textContent = gameState.spendingLimit - gameState.usedBoostGold;
+        }
+
+        function boostStat(stat) {
+            const cost = 50;
+            const remainingLimit = gameState.spendingLimit - gameState.usedBoostGold;
+            
+            if (gameState.gold < cost) {
+                alert('💰 Not enough gold! You need ' + cost + ' gold.');
+                return;
+            }
+            
+            if (remainingLimit < cost) {
+                alert('⚠️ You have reached your boost spending limit!');
+                return;
+            }
+            
+            let boostAmount = stat === 'life' ? 10 + Math.floor(gameState.luck / 2) : 15 + Math.floor(gameState.luck / 2);
+            
+            gameState.gold -= cost;
+            gameState.usedBoostGold += cost;
+            
+            if (stat === 'life') {
+                gameState.life += boostAmount;
+            } else if (stat === 'mana') {
+                gameState.mana += boostAmount;
+            }
+            
+            updateBoostDisplay();
+            alert('✨ Boost successful! +' + boostAmount + ' ' + (stat === 'life' ? 'Life' : 'Mana'));
+        }
+
+        // Settings Functions
+        function changeTheme(theme, btn) {
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            alert('Theme changed to: ' + theme);
+        }
+
+        function toggleSound(enabled, btn) {
+            gameState.soundEnabled = enabled;
+            document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            alert('Sound: ' + (enabled ? 'On' : 'Off'));
+        }
+
+        function changeTextSize(size, btn) {
+            document.querySelectorAll('.text-size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            alert('Text size changed to: ' + size);
+        }
+
+        // Initialize
+        updateBoostDisplay();
+    </script>
+</body>
+</html>

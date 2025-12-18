@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - Game Over</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #4d0000 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated blood vignette effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 30%, rgba(139, 0, 0, 0.4) 100%);
+            animation: vignette-pulse 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes vignette-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Particle effects */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 0, 0, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-particle 4s linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        .game-over-container {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Glitch effect for main title */
+        .game-over-title {
+            font-size: 120px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            color: #ff0000;
+            text-shadow: 
+                0 0 10px rgba(255, 0, 0, 0.8),
+                0 0 20px rgba(255, 0, 0, 0.6),
+                0 0 30px rgba(255, 0, 0, 0.4),
+                0 0 40px rgba(255, 0, 0, 0.2);
+            animation: glitch 1s infinite, flicker 0.5s infinite alternate;
+        }
+
+        @keyframes glitch {
+            0%, 100% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-2px, 2px);
+            }
+            40% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, 2px);
+            }
+            80% {
+                transform: translate(2px, -2px);
+            }
+        }
+
+        @keyframes flicker {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .game-over-title::before,
+        .game-over-title::after {
+            content: 'GAME OVER';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-over-title::before {
+            color: #ff0000;
+            z-index: -1;
+            animation: glitch-1 0.4s infinite;
+        }
+
+        .game-over-title::after {
+            color: #8b0000;
+            z-index: -2;
+            animation: glitch-2 0.4s infinite;
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% {
+                transform: translate(0);
+                opacity: 0.8;
+            }
+            33% {
+                transform: translate(-4px, 0);
+                opacity: 0.6;
+            }
+            66% {
+                transform: translate(4px, 0);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% {
+                transform: translate(0);
+                opacity: 0.6;
+            }
+            33% {
+                transform: translate(4px, 0);
+                opacity: 0.4;
+            }
+            66% {
+                transform: translate(-4px, 0);
+                opacity: 0.4;
+            }
+        }
+
+        /* Death message box */
+        .death-message {
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid rgba(255, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 50px;
+            max-width: 700px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 0 30px rgba(255, 0, 0, 0.3),
+                inset 0 0 30px rgba(139, 0, 0, 0.2);
+            animation: box-appear 1s ease, box-pulse 2s ease-in-out 1s infinite;
+        }
+
+        @keyframes box-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes box-pulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 30px rgba(255, 0, 0, 0.3),
+                    inset 0 0 30px rgba(139, 0, 0, 0.2);
+            }
+            50% {
+                box-shadow: 
+                    0 0 50px rgba(255, 0, 0, 0.5),
+                    inset 0 0 40px rgba(139, 0, 0, 0.3);
+            }
+        }
+
+        .death-message p {
+            font-size: 20px;
+            line-height: 1.8;
+            color: #ffcccc;
+            margin-bottom: 20px;
+            animation: text-fade-in 1.5s ease;
+        }
+
+        .death-message p:last-child {
+            margin-bottom: 0;
+        }
+
+        @keyframes text-fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .death-cause {
+            font-size: 16px;
+            color: #ff6666;
+            font-style: italic;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        /* Stats display */
+        .final-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 50px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .final-stat {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(139, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            animation: stat-appear 0.8s ease;
+        }
+
+        .final-stat:nth-child(1) { animation-delay: 0.2s; }
+        .final-stat:nth-child(2) { animation-delay: 0.3s; }
+        .final-stat:nth-child(3) { animation-delay: 0.4s; }
+        .final-stat:nth-child(4) { animation-delay: 0.5s; }
+
+        @keyframes stat-appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .final-stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .final-stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff4444;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-button {
+            position: relative;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+            animation: button-appear 1s ease;
+        }
+
+        .action-button:nth-child(1) { animation-delay: 0.6s; }
+        .action-button:nth-child(2) { animation-delay: 0.7s; }
+
+        @keyframes button-appear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-checkpoint {
+            background: linear-gradient(135deg, #8b0000, #ff0000);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .btn-checkpoint::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-checkpoint:hover {
+            background: linear-gradient(135deg, #a00000, #ff3333);
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .btn-checkpoint:hover::before {
+            left: 100%;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #1a0000, #330000);
+            color: #ff6666;
+            border: 2px solid #8b0000;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.4);
+        }
+
+        .btn-restart::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-restart:hover {
+            background: linear-gradient(135deg, #330000, #4d0000);
+            border-color: #ff0000;
+            color: #ff8888;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .btn-restart:hover::before {
+            left: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-over-title {
+                font-size: 60px;
+                letter-spacing: 4px;
+            }
+
+            .death-message {
+                padding: 30px 20px;
+            }
+
+            .death-message p {
+                font-size: 16px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .action-button {
+                width: 100%;
+                padding: 15px 30px;
+                font-size: 16px;
+            }
+
+            .final-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Screen shake effect */
+        @keyframes screen-shake {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-2px, 2px); }
+            20% { transform: translate(2px, -2px); }
+            30% { transform: translate(-2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, 2px); }
+            60% { transform: translate(2px, -2px); }
+            70% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+            90% { transform: translate(-2px, 2px); }
+        }
+
+        .shake {
+            animation: screen-shake 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-over-container">
+        <h1 class="game-over-title">GAME OVER</h1>
+
+        <div class="death-message">
+            <p>Your journey has come to an abrupt end in the depths of the Obsidian Canyon.</p>
+            <p>The darkness consumed you, and your story ends here... for now.</p>
+            <div class="death-cause">Cause of Death: Overwhelmed by Shadow Creatures</div>
+        </div>
+
+        <div class="final-stats">
+            <div class="final-stat">
+                <div class="final-stat-label">Final Life</div>
+                <div class="final-stat-value">0</div>
+            </div>
+            <div class="final-stat">
+                <div class="final-stat-label">Mana Used</div>
+                <div class="final-stat-value">120</div>
+            </div>
+            <div class="final-stat">
+                <div class="final-stat-label">Enemies Slain</div>
+                <div class="final-stat-value">23</div>
+            </div>
+            <div class="final-stat">
+                <div class="final-stat-label">Time Survived</div>
+                <div class="final-stat-value">47m</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="#" class="action-button btn-checkpoint">↻ Load Checkpoint</a>
+            <a href="#" class="action-button btn-restart">⟲ Restart Game</a>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particle effect
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.bottom = '-10px';
+            particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            particle.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 6000);
+        }
+
+        // Generate particles continuously
+        setInterval(createParticle, 200);
+
+        // Initial particle burst
+        for (let i = 0; i < 30; i++) {
+            setTimeout(createParticle, i * 100);
+        }
+
+        // Screen shake on load
+        document.body.classList.add('shake');
+        setTimeout(() => {
+            document.body.classList.remove('shake');
+        }, 500);
+
+        // Add click effects to buttons
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.width = '0';
+                ripple.style.height = '0';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (e.clientX - rect.left) + 'px';
+                ripple.style.top = (e.clientY - rect.top) + 'px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+                
+                // Fade out effect
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '0';
+                
+                // Navigate after fade
+                setTimeout(() => {
+                    // Add your navigation logic here
+                    console.log('Button clicked:', this.textContent.trim());
+                }, 500);
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 300px;
+                    height: 300px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

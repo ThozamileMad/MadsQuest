@@ -1,0 +1,1120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - The Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== GAME CONTAINER ===== */
+.game-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ===== STATS BAR ===== */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(0, 212, 255, 0.2);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: rgba(0, 212, 255, 0.08);
+  border-radius: 10px;
+  border-left: 4px solid #00d4ff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* State-based variations from block 2 */
+.stat-item.increased {
+  border-left-color: #00ff88;
+  background: rgba(0, 255, 136, 0.15);
+}
+
+.stat-item.decreased {
+  border-left-color: #ff3333;
+  background: rgba(255, 51, 51, 0.15);
+}
+
+.stat-item.changed {
+  animation: stat-pulse 0.6s ease;
+}
+
+/* Shimmer effect from block 1 */
+.stat-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), transparent);
+  /*animation: stat-shimmer 2s infinite;*/
+  pointer-events: none;
+}
+
+@keyframes stat-shimmer {
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes stat-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: #00d4ff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stat-item.increased .stat-value {
+  color: #00ff88;
+}
+.stat-item.decreased .stat-value {
+  color: #ff3333;
+}
+
+.stat-change {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.stat-change.positive {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.2);
+}
+
+.stat-change.negative {
+  color: #ff3333;
+  background: rgba(255, 51, 51, 0.2);
+}
+
+/* ===== STORY SECTION ===== */
+.story-section {
+  margin-bottom: 50px;
+}
+
+.story-image {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+  object-fit: cover;
+  animation: image-appear 0.8s ease;
+}
+
+/* Positional Image Helpers */
+.story-image.top {
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+.story-image.middle {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.story-image.bottom {
+  margin-top: 30px;
+  margin-bottom: 0;
+}
+
+@keyframes image-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.story-text {
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 4px solid #7c3aed;
+  padding: 30px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  line-height: 1.8;
+  font-size: 16px;
+  animation: text-appear 0.8s ease 0.2s both;
+}
+
+@keyframes text-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.story-text p {
+  margin-bottom: 15px;
+  color: #d0d0d0;
+}
+
+.story-text p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== CHOICES SECTION ===== */
+.choices-section {
+  margin-top: 40px;
+}
+
+.choices-title {
+  font-size: 18px;
+  color: #00d4ff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.choices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.choice-button {
+  position: relative;
+  padding: 20px 25px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.1),
+    rgba(124, 58, 237, 0.1)
+  );
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  border-radius: 12px;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 80px;
+  word-wrap: break-word;
+  animation: button-appear 0.6s ease both;
+}
+
+@keyframes button-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.choice-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.choice-button:hover {
+  border-color: #00d4ff;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.2),
+    rgba(124, 58, 237, 0.2)
+  );
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3),
+    inset 0 0 20px rgba(0, 212, 255, 0.05);
+  transform: translateX(5px);
+}
+
+.choice-button:hover::before {
+  left: 100%;
+}
+
+.choice-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choice-text {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.choice-button:nth-child(1) {
+  animation-delay: 0s;
+}
+.choice-button:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.choice-button:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.choice-button:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+/* ===== POPUP OVERLAY ===== */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: overlay-appear 0.4s ease;
+}
+
+@keyframes overlay-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== POPUP BASE ===== */
+.popup {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 14, 39, 0.95),
+    rgba(26, 26, 62, 0.95)
+  );
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  border-radius: 20px;
+  padding: 50px 40px;
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(0, 212, 255, 0.3),
+    inset 0 0 30px rgba(0, 212, 255, 0.05);
+  animation: popup-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popup-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ===== POPUP TYPES & PULSES ===== */
+.popup.checkpoint {
+  border-color: rgba(0, 212, 255, 0.6);
+}
+.popup.death {
+  border-color: rgba(255, 51, 51, 0.6);
+}
+.popup.error {
+  border-color: rgba(255, 165, 0, 0.6);
+}
+.popup.warning {
+  border-color: rgba(255, 215, 0, 0.6);
+}
+.popup.info {
+  border-color: rgba(100, 149, 237, 0.6);
+}
+.popup.success {
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.popup::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.popup.checkpoint::before {
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.1) 0%,
+    transparent 70%
+  );
+  animation: checkpoint-pulse 3s ease-in-out infinite;
+}
+.popup.death::before {
+  background: radial-gradient(
+    circle,
+    rgba(255, 51, 51, 0.1) 0%,
+    transparent 70%
+  );
+  animation: death-pulse 2s ease-in-out infinite;
+}
+.popup.error::before {
+  background: radial-gradient(
+    circle,
+    rgba(255, 165, 0, 0.1) 0%,
+    transparent 70%
+  );
+  animation: error-pulse 2.5s ease-in-out infinite;
+}
+.popup.warning::before {
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.1) 0%,
+    transparent 70%
+  );
+  animation: warning-pulse 2s ease-in-out infinite;
+}
+.popup.info::before {
+  background: radial-gradient(
+    circle,
+    rgba(100, 149, 237, 0.1) 0%,
+    transparent 70%
+  );
+  animation: info-pulse 3s ease-in-out infinite;
+}
+.popup.success::before {
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.1) 0%,
+    transparent 70%
+  );
+  animation: success-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes checkpoint-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+@keyframes death-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.6;
+  }
+}
+@keyframes error-pulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.15) rotate(2deg);
+    opacity: 0.7;
+  }
+}
+@keyframes warning-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+}
+@keyframes info-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+@keyframes success-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* ===== POPUP CONTENT (ICONS, TITLES, BUTTONS) ===== */
+.popup-icon {
+  font-size: 80px;
+  text-align: center;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Specific icon animations */
+.popup.checkpoint .popup-icon {
+  animation: checkpoint-icon 2s ease-in-out infinite;
+}
+.popup.death .popup-icon {
+  animation: death-icon 1.5s ease-in-out infinite;
+}
+.popup.error .popup-icon {
+  animation: error-icon 2s ease-in-out infinite;
+}
+.popup.warning .popup-icon {
+  animation: warning-icon 1.8s ease-in-out infinite;
+}
+.popup.info .popup-icon {
+  animation: info-icon 2.5s ease-in-out infinite;
+}
+.popup.success .popup-icon {
+  animation: success-icon 2s ease-in-out infinite;
+}
+
+@keyframes checkpoint-icon {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+    filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
+  }
+}
+@keyframes death-icon {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 51, 51, 0.5));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(255, 51, 51, 0.8));
+  }
+}
+@keyframes error-icon {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.5));
+  }
+  25% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.8));
+  }
+  75% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+}
+@keyframes warning-icon {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+  }
+  50% {
+    transform: scale(1.15) translateY(-8px);
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+  }
+}
+@keyframes info-icon {
+  0%,
+  100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 10px rgba(100, 149, 237, 0.5));
+  }
+  50% {
+    transform: translateY(-10px);
+    filter: drop-shadow(0 0 20px rgba(100, 149, 237, 0.8));
+  }
+}
+@keyframes success-icon {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
+  }
+  50% {
+    transform: scale(1.1) rotate(10deg);
+    filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.8));
+  }
+}
+
+.popup-title {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  position: relative;
+  z-index: 1;
+  animation: title-glow 2s ease-in-out infinite;
+}
+
+@keyframes title-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 10px currentColor;
+  }
+  50% {
+    text-shadow: 0 0 25px currentColor;
+  }
+}
+
+.popup.checkpoint .popup-title {
+  color: #00d4ff;
+}
+.popup.death .popup-title {
+  color: #ff3333;
+}
+.popup.error .popup-title {
+  color: #ffa500;
+}
+.popup.warning .popup-title {
+  color: #ffd700;
+}
+.popup.info .popup-title {
+  color: #6495ed;
+}
+.popup.success .popup-title {
+  color: #22c55e;
+}
+
+.popup-message {
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #c0c0c0;
+  margin-bottom: 35px;
+  position: relative;
+  z-index: 1;
+}
+
+.error-code,
+.warning-code {
+  display: inline-block;
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  color: #ffa500;
+  margin-top: 15px;
+  letter-spacing: 1px;
+}
+
+.warning-code {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+}
+
+.popup-divider {
+  width: 60%;
+  height: 2px;
+  margin: 25px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.popup.checkpoint .popup-divider {
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+.popup.death .popup-divider {
+  background: linear-gradient(90deg, transparent, #ff3333, transparent);
+  box-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+.popup.error .popup-divider {
+  background: linear-gradient(90deg, transparent, #ffa500, transparent);
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+.popup.warning .popup-divider {
+  background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+.popup.info .popup-divider {
+  background: linear-gradient(90deg, transparent, #6495ed, transparent);
+  box-shadow: 0 0 10px rgba(100, 149, 237, 0.5);
+}
+.popup.success .popup-divider {
+  background: linear-gradient(90deg, transparent, #22c55e, transparent);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.popup-divider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: divider-shine 3s ease-in-out infinite;
+}
+
+@keyframes divider-shine {
+  0% {
+    left: -100%;
+  }
+  50%,
+  100% {
+    left: 200%;
+  }
+}
+
+.popup-button {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  border: 2px solid;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  background: none;
+  color: #e0e0e0;
+}
+
+/* Button variants */
+.popup.checkpoint .popup-button {
+  border-color: #00d4ff;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.1),
+    rgba(0, 212, 255, 0.05)
+  );
+}
+.popup.death .popup-button {
+  border-color: #ff3333;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 51, 51, 0.1),
+    rgba(255, 51, 51, 0.05)
+  );
+}
+.popup.error .popup-button {
+  border-color: #ffa500;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 165, 0, 0.1),
+    rgba(255, 165, 0, 0.05)
+  );
+}
+.popup.warning .popup-button {
+  border-color: #ffd700;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1),
+    rgba(255, 215, 0, 0.05)
+  );
+}
+.popup.info .popup-button {
+  border-color: #6495ed;
+  background: linear-gradient(
+    135deg,
+    rgba(100, 149, 237, 0.1),
+    rgba(100, 149, 237, 0.05)
+  );
+}
+.popup.success .popup-button {
+  border-color: #22c55e;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.1),
+    rgba(34, 197, 94, 0.05)
+  );
+}
+
+.popup-button:hover {
+  transform: translateY(-2px);
+}
+.popup.checkpoint .popup-button:hover {
+  border-color: #00d4ff;
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+}
+.popup.death .popup-button:hover {
+  border-color: #ff3333;
+  box-shadow: 0 0 25px rgba(255, 51, 51, 0.4);
+}
+/* [Repeat similar hover logic for other colors as needed] */
+
+.popup-button:disabled,
+.popup-button.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  border-color: rgba(100, 100, 100, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(50, 50, 50, 0.1),
+    rgba(40, 40, 40, 0.1)
+  );
+  color: #666;
+  transform: none;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.popup-button:disabled::after,
+.popup-button.disabled::after {
+  content: "🔒";
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  opacity: 0.4;
+}
+
+/* ===== PARTICLES ===== */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: particle-float 4s ease-in-out infinite;
+}
+
+@keyframes particle-float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100px) translateX(20px);
+    opacity: 0;
+  }
+}
+
+.popup.checkpoint .particle {
+  background: #00d4ff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+}
+.popup.death .particle {
+  background: #ff3333;
+  box-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.hidden,
+.hide {
+  display: none !important;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .choices-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .story-image {
+    max-height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    padding: 15px;
+  }
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 15px;
+  }
+  .stat-item {
+    padding: 12px;
+    gap: 8px;
+  }
+  .stat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+  }
+  .stat-value {
+    font-size: 18px;
+  }
+  .choices-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .story-image {
+    max-height: 250px;
+    margin-bottom: 20px;
+  }
+  .story-text {
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .choice-button {
+    padding: 15px 18px;
+    font-size: 14px;
+    gap: 12px;
+    min-height: 70px;
+  }
+  .popup {
+    padding: 40px 30px;
+    max-width: 90%;
+  }
+  .popup-title {
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-container {
+    padding: 10px;
+  }
+  .stats-bar {
+    padding: 12px;
+    gap: 8px;
+  }
+  .stat-value {
+    font-size: 16px;
+  }
+  .story-text {
+    padding: 15px;
+    font-size: 13px;
+  }
+  .choice-button {
+    padding: 12px 15px;
+    font-size: 13px;
+    min-height: 65px;
+  }
+  .popup {
+    padding: 30px 20px;
+  }
+  .popup-icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+  }
+  .popup-title {
+    font-size: 24px;
+    letter-spacing: 1.5px;
+  }
+}
+
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item decreased changed">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Life</div>
+                    <div class="stat-value">
+                        85
+                        <span class="stat-change negative">-5</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item increased changed">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                    <div class="stat-label">Mana</div>
+                    <div class="stat-value">
+                        120
+                        <span class="stat-change positive">+10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">⚔️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Power</div>
+                    <div class="stat-value">45</div>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-label">Gold</div>
+                    <div class="stat-value">250</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Section -->
+        <div class="story-section">
+            <div class="story-text">
+                <p>You find yourself standing at the edge of the Obsidian Canyon, the wind whipping through your hair as you survey the vast landscape before you. Dark clouds gather on the horizon, and you can feel the presence of ancient magic in the air.</p>
+		<img src="https://as1.ftcdn.net/v2/jpg/05/41/21/04/1000_F_541210442_LbL4WSW94M9bTr1bGmICD8DZBoIIASUS.jpg" alt="Story scene" class="story-image top">
+                <p>A path diverges before you. To the left, you see the glow of a distant village—smoke rising from chimneys suggests safety and respite. To the right, a narrow trail winds up the mountain, disappearing into mist and mystery. Strange symbols are carved into the stone, glowing faintly with otherworldly light.</p>
+                <p>Your decisions now will shape your destiny. What will you do?</p>
+            </div>
+        </div>
+
+        <!-- Choices Section -->
+        <div class="choices-section">
+            <div class="choices-title">What do you do?</div>
+            <div class="choices-grid">
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">🏘️</div>
+                    <div class="choice-text">Head toward the village for shelter and information</div>
+                </a>
+
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">⛰️</div>
+                    <div class="choice-text">Climb the mountain path and investigate the mysterious glowing symbols</div>
+                </a>
+
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">✨</div>
+                    <div class="choice-text">Use your magic to sense the presence ahead</div>
+                </a>
+
+                <a href="#" class="choice-button">
+                    <div class="choice-icon">🗺️</div>
+                    <div class="choice-text">Set up camp and observe from a safe distance</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="black" data-size="medium">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - Advanced</title>
+    <style>
+        :root {
+            --bg-color: #0a0e27;
+            --container-bg: rgba(0, 0, 0, 0.4);
+            --text-color: #e0e0e0;
+            --accent-color: #00d4ff;
+            --font-size: 16px;
+        }
+
+        /* Themes */
+        [data-theme="white"] {
+            --bg-color: #f0f2f5;
+            --container-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #1a1a1a;
+            --accent-color: #2563eb;
+        }
+        [data-theme="parchment"] {
+            --bg-color: #e6d5b8;
+            --container-bg: rgba(230, 213, 184, 0.8);
+            --text-color: #433422;
+            --accent-color: #8b4513;
+        }
+
+        /* Font Sizes */
+        [data-size="small"] { --font-size: 14px; }
+        [data-size="medium"] { --font-size: 16px; }
+        [data-size="large"] { --font-size: 20px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            font-size: var(--font-size);
+            min-height: 100vh;
+        }
+
+        .game-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        /* ===== TOP NAV BAR ===== */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .nav-btn {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* ===== STATS ===== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+            text-align: center;
+        }
+
+        /* ===== LUCK BOOST SECTION ===== */
+        .boost-zone {
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px dashed gold;
+            text-align: center;
+        }
+
+        /* ===== MODALS (Settings, Navigation, Achievements) ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--accent-color);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .menu-grid { display: grid; gap: 10px; margin-top: 20px; }
+
+        .story-text {
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .choice-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .choice-button:hover { background: rgba(0, 212, 255, 0.2); }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="nav-header">
+        <button class="nav-btn" onclick="openModal('navModal')">↩️ Back</button>
+        <button class="nav-btn" onclick="openModal('achieveModal')">🏆 Medals</button>
+        <button class="nav-btn" onclick="openModal('settingsModal')">⚙️ Settings</button>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">❤️ Life: <span id="lifeVal">100</span></div>
+        <div class="stat-item">⚡ Mana: <span id="manaVal">50</span></div>
+        <div class="stat-item">💰 Gold: <span id="goldVal">200</span></div>
+    </div>
+
+    <div class="boost-zone">
+        <p>Feeling Lucky? (Cost: 50 Gold)</p>
+        <button class="nav-btn" onclick="tryLuck()">🎲 Roll for Life/Mana</button>
+        <p id="luckResult" style="font-size: 0.8em; margin-top: 5px;"></p>
+    </div>
+
+    <div class="story-section">
+        <div class="story-text" id="storyText">
+            You wake up in the ruins of the old world. The air smells of ozone and ancient parchment.
+        </div>
+    </div>
+
+    <div class="choices-section" id="choicesGrid">
+        <button class="choice-button" onclick="makeChoice('Exploring the ruins...', 1)">Explore the ruins</button>
+        <button class="choice-button" onclick="makeChoice('Heading to the city...', 2)">Travel to the Neon City</button>
+    </div>
+</div>
+
+<div id="navModal" class="modal">
+    <div class="modal-content">
+        <h3>Time Travel</h3>
+        <div class="menu-grid">
+            <button class="choice-button" onclick="goBack('redo')">1. Redo Last Choice</button>
+            <button class="choice-button" onclick="goBack('checkpoint')">2. Last Checkpoint</button>
+            <button class="choice-button" onclick="goBack('restart')">3. Start Chapter Over</button>
+            <button class="choice-button" onclick="closeModal('navModal')">4. Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h3>Settings</h3>
+        <p>Theme</p>
+        <button onclick="setTheme('black')">Black</button>
+        <button onclick="setTheme('white')">White</button>
+        <button onclick="setTheme('parchment')">Parchment</button>
+        <hr style="margin:15px 0">
+        <p>Text Size</p>
+        <button onclick="setSize('small')">Small</button>
+        <button onclick="setSize('medium') Bryan">Medium</button>
+        <button onclick="setSize('large')">Large</button>
+        <hr style="margin:15px 0">
+        <button class="nav-btn" onclick="closeModal('settingsModal')">Close</button>
+    </div>
+</div>
+
+<div id="achieveModal" class="modal">
+    <div class="modal-content">
+        <h3>Achievements</h3>
+        <div id="achieveList" style="text-align: left; padding: 10px;">
+            <li>🌑 Survivor (Started the game)</li>
+            <li style="opacity:0.3">💰 Miser (Collect 1000 gold)</li>
+        </div>
+        <button class="nav-btn" onclick="closeModal('achieveModal')">Close</button>
+    </div>
+</div>
+
+<script>
+    // GAME STATE
+    let stats = { life: 100, mana: 50, gold: 200 };
+    let history = []; // For the "Go Back" feature
+    let checkpoint = "You wake up in the ruins...";
+
+    function updateUI() {
+        document.getElementById('lifeVal').innerText = stats.life;
+        document.getElementById('manaVal').innerText = stats.mana;
+        document.getElementById('goldVal').innerText = stats.gold;
+    }
+
+    function makeChoice(text, id) {
+        // Save current state to history before changing
+        history.push({text: document.getElementById('storyText').innerText, stats: {...stats}});
+        
+        document.getElementById('storyText').innerText = text;
+        updateUI();
+    }
+
+    // LUCK BOOST LOGIC
+    function tryLuck() {
+        if (stats.gold >= 50) {
+            stats.gold -= 50;
+            const roll = Math.random();
+            if (roll > 0.5) {
+                const gain = Math.floor(Math.random() * 20) + 5;
+                stats.life += gain;
+                document.getElementById('luckResult').innerText = `Success! Gained ${gain} Life!`;
+            } else {
+                const gain = Math.floor(Math.random() * 15) + 5;
+                stats.mana += gain;
+                document.getElementById('luckResult').innerText = `Magic flows! Gained ${gain} Mana!`;
+            }
+            updateUI();
+        } else {
+            document.getElementById('luckResult').innerText = "Not enough gold!";
+        }
+    }
+
+    // NAVIGATION LOGIC
+    function goBack(type) {
+        if (type === 'redo' && history.length > 0) {
+            let last = history.pop();
+            stats = last.stats;
+            document.getElementById('storyText').innerText = last.text;
+        } else if (type === 'restart') {
+            location.reload();
+        } else if (type === 'checkpoint') {
+            document.getElementById('storyText').innerText = checkpoint;
+        }
+        updateUI();
+        closeModal('navModal');
+    }
+
+    // SETTINGS LOGIC
+    function setTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+    function setSize(s) { document.documentElement.setAttribute('data-size', s); }
+
+    // MODAL HELPERS
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
