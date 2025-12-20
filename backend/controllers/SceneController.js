@@ -18,12 +18,14 @@ const getNecessaryInfo = (
   const newSceneData = sceneData.result[0].content;
 
   const newChoiceData = choiceData.result.map(
-    ({ icon, choice_text, next_scene_id }) => ({
+    ({ scene_id, icon, choice_text, next_scene_id }) => ({
+      sceneId: scene_id,
       icon,
       text: choice_text,
       nextSceneId: next_scene_id,
     })
   );
+  console.log("NewChoiceData: ", newChoiceData);
 
   let newChoiceEffectsData = choiceEffectsData.result[0];
   const { life_change, mana_change, morale_change, coin_change } =
@@ -143,7 +145,7 @@ const createSceneProcess = async (db, userId, sceneId, updateStats) => {
  * @param {Object} db - Database client instance
  * @param {number|string} userId - Player identifier
  * @returns {Promise<Object>} Database operation result indicating success or failure
- */
+ 
 const restartGameProcess = async (db, userId) => {
   const playerService = new PlayerService(db, userId);
 
@@ -152,6 +154,6 @@ const restartGameProcess = async (db, userId) => {
   const statsUpdated = await playerService.updatePlayerStats(defaultStats);
 
   return statsUpdated;
-};
+};*/
 
-export { createSceneProcess, restartGameProcess };
+export { createSceneProcess };

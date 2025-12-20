@@ -7,15 +7,11 @@ import session from "express-session";
 /* Controller Modules */
 import {
   createCheckpointProcess,
-  returnToCheckpointProcess,
-} from "./controllers/CheckpointController.js";
-import {
-  createSceneProcess,
+  returnToPreviousProcess,
+  createLastChoiceProcess,
   restartGameProcess,
-} from "./controllers/SceneController.js";
-
-/* Response Utility Module */
-import { ok } from "./utils/response.js";
+} from "./controllers/GameProgressController.js";
+import { createSceneProcess } from "./controllers/SceneController.js";
 
 const app = express();
 const port = 5000;
@@ -60,14 +56,11 @@ const db = new pg.Client({
 db.connect();
 
 // -------------------------------
-// Checkpoint Routes
+// Game Progression Routes
 // -------------------------------
 
-/**
- * GET /api/checkpoint/:sceneId/:userId
- * Runs the checkpoint process for a specific user and scene.
- */
-app.get("/api/checkpoint/:sceneId/:userId", async (req, res) => {
+// Save checkpoint
+app.post("/api/checkpoint/:sceneId/:userId", async (req, res) => {
   const sceneId = req.params.sceneId;
   const userId = req.params.userId;
 
@@ -76,15 +69,31 @@ app.get("/api/checkpoint/:sceneId/:userId", async (req, res) => {
   return res.status(response.statusCode).json(response.result);
 });
 
-/**
- * GET /api/return_to_checkpoint/:userId
- * Runs the checkpoint process for a specific user and scene.
- */
-app.get("/api/return_to_checkpoint/:userId", async (req, res) => {
-  const sceneId = 0;
+// Return to last saved checkpoint
+app.get("/api/return_to_previous/:table/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const table = req.params.table;
+
+  const response = await returnToPreviousProcess(db, userId, table);
+
+  return res.status(response.statusCode).json(response.result);
+});
+
+// Save last scene where the user last selected a choice
+app.post("/api/last_choice/:sceneId/:userId", async (req, res) => {
+  const sceneId = req.params.sceneId;
   const userId = req.params.userId;
 
-  const response = await returnToCheckpointProcess(db, sceneId, userId);
+  const response = await createLastChoiceProcess(db, sceneId, userId);
+
+  return res.status(response.statusCode).json(response.result);
+});
+
+//
+app.get("/api/restart_game/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  const response = await restartGameProcess(db, userId);
 
   return res.status(response.statusCode).json(response.result);
 });
@@ -103,18 +112,6 @@ app.get("/api/scene/:sceneId/:userId/:updateStats", async (req, res) => {
   const updateStats = req.params.updateStats === "true";
 
   const response = await createSceneProcess(db, userId, sceneId, updateStats);
-
-  return res.status(response.statusCode).json(response.result);
-});
-
-/**
- * GET /api/restart_game/:userId
- * Resets the player's stats and restarts the game from the first scene.
- */
-app.get("/api/restart_game/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  const response = await restartGameProcess(db, userId);
 
   return res.status(response.statusCode).json(response.result);
 });
