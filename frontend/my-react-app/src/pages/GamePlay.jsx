@@ -10,9 +10,10 @@ import CheckpointPopup from "../components/CheckpointPopup";
 import DeathPopup from "../components/DeathPopup";
 import ErrorPopup from "../components/ErrorPopup";
 import GameNavBar from "../components/GameNavBar";
+import GameNavModal from "../components/GameNavModal";
 
 /* API modules */
-import { get } from "../scripts/api";
+import { post, get } from "../scripts/api";
 
 /* CSS Stylesheet */
 import "../styles/gameplay.css";
@@ -34,6 +35,7 @@ function GamePlay() {
   const [paragraphs, setParagraphs] = useState([]);
   const [choiceData, setChoiceData] = useState(
     Array(4).fill({
+      sceneId: null,
       styles: { display: "none" },
       icon: "",
       text: "",
@@ -48,14 +50,29 @@ function GamePlay() {
   const [checkpointClassName, setCheckpointClassName] = useState("hidden");
   const [deathClassName, setDeathClassName] = useState("hidden");
   const [errorClassName, setErrorClassName] = useState("hidden");
+  const [navModalClassName, setNavModalClassName] = useState("hidden");
 
   const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
 
-  // btnDisabled[] indexes map to various UI buttons; see handleChoiceClick()
-  const [btnDisabled, setBtnDisabled] = useState([
+  // btnDisabled{} key/value map to various UI buttons; see handleChoiceClick()
+  const [btnDisabled, setBtnDisabled] = useState({
+    choice1: false,
+    choice2: false,
+    choice3: false,
+    choice4: false,
+
+    checkpointContinuePopup: true,
+    returnToCheckpointPopup: true,
+    restartPopup: true,
+
+    lastChoiceModal: true,
+    returnToCheckpointModal: true,
+    restartModal: true,
+  });
+  /*const [btnDisabled, setBtnDisabled] = useState([
     ...Array(4).fill(false), // Choice buttons
     ...Array(4).fill(true), // Popup/action buttons
-  ]);
+  ]);*/
 
   const [errorCode, setErrorCode] = useState("???");
 
@@ -78,12 +95,14 @@ function GamePlay() {
 
     setChoiceData([
       {
+        sceneId: null,
         styles: { display: "flex" },
         icon: "💀",
         text: "Continue",
         nextSceneId: null,
       },
       ...Array(3).fill({
+        sceneId: null,
         styles: { display: "none" },
         icon: "",
         text: "",
@@ -99,6 +118,7 @@ function GamePlay() {
   const renderActiveChoices = (choices) => {
     setChoiceData(() => {
       const baseChoices = Array(4).fill({
+        sceneId: null,
         styles: { display: "none" },
         icon: "",
         text: "",
@@ -107,6 +127,7 @@ function GamePlay() {
 
       choices.forEach((choice, index) => {
         baseChoices[index] = {
+          sceneId: choice.sceneId,
           styles: { display: "flex" },
           icon: choice.icon,
           text: choice.text,
@@ -127,7 +148,7 @@ function GamePlay() {
    * Called when the player reaches a checkpoint scene.
    */
   const applyCheckpoint = async (sceneId) => {
-    const response = await get(`/api/checkpoint/${sceneId}/${userId}`);
+    const response = await post(`/api/checkpoint/${sceneId}/${userId}`);
 
     if (!response) {
       showError(400);
@@ -138,8 +159,10 @@ function GamePlay() {
       showError(response.status);
       return false;
     }
+    const { data } = response;
+    const recordHandled = data.includes("updated") || data.includes("inserted");
 
-    return response.data.includes("Checkpoint");
+    return recordHandled;
   };
 
   /**
@@ -201,8 +224,8 @@ function GamePlay() {
    * Retrieves the user’s last checkpoint.
    * Used when the player dies and chooses to continue.
    */
-  const returnToCheckpoint = async () => {
-    const response = await get(`/api/return_to_checkpoint/${userId}`);
+  const getPreviousSceneId = async (table) => {
+    const response = await get(`/api/return_to_previous/${table}/${userId}`);
 
     if (!response) {
       showError(400);
@@ -241,26 +264,26 @@ function GamePlay() {
    * ----------------------------- */
 
   /**
-   * Enables/disables UI button slots by index.
+   * Enables/disables UI button slots by key.
    * Maintains predictable control mapping for popups.
    */
-  const toggleButtonDisabled = (index, isDisabled) => {
+  const toggleButtonDisabled = (key, isDisabled) => {
     setBtnDisabled((prev) => {
-      const updated = [...prev];
-      updated[index] = isDisabled;
+      const updated = { ...prev };
+      updated[key] = isDisabled;
       return updated;
     });
   };
 
   /* -----------------------------
-   * Popup Handlers
+   * Popup/Modal Handlers
    * ----------------------------- */
 
   /**
    * Hides the "Checkpoint Reached" popup.
    */
   const hideCheckpointPopup = () => {
-    toggleButtonDisabled(4, true);
+    toggleButtonDisabled("checkpointContinuePopup", true);
     setCheckpointClassName("hidden");
   };
 
@@ -268,8 +291,8 @@ function GamePlay() {
    * Hides the "Game Over" popup.
    */
   const hideGameOverPopup = () => {
-    toggleButtonDisabled(5, true);
-    toggleButtonDisabled(6, true);
+    toggleButtonDisabled("returnToCheckpointPopup", true);
+    toggleButtonDisabled("restartPopup", true);
     setDeathClassName("hidden");
   };
 
@@ -287,12 +310,13 @@ function GamePlay() {
   /**
    * Handler for returning to the last checkpoint after death.
    */
-  const onReturnToCheckpoint = async () => {
-    const checkpointId = await returnToCheckpoint();
-    if (!checkpointId) return;
+  const onReturnToPreviousScene = async (table) => {
+    const id = await getPreviousSceneId(table);
+    if (!id) return;
 
     hideGameOverPopup();
-    setTimeout(() => fetchData(checkpointId, userId, false));
+    toggleNavModalPopup(true, "hidden");
+    setTimeout(() => fetchData(id, userId, true));
   };
 
   /**
@@ -303,12 +327,88 @@ function GamePlay() {
     if (!statsUpdated) return;
 
     hideGameOverPopup();
+    toggleNavModalPopup(true, "hidden");
     setTimeout(() => fetchData(1, userId, true));
+  };
+
+  /**
+   * Handler for returning to the last checkpoint after death.
+   */
+  const onRedoLastChoice = async () => {
+    const lastChoiceId = await returnToLastChoice();
+    if (!lastChoiceId) return;
+
+    toggleNavModalPopup(true, "hidden");
+    setTimeout(() => fetchData(lastChoiceId, userId, false));
+  };
+
+  /**
+   * Handler for opening checkpoint popup
+   */
+  const openDeathPopup = (nextSceneId) => {
+    toggleButtonDisabled("returnToCheckpointPopup", false);
+    toggleButtonDisabled("restartPopup", false);
+
+    setDeathClassName("");
+    setPopUpNextSceneId(nextSceneId);
+  };
+
+  /**
+   * Handler for opening checkpoint popup
+   */
+  const openCheckpointPopup = (nextSceneId) => {
+    toggleButtonDisabled("checkpointContinuePopup", false);
+
+    setCheckpointClassName("");
+    setPopUpNextSceneId(nextSceneId);
+  };
+
+  /**
+   * Handler for opening/close game navigation modal
+   */
+  const toggleNavModalPopup = (btnState, modalClassName) => {
+    toggleButtonDisabled("lastChoiceModal", btnState);
+    toggleButtonDisabled("returnToCheckpointModal", btnState);
+    toggleButtonDisabled("restartModal", btnState);
+
+    setNavModalClassName(modalClassName);
   };
 
   /* -----------------------------
    * Choice Handling
    * ----------------------------- */
+
+  /**
+   * Loads the next scene
+   */
+  const renderNextScene = async (btnText, nextSceneId, currentScene) => {
+    if (btnText === "Continue") {
+      fetchData(nextSceneId, userId, true);
+      return;
+    }
+
+    const response = await post(`/api/last_choice/${currentScene}/${userId}`);
+
+    if (!response) {
+      showError(400);
+      return;
+    }
+
+    if (!response.data) {
+      showError(response.status);
+      return;
+    }
+
+    const { data } = response;
+    const recordHandled = data.includes("updated") || data.includes("inserted");
+
+    if (!recordHandled) {
+      showError(response.status);
+      return;
+    }
+
+    fetchData(nextSceneId, userId, true);
+  };
 
   /**
    * Primary handler for user interactions with choice buttons.
@@ -318,35 +418,19 @@ function GamePlay() {
    * - Active → load next scene normally
    */
   const handleChoiceClick = (item) => {
-    const { nextSceneId } = item;
-    if (!nextSceneId) return;
+    const { sceneId, nextSceneId, text } = item;
 
     switch (playerStatus) {
       case "dead":
-        setBtnDisabled((prev) => {
-          const updated = [...prev];
-          updated[5] = false; // return to checkpoint
-          updated[6] = false; // restart
-          return updated;
-        });
-
-        setDeathClassName("");
-        setPopUpNextSceneId(nextSceneId);
+        openDeathPopup(nextSceneId);
         break;
 
       case "checkpoint":
-        setBtnDisabled((prev) => {
-          const updated = [...prev];
-          updated[4] = false;
-          return updated;
-        });
-
-        setCheckpointClassName("");
-        setPopUpNextSceneId(nextSceneId);
+        openCheckpointPopup(nextSceneId);
         break;
 
       default:
-        fetchData(nextSceneId, userId, true);
+        renderNextScene(text, nextSceneId, sceneId);
         break;
     }
   };
@@ -359,11 +443,7 @@ function GamePlay() {
     setErrorClassName("");
     setErrorCode(errorCode);
 
-    setBtnDisabled((prev) => {
-      const updated = [...prev];
-      updated[7] = false;
-      return updated;
-    });
+    toggleButtonDisabled("errorPopup", false);
   };
 
   const hideError = () => {
@@ -373,11 +453,7 @@ function GamePlay() {
     setErrorClassName("hidden");
     setErrorCode("???");
 
-    setBtnDisabled((prev) => {
-      const updated = [...prev];
-      updated[7] = true;
-      return updated;
-    });
+    toggleButtonDisabled("errorPopup", true);
   };
 
   /* -----------------------------
@@ -398,7 +474,19 @@ function GamePlay() {
   return (
     <div className="game-container">
       {/* Navigation Bar */}
-      <GameNavBar />
+      <GameNavBar openNavigation={() => toggleNavModalPopup(false, "active")} />
+
+      {/* Navigation Bar Modals */}
+      <GameNavModal
+        modalClassName={navModalClassName}
+        closeModal={() => toggleNavModalPopup(true, "hidden")}
+        redoLastChoice={() => onReturnToPreviousScene("last_choice")}
+        goToCheckpoint={() => onReturnToPreviousScene("checkpoints")}
+        restartChapter={onRestartGame}
+        lastChoiceDisabled={btnDisabled.lastChoiceModal}
+        returnToCheckpointDisabled={btnDisabled.returnToCheckpointModal}
+        restartGameDisabled={btnDisabled.restartModal}
+      />
 
       {/* Player Stats Bar */}
       <div ref={statsRef} className="stats-bar">
@@ -450,7 +538,7 @@ function GamePlay() {
               styles={item.styles}
               icon={item.icon}
               text={item.text}
-              disabled={btnDisabled[index]}
+              disabled={btnDisabled[`choice${index + 1}`]}
             />
           ))}
         </div>
@@ -460,22 +548,22 @@ function GamePlay() {
       <CheckpointPopup
         className={checkpointClassName}
         onContinueAdventure={onContinueAdventure}
-        disabled={btnDisabled[4]}
+        disabled={btnDisabled.checkpointContinuePopup}
       />
 
       <DeathPopup
         className={deathClassName}
-        onReturnToCheckpoint={onReturnToCheckpoint}
+        onReturnToCheckpoint={() => onReturnToPreviousScene("checkpoints")}
         onRestartGame={onRestartGame}
-        returnToCheckpointDisabled={btnDisabled[5]}
-        restartGameDisabled={btnDisabled[6]}
+        returnToCheckpointDisabled={btnDisabled.returnToCheckpointPopup}
+        restartGameDisabled={btnDisabled.returnToCheckpointPopup}
       />
 
       <ErrorPopup
         className={errorClassName}
         errorCode={errorCode}
         onAcknowledge={hideError}
-        disabled={btnDisabled[7]}
+        disabled={btnDisabled.errorPopup}
       />
     </div>
   );

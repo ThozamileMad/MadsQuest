@@ -3,13 +3,17 @@ import GameNavModalHeader from "./GameNavModalHeader";
 import GameNavModalOption from "./GameNavModalOption";
 
 function GameNavModal({
+  modalClassName,
   closeModal,
   redoLastChoice,
   goToCheckpoint,
   restartChapter,
+  lastChoiceDisabled,
+  returnToCheckpointDisabled,
+  restartGameDisabled,
 }) {
   return (
-    <div id="navigationModal" className="modal">
+    <div id="navigationModal" className={"modal " + modalClassName}>
       <div className="modal-content">
         <GameNavModalHeader
           text="Navigation"
@@ -23,6 +27,7 @@ function GameNavModal({
           icon="fa-redo-alt"
           title="Redo Last Choice"
           description="Go back and make a different decision"
+          disabled={lastChoiceDisabled}
         />
 
         <GameNavModalOption
@@ -30,6 +35,7 @@ function GameNavModal({
           icon="fa-save"
           title="Last Checkpoint"
           description="Return to the last saved checkpoint"
+          disabled={returnToCheckpointDisabled}
         />
 
         <GameNavModalOption
@@ -37,13 +43,7 @@ function GameNavModal({
           icon="fa-book-open"
           title="Start Chapter Over"
           description="Begin this chapter from the start"
-        />
-
-        <GameNavModalOption
-          onClick={() => closeModal("navigationModal")}
-          icon="fa-times-circle"
-          title="Cancel"
-          description="Return to the game"
+          disabled={restartGameDisabled}
         />
       </div>
     </div>

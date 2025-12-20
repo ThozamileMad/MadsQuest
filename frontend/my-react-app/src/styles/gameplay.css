@@ -850,7 +850,9 @@
 /* [Repeat similar hover logic for other colors as needed] */
 
 .popup-button:disabled,
-.popup-button.disabled {
+.popup-button.disabled,
+.modal-option:disabled,
+.modal-option.disabled {
   cursor: not-allowed;
   opacity: 0.4;
   border-color: rgba(100, 100, 100, 0.3);
@@ -866,7 +868,9 @@
 }
 
 .popup-button:disabled::after,
-.popup-button.disabled::after {
+.popup-button.disabled::after,
+.modal-option:disabled::after,
+.modal-option.disabled::after {
   content: "🔒";
   position: absolute;
   right: 15px;
@@ -1363,6 +1367,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  width: 100%;
 }
 
 .modal-option:hover {
@@ -1382,7 +1387,12 @@
   color: #00d4ff;
 }
 
+.modal-option span {
+  display: block;
+}
+
 .modal-option-content {
+  text-align: left;
   flex: 1;
 }
 
@@ -1509,7 +1519,7 @@
 }
 
 .boost-cost {
-  color: #ffd700;
+  color: #9d4edd;
   font-size: 15px;
   font-weight: 600;
 }
@@ -1561,9 +1571,9 @@
 .boost-info-box {
   margin-top: 18px;
   padding: 18px;
-  background: rgba(255, 215, 0, 0.12);
+  background: rgba(157, 78, 221, 0.12);
   border-radius: 10px;
-  border: 2px solid rgba(255, 215, 0, 0.3);
+  border: 2px solid rgba(157, 78, 221, 0.3);
 }
 
 .boost-info-box div {

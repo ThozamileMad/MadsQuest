@@ -2,6 +2,7 @@ import React from "react";
 
 function GameNavButton({
   wrapperClassName,
+  disabled,
   btnClassName,
   onClick,
   icon,
@@ -9,7 +10,7 @@ function GameNavButton({
   toolTip,
 }) {
   return (
-    <div className={wrapperClassName}>
+    <div className={wrapperClassName} disabled={disabled}>
       <button className={btnClassName} onClick={onClick}>
         <i className={"fas " + icon}></i>
         <span>{text}</span>
