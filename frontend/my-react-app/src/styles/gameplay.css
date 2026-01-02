@@ -617,12 +617,12 @@
 @keyframes info-icon {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     filter: drop-shadow(0 0 10px rgba(100, 149, 237, 0.5));
   }
   50% {
-    transform: translateY(-10px);
-    filter: drop-shadow(0 0 20px rgba(100, 149, 237, 0.8));
+    transform: translateY(-10px) scale(1.05);
+    filter: drop-shadow(0 0 25px rgba(100, 149, 237, 0.8));
   }
 }
 @keyframes success-icon {
@@ -836,18 +836,102 @@
   );
 }
 
+.popup-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  transition: left 0.5s ease;
+}
+
+.popup.checkpoint .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 212, 255, 0.2),
+    transparent
+  );
+}
+.popup.death .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 51, 51, 0.2),
+    transparent
+  );
+}
+.popup.error .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 165, 0, 0.2),
+    transparent
+  );
+}
+.popup.warning .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 215, 0, 0.2),
+    transparent
+  );
+}
+.popup.info .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 149, 237, 0.2),
+    transparent
+  );
+}
+.popup.success .popup-button::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 197, 94, 0.2),
+    transparent
+  );
+}
+
 .popup-button:hover {
   transform: translateY(-2px);
 }
 .popup.checkpoint .popup-button:hover {
   border-color: #00d4ff;
-  box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.4),
+    inset 0 0 15px rgba(0, 212, 255, 0.1);
 }
 .popup.death .popup-button:hover {
   border-color: #ff3333;
-  box-shadow: 0 0 25px rgba(255, 51, 51, 0.4);
+  box-shadow: 0 0 25px rgba(255, 51, 51, 0.4),
+    inset 0 0 15px rgba(255, 51, 51, 0.1);
 }
-/* [Repeat similar hover logic for other colors as needed] */
+.popup.error .popup-button:hover {
+  border-color: #ffa500;
+  box-shadow: 0 0 25px rgba(255, 165, 0, 0.4),
+    inset 0 0 15px rgba(255, 165, 0, 0.1);
+}
+.popup.warning .popup-button:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.4),
+    inset 0 0 15px rgba(255, 215, 0, 0.1);
+}
+.popup.info .popup-button:hover {
+  border-color: #6495ed;
+  box-shadow: 0 0 25px rgba(100, 149, 237, 0.4),
+    inset 0 0 15px rgba(100, 149, 237, 0.1);
+}
+.popup.success .popup-button:hover {
+  border-color: #22c55e;
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.4),
+    inset 0 0 15px rgba(34, 197, 94, 0.1);
+}
+
+.popup-button:hover::before {
+  left: 100%;
+}
 
 .popup-button:disabled,
 .popup-button.disabled,
@@ -913,6 +997,22 @@
 .popup.death .particle {
   background: #ff3333;
   box-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+}
+.popup.error .particle {
+  background: #ffa500;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+}
+.popup.warning .particle {
+  background: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+.popup.info .particle {
+  background: #6495ed;
+  box-shadow: 0 0 10px rgba(100, 149, 237, 0.8);
+}
+.popup.success .particle {
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -1480,6 +1580,52 @@
 }
 
 /* Boost Stats */
+.stat-selector {
+  margin-bottom: 25px;
+}
+
+.stat-selector label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #00d4ff;
+  font-size: 15px;
+}
+
+.stat-dropdown {
+  width: 100%;
+  padding: 12px 15px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.1),
+    rgba(124, 58, 237, 0.1)
+  );
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  border-radius: 10px;
+  color: #e0e0e0;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.stat-dropdown:hover {
+  border-color: #00d4ff;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.stat-dropdown:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.stat-dropdown option {
+  background: #1a1a3e;
+  color: #e0e0e0;
+  padding: 10px;
+}
+
 .boost-container {
   display: grid;
   gap: 18px;
@@ -1497,9 +1643,23 @@
   transition: all 0.3s ease;
 }
 
+.boost-item.mana {
+  background: linear-gradient(
+    135deg,
+    rgba(33, 150, 243, 0.1),
+    rgba(63, 81, 181, 0.1)
+  );
+  border-color: rgba(33, 150, 243, 0.3);
+}
+
 .boost-item:hover {
   border-color: rgba(76, 175, 80, 0.6);
   box-shadow: 0 4px 20px rgba(76, 175, 80, 0.2);
+}
+
+.boost-item.mana:hover {
+  border-color: rgba(33, 150, 243, 0.6);
+  box-shadow: 0 4px 20px rgba(33, 150, 243, 0.2);
 }
 
 .boost-header {
@@ -1518,54 +1678,66 @@
   gap: 10px;
 }
 
-.boost-cost {
-  color: #9d4edd;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.boost-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
+.boost-name.mana {
+  color: #2196f3;
 }
 
 .boost-current {
   font-size: 14px;
   opacity: 0.9;
+  margin-bottom: 15px;
+}
+
+.boost-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: center;
 }
 
 .boost-btn {
-  padding: 10px 20px;
+  padding: 12px 20px;
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.2),
-    rgba(76, 175, 80, 0.2)
+    rgba(0, 212, 255, 0.2),
+    rgba(124, 58, 237, 0.2)
   );
-  border: 2px solid rgba(0, 255, 136, 0.4);
+  border: 2px solid rgba(0, 212, 255, 0.4);
   border-radius: 8px;
-  color: #00ff88;
+  color: #00d4ff;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
-  font-size: 14px;
+  font-size: 20px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.boost-btn:hover {
+.boost-btn:hover:not(:disabled) {
   background: linear-gradient(
     135deg,
-    rgba(0, 255, 136, 0.3),
-    rgba(76, 175, 80, 0.3)
+    rgba(0, 212, 255, 0.3),
+    rgba(124, 58, 237, 0.3)
   );
-  border-color: #00ff88;
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  border-color: #00d4ff;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
   transform: scale(1.05);
 }
 
 .boost-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.3;
   cursor: not-allowed;
+}
+
+.boost-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #00ff88;
+  min-width: 80px;
+  text-align: center;
 }
 
 .boost-info-box {
@@ -1580,6 +1752,40 @@
   font-size: 13px;
   opacity: 0.95;
   line-height: 1.6;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.2),
+    rgba(76, 175, 80, 0.2)
+  );
+  border: 2px solid rgba(0, 255, 136, 0.4);
+  border-radius: 10px;
+  color: #00ff88;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 136, 0.3),
+    rgba(76, 175, 80, 0.3)
+  );
+  border-color: #00ff88;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  transform: translateY(-2px);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Achievements */
@@ -1769,49 +1975,66 @@
   .game-container {
     padding: 15px;
   }
+
   .stats-bar {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 15px;
   }
+
   .stat-item {
     padding: 12px;
     gap: 8px;
   }
+
   .stat-icon {
     width: 32px;
     height: 32px;
     font-size: 20px;
   }
+
   .stat-value {
     font-size: 18px;
   }
+
   .choices-grid {
     grid-template-columns: 1fr;
     gap: 15px;
   }
+
   .story-image {
     max-height: 250px;
     margin-bottom: 20px;
   }
+
   .story-text {
     padding: 20px;
     font-size: 14px;
     line-height: 1.6;
   }
+
   .choice-button {
     padding: 15px 18px;
     font-size: 14px;
     gap: 12px;
     min-height: 70px;
   }
+
   .popup {
     padding: 40px 30px;
     max-width: 90%;
   }
+
   .popup-title {
     font-size: 28px;
     letter-spacing: 2px;
+  }
+
+  .modal-content {
+    padding: 25px;
+    width: 95%;
+    max-height: 90vh;
+    border-radius: 15px;
   }
 }
 
@@ -1819,31 +2042,66 @@
   .game-container {
     padding: 10px;
   }
+
   .stats-bar {
     padding: 12px;
     gap: 8px;
   }
+
   .stat-value {
     font-size: 16px;
   }
+
   .story-text {
     padding: 15px;
     font-size: 13px;
   }
+
   .choice-button {
     padding: 12px 15px;
     font-size: 13px;
     min-height: 65px;
   }
+
   .popup {
     padding: 30px 20px;
   }
+
   .popup-icon {
     font-size: 50px;
     margin-bottom: 20px;
   }
+
   .popup-title {
     font-size: 24px;
     letter-spacing: 1.5px;
+  }
+
+  .boost-value {
+    font-size: 28px;
+    min-width: 60px;
+  }
+
+  .modal-title {
+    font-size: 20px;
+  }
+
+  .modal-title i {
+    font-size: 22px;
+  }
+
+  .modal-content {
+    padding: 20px;
+    width: 98%;
+  }
+
+  .boost-controls {
+    gap: 10px;
+  }
+
+  .boost-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
   }
 }

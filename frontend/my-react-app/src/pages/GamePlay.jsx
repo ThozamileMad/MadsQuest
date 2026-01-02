@@ -6,11 +6,10 @@ import { useLocation } from "react-router-dom";
 import StatCard from "../components/StatCard";
 import StoryText from "../components/StoryText";
 import ChoiceButton from "../components/ChoiceButton";
-import CheckpointPopup from "../components/CheckpointPopup";
-import DeathPopup from "../components/DeathPopup";
-import ErrorPopup from "../components/ErrorPopup";
+import Popup from "../components/Popup";
 import GameNavBar from "../components/GameNavBar";
 import GameNavModal from "../components/GameNavModal";
+import BoostModal from "../components/BoostModal";
 
 /* API modules */
 import { post, get } from "../scripts/api";
@@ -51,8 +50,17 @@ function GamePlay() {
   const [deathClassName, setDeathClassName] = useState("hidden");
   const [errorClassName, setErrorClassName] = useState("hidden");
   const [navModalClassName, setNavModalClassName] = useState("hidden");
+  const [boostModalClassName, setBoostModalClassName] = useState("hidden");
+  const [infoClassName, setInfoClassName] = useState("hidden");
 
   const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
+
+  const [boostLabel, setBoostLabel] = useState("Life");
+  const [boostIcon, setBoostIcon] = useState("fa-heart");
+  const [boostValue, setBoostValue] = useState(playerStats[0]);
+  const [boostAmount, setBoostAmount] = useState(0);
+
+  const [luck, setLuck] = useState(12);
 
   // btnDisabled{} key/value map to various UI buttons; see handleChoiceClick()
   const [btnDisabled, setBtnDisabled] = useState({
@@ -64,15 +72,16 @@ function GamePlay() {
     checkpointContinuePopup: true,
     returnToCheckpointPopup: true,
     restartPopup: true,
+    errorPopup: false,
+    infoPopup: false,
 
     lastChoiceModal: true,
     returnToCheckpointModal: true,
     restartModal: true,
   });
-  /*const [btnDisabled, setBtnDisabled] = useState([
-    ...Array(4).fill(false), // Choice buttons
-    ...Array(4).fill(true), // Popup/action buttons
-  ]);*/
+
+  const [infoTitle, setInfoTitle] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
 
   const [errorCode, setErrorCode] = useState("???");
 
@@ -85,31 +94,6 @@ function GamePlay() {
   /* -----------------------------
    * UI Rendering Helpers
    * ----------------------------- */
-
-  /**
-   * When the game is over, show a single "Continue" button
-   * and hide all other choice slots.
-   */
-  const renderGameOverChoice = () => {
-    if (playerStatus !== "dead") return;
-
-    setChoiceData([
-      {
-        sceneId: null,
-        styles: { display: "flex" },
-        icon: "💀",
-        text: "Continue",
-        nextSceneId: null,
-      },
-      ...Array(3).fill({
-        sceneId: null,
-        styles: { display: "none" },
-        icon: "",
-        text: "",
-        nextSceneId: null,
-      }),
-    ]);
-  };
 
   /**
    * Renders the available choices for the active scene.
@@ -226,14 +210,20 @@ function GamePlay() {
    */
   const getPreviousSceneId = async (table) => {
     const response = await get(`/api/return_to_previous/${table}/${userId}`);
-
+    console.log("response: ", response);
     if (!response) {
-      showError(400);
+      showInfo(
+        "No previous saves",
+        "You need to reach a save point in order to use this feature."
+      );
       return false;
     }
 
     if (!response.data) {
-      showError(response.status);
+      showInfo(
+        "No previous saves",
+        "You need to reach a save point in order to use this feature."
+      );
       return false;
     }
 
@@ -280,20 +270,11 @@ function GamePlay() {
    * ----------------------------- */
 
   /**
-   * Hides the "Checkpoint Reached" popup.
+   * Hides popups.
    */
-  const hideCheckpointPopup = () => {
-    toggleButtonDisabled("checkpointContinuePopup", true);
-    setCheckpointClassName("hidden");
-  };
-
-  /**
-   * Hides the "Game Over" popup.
-   */
-  const hideGameOverPopup = () => {
-    toggleButtonDisabled("returnToCheckpointPopup", true);
-    toggleButtonDisabled("restartPopup", true);
-    setDeathClassName("hidden");
+  const hidePopup = (btnDisabledKey, stateFunc) => {
+    toggleButtonDisabled(btnDisabledKey, true);
+    stateFunc("hidden");
   };
 
   /**
@@ -303,7 +284,7 @@ function GamePlay() {
     const checkpointApplied = await applyCheckpoint(popUpNextSceneId);
     if (!checkpointApplied) return;
 
-    hideCheckpointPopup();
+    hidePopup("checkpointContinuePopup", setCheckpointClassName);
     setTimeout(() => fetchData(popUpNextSceneId, userId, true));
   };
 
@@ -314,7 +295,9 @@ function GamePlay() {
     const id = await getPreviousSceneId(table);
     if (!id) return;
 
-    hideGameOverPopup();
+    hidePopup("returnToCheckpointPopup", setDeathClassName);
+    hidePopup("restartPopup", setDeathClassName);
+
     toggleNavModalPopup(true, "hidden");
     setTimeout(() => fetchData(id, userId, true));
   };
@@ -326,20 +309,11 @@ function GamePlay() {
     const statsUpdated = await restartGame();
     if (!statsUpdated) return;
 
-    hideGameOverPopup();
+    hidePopup("returnToCheckpointPopup", setDeathClassName);
+    hidePopup("restartPopup", setDeathClassName);
+
     toggleNavModalPopup(true, "hidden");
     setTimeout(() => fetchData(1, userId, true));
-  };
-
-  /**
-   * Handler for returning to the last checkpoint after death.
-   */
-  const onRedoLastChoice = async () => {
-    const lastChoiceId = await returnToLastChoice();
-    if (!lastChoiceId) return;
-
-    toggleNavModalPopup(true, "hidden");
-    setTimeout(() => fetchData(lastChoiceId, userId, false));
   };
 
   /**
@@ -364,7 +338,7 @@ function GamePlay() {
   };
 
   /**
-   * Handler for opening/close game navigation modal
+   * Handler for opening/close game modal
    */
   const toggleNavModalPopup = (btnState, modalClassName) => {
     toggleButtonDisabled("lastChoiceModal", btnState);
@@ -400,7 +374,7 @@ function GamePlay() {
     }
 
     const { data } = response;
-    const recordHandled = data.includes("updated") || data.includes("inserted");
+    const recordHandled = data.includes("updated") || data.includes("created");
 
     if (!recordHandled) {
       showError(response.status);
@@ -447,13 +421,55 @@ function GamePlay() {
   };
 
   const hideError = () => {
-    hideCheckpointPopup();
-    hideGameOverPopup();
+    // Hide checkpoint popup
+    hidePopup("checkpointContinuePopup", setCheckpointClassName);
+
+    // Hide death popup
+    hidePopup("returnToCheckpointPopup", setDeathClassName);
+    hidePopup("restartPopup", setDeathClassName);
 
     setErrorClassName("hidden");
     setErrorCode("???");
 
     toggleButtonDisabled("errorPopup", true);
+  };
+
+  /* -----------------------------
+   * Information Display Handling
+   * ----------------------------- */
+
+  const showInfo = (title, msg) => {
+    setInfoClassName("");
+    setInfoTitle(title);
+    setInfoMessage(msg);
+
+    toggleButtonDisabled("infoPopup", false);
+  };
+
+  const hideInfo = () => {
+    hidePopup("infoPopup", setInfoClassName);
+  };
+
+  /* -----------------------------
+   * Boost Stats Funcs
+   * ----------------------------- */
+
+  const handleBoostSelectorChange = (stat) => {
+    const config = {
+      life: { label: "Life", icon: "fa-heart", value: playerStats[0] },
+      mana: { label: "Mana", icon: "fa-magic", value: playerStats[1] },
+    };
+    console.log(stat);
+
+    setBoostLabel(config[stat].label);
+    setBoostIcon(config[stat].icon);
+    setBoostValue(config[stat].value);
+    setBoostAmount(0);
+  };
+
+  const handleBoostOnConfirm = () => {
+    setLuck((prev) => prev - boostAmount);
+    setBoostAmount(0);
   };
 
   /* -----------------------------
@@ -474,11 +490,14 @@ function GamePlay() {
   return (
     <div className="game-container">
       {/* Navigation Bar */}
-      <GameNavBar openNavigation={() => toggleNavModalPopup(false, "active")} />
+      <GameNavBar
+        openNavigation={() => toggleNavModalPopup(false, "active")}
+        openBoostStats={() => setBoostModalClassName("active")}
+      />
 
       {/* Navigation Bar Modals */}
       <GameNavModal
-        modalClassName={navModalClassName}
+        modalClassName={boostModalClassName}
         closeModal={() => toggleNavModalPopup(true, "hidden")}
         redoLastChoice={() => onReturnToPreviousScene("last_choice")}
         goToCheckpoint={() => onReturnToPreviousScene("checkpoints")}
@@ -486,6 +505,20 @@ function GamePlay() {
         lastChoiceDisabled={btnDisabled.lastChoiceModal}
         returnToCheckpointDisabled={btnDisabled.returnToCheckpointModal}
         restartGameDisabled={btnDisabled.restartModal}
+      />
+
+      <BoostModal
+        closeModal={() => setBoostModalClassName("hidden")}
+        onStatChange={handleBoostSelectorChange}
+        onConfirm={handleBoostOnConfirm}
+        modalClassName={boostModalClassName}
+        statOptions={["Life", "Mana"]}
+        boostLabel={boostLabel}
+        boostIcon={boostIcon}
+        boostValue={boostValue}
+        boostAmount={boostAmount}
+        setBoostAmount={setBoostAmount}
+        luck={luck}
       />
 
       {/* Player Stats Bar */}
@@ -544,7 +577,79 @@ function GamePlay() {
         </div>
       </div>
 
-      {/* Popups */}
+      {/* Checkpoint Popup */}
+      <Popup
+        overlayClass={checkpointClassName}
+        variant="checkpoint"
+        icon="💎"
+        title="Progress Saved"
+        message="Your journey has been preserved. The threads of fate have woven your accomplishments into the tapestry of time."
+        buttons={[
+          {
+            label: "Continue Your Quest",
+            onClick: onContinueAdventure,
+            disabled: btnDisabled.checkpointContinuePopup,
+          },
+        ]}
+      />
+
+      {/* Death Popup */}
+      <Popup
+        overlayClass={deathClassName}
+        variant="death"
+        icon="💀"
+        title="You Have Fallen"
+        message="Darkness consumes your vision as life slips away. Your tale ends here... but the chronicles remember."
+        buttons={[
+          {
+            label: "Return to Last Checkpoint",
+            onClick: () => onReturnToPreviousScene("checkpoints"),
+            disabled: btnDisabled.returnToCheckpointPopup,
+          },
+          {
+            label: "Restart",
+            onClick: onRestartGame,
+            disabled: btnDisabled.returnToCheckpointPopup,
+          },
+        ]}
+      />
+
+      {/* Error Popup */}
+      <Popup
+        overlayClass={errorClassName}
+        variant="error"
+        icon="⚠️"
+        title="System Anomaly"
+        message="The fabric of reality has encountered an unexpected disturbance."
+        extraContent={
+          <div className="error-code">ERROR CODE: NX-{errorCode}</div>
+        }
+        buttons={[
+          {
+            label: "Acknowledge",
+            onClick: hideError,
+            disabled: btnDisabled.errorPopup,
+          },
+        ]}
+      />
+
+      {/* Info Popup */}
+      <Popup
+        overlayClass={infoClassName}
+        variant="info"
+        icon="📜"
+        title={infoTitle}
+        message={infoMessage}
+        buttons={[
+          {
+            label: "Acknowledge",
+            onClick: hideInfo,
+            disabled: btnDisabled.infoPopup,
+          },
+        ]}
+      />
+
+      {/* 
       <CheckpointPopup
         className={checkpointClassName}
         onContinueAdventure={onContinueAdventure}
@@ -565,6 +670,15 @@ function GamePlay() {
         onAcknowledge={hideError}
         disabled={btnDisabled.errorPopup}
       />
+
+      <InfoPopup
+        className={infoClassName}
+        title={infoTitle}
+        message={infoMessage}
+        onAcknowledge={hideError}
+        disabled={btnDisabled.infoPopup}
+      />
+      */}
     </div>
   );
 }

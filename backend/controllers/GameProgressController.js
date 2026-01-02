@@ -94,9 +94,37 @@ const createLastChoiceProcess = async (db, sceneId, userId) => {
 // ----------------------------------
 // RESTART GAME
 // ----------------------------------
+
+const deleteSavePoint = (db, table, userId) => {
+  let progressService = new GameProgressService(db, {
+    table: table,
+    sceneId: 0,
+    userId,
+  });
+
+  return progressService.deleteRecord();
+};
+
 const restartGameProcess = async (db, userId) => {
   const playerService = new PlayerService(db, userId);
   const defaultStats = [12, 8, 0, 0];
+
+  // Delete checkpoint
+  const checkpointDeleted = await deleteSavePoint(
+    db,
+    TABLES.CHECKPOINT,
+    userId
+  );
+  if (!checkpointDeleted.success) return checkpointDeleted;
+
+  // Delete last choice
+  const lastChoiceDeleted = await deleteSavePoint(
+    db,
+    TABLES.LAST_CHOICE,
+    userId
+  );
+  if (!lastChoiceDeleted.success) return lastChoiceDeleted;
+
   return playerService.updatePlayerStats(defaultStats);
 };
 

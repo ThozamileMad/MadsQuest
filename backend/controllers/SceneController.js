@@ -25,7 +25,6 @@ const getNecessaryInfo = (
       nextSceneId: next_scene_id,
     })
   );
-  console.log("NewChoiceData: ", newChoiceData);
 
   let newChoiceEffectsData = choiceEffectsData.result[0];
   const { life_change, mana_change, morale_change, coin_change } =

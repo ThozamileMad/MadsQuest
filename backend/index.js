@@ -75,6 +75,7 @@ app.get("/api/return_to_previous/:table/:userId", async (req, res) => {
   const table = req.params.table;
 
   const response = await returnToPreviousProcess(db, userId, table);
+  console.log("response: ", response);
 
   return res.status(response.statusCode).json(response.result);
 });

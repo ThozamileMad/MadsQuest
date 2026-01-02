@@ -1,5 +1,5 @@
 import React from "react";
-import GameNavModalHeader from "./GameNavModalHeader";
+import ModalHeader from "./ModalHeader";
 import GameNavModalOption from "./GameNavModalOption";
 
 function GameNavModal({
@@ -15,7 +15,7 @@ function GameNavModal({
   return (
     <div id="navigationModal" className={"modal " + modalClassName}>
       <div className="modal-content">
-        <GameNavModalHeader
+        <ModalHeader
           text="Navigation"
           icon="fa-arrow-left"
           closeModal={closeModal}

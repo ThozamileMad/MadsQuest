@@ -1,6 +1,6 @@
 import React from "react";
 
-function GameNavModalHeader({ icon, text, closeModal, modalName }) {
+function ModalHeader({ icon, text, closeModal, modalName }) {
   return (
     <div className="modal-header">
       <div className="modal-title">
@@ -19,4 +19,4 @@ function GameNavModalHeader({ icon, text, closeModal, modalName }) {
   );
 }
 
-export default GameNavModalHeader;
+export default ModalHeader;

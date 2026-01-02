@@ -57,6 +57,21 @@ class GameProgressService {
       return serverError();
     }
   }
+
+  async deleteRecord() {
+    try {
+      await this.db.query(
+        `DELETE FROM ${this.table}
+         WHERE user_id = $1`,
+        [this.userId]
+      );
+
+      return ok("Record deleted");
+    } catch (err) {
+      console.error(`DB error (deleteRecord - ${this.table}):`, err);
+      return serverError();
+    }
+  }
 }
 
 export default GameProgressService;

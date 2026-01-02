@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Chronicles - Popups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Overlay */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: overlay-appear 0.4s ease;
+        }
+
+        @keyframes overlay-appear {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Popup Container */
+        .popup {
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(26, 26, 62, 0.95));
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.3), inset 0 0 30px rgba(0, 212, 255, 0.05);
+            animation: popup-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popup-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Checkpoint Popup */
+        .popup.checkpoint {
+            border-color: rgba(0, 212, 255, 0.6);
+        }
+
+        .popup.checkpoint::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: checkpoint-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes checkpoint-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Death Popup */
+        .popup.death {
+            border-color: rgba(255, 51, 51, 0.6);
+        }
+
+        .popup.death::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 51, 51, 0.1) 0%, transparent 70%);
+            animation: death-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes death-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.6;
+            }
+        }
+
+        /* Icon */
+        .popup-icon {
+            font-size: 80px;
+            text-align: center;
+            margin-bottom: 25px;
+            animation: icon-float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes icon-float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .popup.checkpoint .popup-icon {
+            animation: checkpoint-icon 2s ease-in-out infinite;
+        }
+
+        @keyframes checkpoint-icon {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+            }
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+                filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
+            }
+        }
+
+        .popup.death .popup-icon {
+            animation: death-icon 1.5s ease-in-out infinite;
+        }
+
+        @keyframes death-icon {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(255, 51, 51, 0.5));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 20px rgba(255, 51, 51, 0.8));
+            }
+        }
+
+        /* Title */
+        .popup-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+            animation: title-glow 2s ease-in-out infinite;
+        }
+
+        .popup.checkpoint .popup-title {
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .popup.death .popup-title {
+            color: #ff3333;
+            text-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
+        }
+
+        @keyframes title-glow {
+            0%, 100% {
+                text-shadow: 0 0 10px currentColor;
+            }
+            50% {
+                text-shadow: 0 0 25px currentColor;
+            }
+        }
+
+        /* Message */
+        .popup-message {
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #c0c0c0;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Decorative Line */
+        .popup-divider {
+            width: 60%;
+            height: 2px;
+            margin: 25px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .popup.checkpoint .popup-divider {
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .popup.death .popup-divider {
+            background: linear-gradient(90deg, transparent, #ff3333, transparent);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+        }
+
+        .popup-divider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: divider-shine 3s ease-in-out infinite;
+        }
+
+        @keyframes divider-shine {
+            0% {
+                left: -100%;
+            }
+            50%, 100% {
+                left: 200%;
+            }
+        }
+
+        /* Button */
+        .popup-button {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            border: 2px solid;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            background: none;
+            color: #e0e0e0;
+        }
+
+        .popup.checkpoint .popup-button {
+            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.05));
+        }
+
+        .popup.death .popup-button {
+            border-color: #ff3333;
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.1), rgba(255, 51, 51, 0.05));
+        }
+
+        .popup-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            transition: left 0.5s ease;
+        }
+
+        .popup.checkpoint .popup-button::before {
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+        }
+
+        .popup.death .popup-button::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 51, 51, 0.2), transparent);
+        }
+
+        .popup.checkpoint .popup-button:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.4), inset 0 0 15px rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .popup.death .popup-button:hover {
+            border-color: #ff3333;
+            box-shadow: 0 0 25px rgba(255, 51, 51, 0.4), inset 0 0 15px rgba(255, 51, 51, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .popup-button:hover::before {
+            left: 100%;
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: particle-float 4s ease-in-out infinite;
+        }
+
+        @keyframes particle-float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        .popup.checkpoint .particle {
+            background: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+        }
+
+        .popup.death .particle {
+            background: #ff3333;
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+        }
+
+        /* Distribute particles randomly */
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 30%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 50%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 70%; animation-delay: 0.5s; }
+        .particle:nth-child(5) { left: 90%; animation-delay: 1.5s; }
+
+        /* Toggle Buttons for Demo */
+        .demo-controls {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 2000;
+        }
+
+        .demo-btn {
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            color: #00d4ff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .popup {
+                padding: 40px 30px;
+            }
+
+            .popup-icon {
+                font-size: 60px;
+            }
+
+            .popup-title {
+                font-size: 28px;
+            }
+
+            .popup-message {
+                font-size: 14px;
+            }
+
+            .popup-button {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .demo-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+        <button class="demo-btn" onclick="showCheckpoint()">Show Checkpoint</button>
+        <button class="demo-btn" onclick="showDeath()">Show Death</button>
+    </div>
+
+    <!-- Checkpoint Popup -->
+    <div class="popup-overlay hidden" id="checkpointOverlay">
+        <div class="popup checkpoint">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            
+            <div class="popup-icon">💎</div>
+            <h2 class="popup-title">Progress Saved</h2>
+            <div class="popup-divider"></div>
+            <p class="popup-message">
+                Your journey has been preserved. The threads of fate have woven your accomplishments into the tapestry of time. Should darkness claim you, you may return to this moment.
+            </p>
+            <button class="popup-button" onclick="closeCheckpoint()">Continue Your Quest</button>
+        </div>
+    </div>
+
+    <!-- Death Popup -->
+    <div class="popup-overlay hidden" id="deathOverlay">
+        <div class="popup death">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            
+            <div class="popup-icon">💀</div>
+            <h2 class="popup-title">You Have Fallen</h2>
+            <div class="popup-divider"></div>
+            <p class="popup-message">
+                Darkness consumes your vision as life slips away. Your tale ends here... but the chronicles remember. The threads of fate offer you another chance to reshape your destiny.
+            </p>
+            <button class="popup-button" onclick="closeDeath()">Return to Last Checkpoint</button>
+        </div>
+    </div>
+
+    <script>
+        function showCheckpoint() {
+            document.getElementById('checkpointOverlay').classList.remove('hidden');
+        }
+
+        function closeCheckpoint() {
+            document.getElementById('checkpointOverlay').classList.add('hidden');
+        }
+
+        function showDeath() {
+            document.getElementById('deathOverlay').classList.remove('hidden');
+        }
+
+        function closeDeath() {
+            document.getElementById('deathOverlay').classList.add('hidden');
+            // In your actual game, this would load the last checkpoint
+        }
+
+        // Close popups when clicking overlay
+        document.getElementById('checkpointOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCheckpoint();
+            }
+        });
+
+        document.getElementById('deathOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeath();
+            }
+        });
+    </script>
+</body>
+</html>
