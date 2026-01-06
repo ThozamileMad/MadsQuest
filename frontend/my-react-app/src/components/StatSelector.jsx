@@ -1,6 +1,6 @@
 import React from "react";
 
-const StatSelector = ({ selectedStat, onStatChange, options }) => {
+const StatSelector = ({ onStatChange, options }) => {
   return (
     <div className="stat-selector">
       <label htmlFor="stat-select">
@@ -9,7 +9,6 @@ const StatSelector = ({ selectedStat, onStatChange, options }) => {
       <select
         id="stat-select"
         className="stat-dropdown"
-        value={selectedStat}
         onChange={(e) => onStatChange(e.target.value)}
       >
         {options.map((opt, index) => (

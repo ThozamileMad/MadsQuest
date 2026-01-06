@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievement Popup with Luck</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Achievement Popup Container */
+        .achievement-popup {
+            position: fixed;
+            top: -300px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .achievement-popup.show {
+            top: 30px;
+            opacity: 1;
+        }
+
+        .achievement-popup.hide {
+            top: -300px;
+            opacity: 0;
+        }
+
+        .achievement-content {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(124, 58, 237, 0.15));
+            border: 3px solid rgba(0, 255, 136, 0.6);
+            border-radius: 20px;
+            padding: 25px 30px;
+            min-width: 400px;
+            max-width: 500px;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.5),
+                        0 0 100px rgba(0, 212, 255, 0.3),
+                        inset 0 0 30px rgba(0, 255, 136, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background effect */
+        .achievement-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+            animation: rotate-glow 8s linear infinite;
+        }
+
+        @keyframes rotate-glow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .achievement-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Achievement Icon */
+        .achievement-icon-container {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(76, 175, 80, 0.3));
+            border-radius: 50%;
+            border: 3px solid rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6),
+                        inset 0 0 20px rgba(0, 255, 136, 0.2);
+            animation: icon-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes icon-pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 30px rgba(0, 255, 136, 0.6),
+                           inset 0 0 20px rgba(0, 255, 136, 0.2);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 50px rgba(0, 255, 136, 0.8),
+                           inset 0 0 30px rgba(0, 255, 136, 0.3);
+            }
+        }
+
+        .achievement-icon-container i {
+            font-size: 40px;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+            animation: icon-float 3s ease-in-out infinite;
+        }
+
+        @keyframes icon-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Achievement Text */
+        .achievement-text {
+            flex: 1;
+        }
+
+        .achievement-header {
+            font-size: 14px;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: header-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes header-glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+
+        .achievement-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+        }
+
+        .achievement-description {
+            font-size: 14px;
+            color: #b0b0b0;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        /* Luck Reward Section */
+        .luck-reward {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.15));
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 8px;
+            margin-top: 10px;
+            animation: luck-shine 2s ease-in-out infinite;
+        }
+
+        @keyframes luck-shine {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+                border-color: rgba(255, 215, 0, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+                border-color: rgba(255, 215, 0, 0.7);
+            }
+        }
+
+        .luck-icon {
+            font-size: 20px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: luck-spin 3s linear infinite;
+        }
+
+        @keyframes luck-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .luck-text {
+            font-size: 14px;
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .luck-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-left: auto;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            animation: luck-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes luck-pulse {
+            0%, 100% {
+                transform: scale(1);
+                text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            }
+            50% {
+                transform: scale(1.1);
+                text-shadow: 0 0 25px rgba(255, 215, 0, 1);
+            }
+        }
+
+        /* Sparkle effects */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffd700;
+            animation: sparkle-float 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle-float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .sparkle:nth-child(1) {
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            left: 40%;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle:nth-child(3) {
+            left: 60%;
+            animation-delay: 1s;
+        }
+
+        .sparkle:nth-child(4) {
+            left: 80%;
+            animation-delay: 1.5s;
+        }
+
+        /* Close button */
+        .achievement-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ff3333;
+            font-size: 20px;
+            border-radius: 50%;
+            background: rgba(255, 51, 51, 0.1);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .achievement-close:hover {
+            background: rgba(255, 51, 51, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .achievement-popup.show {
+                top: 20px;
+            }
+
+            .achievement-content {
+                min-width: 300px;
+                max-width: 90vw;
+                padding: 20px;
+            }
+
+            .achievement-inner {
+                gap: 15px;
+            }
+
+            .achievement-icon-container {
+                width: 60px;
+                height: 60px;
+            }
+
+            .achievement-icon-container i {
+                font-size: 30px;
+            }
+
+            .achievement-header {
+                font-size: 12px;
+            }
+
+            .achievement-title {
+                font-size: 18px;
+            }
+
+            .achievement-description {
+                font-size: 12px;
+            }
+
+            .luck-reward {
+                padding: 6px 10px;
+            }
+
+            .luck-icon {
+                font-size: 16px;
+            }
+
+            .luck-text {
+                font-size: 12px;
+            }
+
+            .luck-amount {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .achievement-content {
+                min-width: 280px;
+                padding: 18px;
+            }
+
+            .achievement-icon-container {
+                width: 50px;
+                height: 50px;
+            }
+
+            .achievement-icon-container i {
+                font-size: 24px;
+            }
+
+            .achievement-title {
+                font-size: 16px;
+            }
+
+            .luck-reward {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Demo button */
+        .demo-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .demo-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(124, 58, 237, 0.3));
+            border-color: #00d4ff;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .demo-container {
+            text-align: center;
+        }
+
+        .demo-container h1 {
+            color: #00d4ff;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Buttons -->
+    <div class="demo-container">
+        <h1>Achievement System Demo</h1>
+        <button class="demo-btn" onclick="showAchievement()">
+            <i class="fas fa-trophy"></i> Random Achievement
+        </button>
+        <button class="demo-btn" onclick="showAchievementWithLuck('fa-horse-head', 'Cavalry Charge', 'Trample an enemy while mounted on horseback', 5)">
+            <i class="fas fa-horse-head"></i> Cavalry Charge (+5 Luck)
+        </button>
+        <button class="demo-btn" onclick="showAchievementWithLuck('fa-hand-holding-heart', 'Merciful Soul', 'Spare a helpless enemy despite having the opportunity to kill', 3)">
+            <i class="fas fa-heart"></i> Merciful Soul (+3 Luck)
+        </button>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="achievement-content">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            
+            <div class="achievement-close" onclick="hideAchievement()">
+                <i class="fas fa-times"></i>
+            </div>
+            
+            <div class="achievement-inner">
+                <div class="achievement-icon-container">
+                    <i class="fas fa-trophy" id="achievementIcon"></i>
+                </div>
+                <div class="achievement-text">
+                    <div class="achievement-header">🎉 Achievement Unlocked!</div>
+                    <div class="achievement-title" id="achievementTitle">First Steps</div>
+                    <div class="achievement-description" id="achievementDesc">Begin your journey in the Nexus Chronicles</div>
+                    <div class="luck-reward" id="luckReward">
+                        <i class="fas fa-clover luck-icon"></i>
+                        <span class="luck-text">Luck Gained</span>
+                        <span class="luck-amount" id="luckAmount">+2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Example achievements data with luck rewards
+        const achievements = [
+            {
+                icon: 'fa-trophy',
+                title: 'First Steps',
+                description: 'Begin your journey in the Nexus Chronicles',
+                luck: 2
+            },
+            {
+                icon: 'fa-sword',
+                title: "Warrior's Path",
+                description: 'Win 5 battles without using magic',
+                luck: 5
+            },
+            {
+                icon: 'fa-hat-wizard',
+                title: 'Master Sorcerer',
+                description: 'Cast 50 spells successfully',
+                luck: 8
+            },
+            {
+                icon: 'fa-coins',
+                title: 'Treasure Hunter',
+                description: 'Collect 500 gold',
+                luck: 3
+            },
+            {
+                icon: 'fa-map-marked-alt',
+                title: 'Explorer',
+                description: 'Discover all locations in Chapter 1',
+                luck: 6
+            },
+            {
+                icon: 'fa-star',
+                title: 'Legend',
+                description: 'Complete the game with all achievements',
+                luck: 15
+            },
+            {
+                icon: 'fa-fire',
+                title: 'Pyromaniac',
+                description: 'Defeat 10 enemies with fire magic',
+                luck: 4
+            },
+            {
+                icon: 'fa-shield-alt',
+                title: 'Defender',
+                description: 'Block 25 attacks successfully',
+                luck: 5
+            },
+            {
+                icon: 'fa-horse-head',
+                title: 'Cavalry Charge',
+                description: 'Trample an enemy while mounted on horseback',
+                luck: 5
+            },
+            {
+                icon: 'fa-skull-crossbones',
+                title: 'No Mercy',
+                description: 'Choose the lethal path when escape was already assured',
+                luck: 2
+            },
+            {
+                icon: 'fa-hand-holding-heart',
+                title: 'Merciful Soul',
+                description: 'Spare a helpless enemy despite having the opportunity to kill',
+                luck: 3
+            },
+            {
+                icon: 'fa-theater-masks',
+                title: 'Witness to Cruelty',
+                description: 'Watch Victor execute a defenseless opponent',
+                luck: 1
+            }
+        ];
+
+        let currentAchievementIndex = 0;
+
+        function showAchievement(achievementData) {
+            const popup = document.getElementById('achievementPopup');
+            const iconElement = document.getElementById('achievementIcon');
+            const titleElement = document.getElementById('achievementTitle');
+            const descElement = document.getElementById('achievementDesc');
+            const luckAmountElement = document.getElementById('luckAmount');
+
+            // Use provided data or cycle through demo achievements
+            let data;
+            if (achievementData) {
+                data = achievementData;
+            } else {
+                data = achievements[currentAchievementIndex];
+                currentAchievementIndex = (currentAchievementIndex + 1) % achievements.length;
+            }
+
+            // Update content
+            iconElement.className = 'fas ' + data.icon;
+            titleElement.textContent = data.title;
+            descElement.textContent = data.description;
+            luckAmountElement.textContent = '+' + data.luck;
+
+            // Show popup
+            popup.classList.remove('hide');
+            popup.classList.add('show');
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideAchievement();
+            }, 5000);
+        }
+
+        function hideAchievement() {
+            const popup = document.getElementById('achievementPopup');
+            popup.classList.remove('show');
+            popup.classList.add('hide');
+        }
+
+        // Function to trigger achievement with specific luck value
+        function showAchievementWithLuck(iconClass, title, description, luckValue) {
+            showAchievement({
+                icon: iconClass,
+                title: title,
+                description: description,
+                luck: luckValue
+            });
+        }
+
+        // Function to trigger achievement from anywhere in your code
+        function unlockAchievement(iconClass, title, description, luckValue) {
+            showAchievement({
+                icon: iconClass,
+                title: title,
+                description: description,
+                luck: luckValue
+            });
+        }
+
+        // Example usage:
+        // unlockAchievement('fa-trophy', 'First Steps', 'Begin your journey in the Nexus Chronicles', 2);
+        // unlockAchievement('fa-horse-head', 'Cavalry Charge', 'Trample an enemy while mounted', 5);
+    </script>
+</body>
+</html>

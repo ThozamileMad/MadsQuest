@@ -1860,6 +1860,7 @@
 
 .achievement-info {
   flex: 1;
+  min-width: 0;
 }
 
 .achievement-name {
@@ -1873,6 +1874,7 @@
   font-size: 13px;
   opacity: 0.8;
   color: #b0b0b0;
+  line-height: 1.4;
 }
 
 .achievement-status {
@@ -1881,6 +1883,7 @@
   border-radius: 6px;
   font-weight: bold;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .achievement-item.unlocked .achievement-status {
@@ -1958,7 +1961,60 @@
   }
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
+@media screen and (max-width: 600px) {
+  .achievement-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .achievement-item:hover {
+    transform: translateX(0);
+  }
+
+  .achievement-icon {
+    font-size: 28px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .achievement-name {
+    font-size: 15px;
+  }
+
+  .achievement-desc {
+    font-size: 12px;
+  }
+
+  .achievement-status {
+    align-self: flex-end;
+    font-size: 11px;
+    padding: 5px 12px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .achievement-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .achievement-icon {
+    font-size: 24px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .achievement-name {
+    font-size: 14px;
+  }
+
+  .achievement-desc {
+    font-size: 11px;
+  }
+}
+
 @media (max-width: 1024px) {
   .stats-bar {
     grid-template-columns: repeat(2, 1fr);

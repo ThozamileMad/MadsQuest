@@ -401,3 +401,9 @@ UPDATE scenes
 SET is_checkpoint = TRUE
 WHERE id = 26;
 SELECT * FROM scenes ORDER BY id ASC;
+
+CREATE TABLE luck (
+	id SERIAL PRIMARY KEY,
+	user_id INTEGER,
+	luck INTEGER
+);

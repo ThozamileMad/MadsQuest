@@ -1,7 +1,7 @@
 import React from "react";
 import GameNavButton from "./GameNavButton";
 
-function GameNavBar({ openNavigation, openBoostStats }) {
+function GameNavBar({ openNavigation, openBoostStats, openAchievements }) {
   return (
     <div className="top-nav">
       <div className="nav-buttons">
@@ -26,7 +26,7 @@ function GameNavBar({ openNavigation, openBoostStats }) {
         <GameNavButton
           wrapperClassName="nav-btn-wrapper"
           btnClassName="nav-btn achievements"
-          onClick={() => alert("Achievements opened!")}
+          onClick={() => openAchievements()}
           icon="fa-trophy"
           text="Achievements"
           toolTip="View your progress"

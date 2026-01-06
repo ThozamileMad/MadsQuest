@@ -10,6 +10,7 @@ import Popup from "../components/Popup";
 import GameNavBar from "../components/GameNavBar";
 import GameNavModal from "../components/GameNavModal";
 import BoostModal from "../components/BoostModal";
+import AchievementsModal from "../components/AchievementsModal";
 
 /* API modules */
 import { post, get } from "../scripts/api";
@@ -51,13 +52,15 @@ function GamePlay() {
   const [errorClassName, setErrorClassName] = useState("hidden");
   const [navModalClassName, setNavModalClassName] = useState("hidden");
   const [boostModalClassName, setBoostModalClassName] = useState("hidden");
+  const [achievementsModalClassName, setAchievementsModalClassName] =
+    useState("hidden");
   const [infoClassName, setInfoClassName] = useState("hidden");
 
   const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
 
   const [boostLabel, setBoostLabel] = useState("Life");
   const [boostIcon, setBoostIcon] = useState("fa-heart");
-  const [boostValue, setBoostValue] = useState(playerStats[0]);
+  const [boostValue, setBoostValue] = useState(0);
   const [boostAmount, setBoostAmount] = useState(0);
 
   const [luck, setLuck] = useState(12);
@@ -338,7 +341,7 @@ function GamePlay() {
   };
 
   /**
-   * Handler for opening/close game modal
+   * Handler for opening/close game navigation modal
    */
   const toggleNavModalPopup = (btnState, modalClassName) => {
     toggleButtonDisabled("lastChoiceModal", btnState);
@@ -453,13 +456,32 @@ function GamePlay() {
   /* -----------------------------
    * Boost Stats Funcs
    * ----------------------------- */
+  const getLuck = async () => {
+    const response = await get(`/api/get_luck/${userId}`);
+
+    if (response.status !== 200) {
+      showError(response.status);
+      return;
+    }
+
+    const luck = response.data[0].luck;
+    setLuck(luck);
+  };
+
+  const openBoostModal = () => {
+    setBoostModalClassName("active");
+    setBoostAmount(0);
+    setBoostIcon("fa-heart");
+    setBoostValue(playerStats[0]);
+    setBoostLabel("Life");
+    getLuck();
+  };
 
   const handleBoostSelectorChange = (stat) => {
     const config = {
       life: { label: "Life", icon: "fa-heart", value: playerStats[0] },
       mana: { label: "Mana", icon: "fa-magic", value: playerStats[1] },
     };
-    console.log(stat);
 
     setBoostLabel(config[stat].label);
     setBoostIcon(config[stat].icon);
@@ -467,9 +489,45 @@ function GamePlay() {
     setBoostAmount(0);
   };
 
-  const handleBoostOnConfirm = () => {
-    setLuck((prev) => prev - boostAmount);
+  const handleBoostOnConfirm = async () => {
+    const stat = boostLabel.toLowerCase();
+
+    const response = await post(
+      `/api/boost_stats/${userId}/${boostAmount}/${stat}`
+    );
+
+    if (response.status !== 200) {
+      showError(response.status);
+      return;
+    }
+
+    const { luck, life, mana } = response.data[0];
+
+    setLuck(luck);
+    setPlayerStats((prev) => {
+      let updatedStats = [...prev];
+      updatedStats[0] = life;
+      updatedStats[1] = mana;
+
+      return updatedStats;
+    });
+    setChoiceEffects((prev) => {
+      let updatedEffects = [...prev];
+      updatedEffects[0] = stat === "life" ? boostAmount : updatedEffects[0];
+      updatedEffects[1] = stat === "mana" ? boostAmount : updatedEffects[1];
+
+      return updatedEffects;
+    });
+    setBoostValue((prev) => prev + boostAmount);
     setBoostAmount(0);
+  };
+
+  /* -----------------------------
+   * Achievement Funcs
+   * ----------------------------- */
+
+  const openAchievements = () => {
+    setAchievementsModalClassName("active");
   };
 
   /* -----------------------------
@@ -478,6 +536,7 @@ function GamePlay() {
 
   useEffect(() => {
     fetchData(sceneId, userId, updateStats);
+
     if (sceneId === 1) {
       onRestartGame();
     }
@@ -492,12 +551,13 @@ function GamePlay() {
       {/* Navigation Bar */}
       <GameNavBar
         openNavigation={() => toggleNavModalPopup(false, "active")}
-        openBoostStats={() => setBoostModalClassName("active")}
+        openBoostStats={openBoostModal}
+        openAchievements={openAchievements}
       />
 
       {/* Navigation Bar Modals */}
       <GameNavModal
-        modalClassName={boostModalClassName}
+        modalClassName={navModalClassName}
         closeModal={() => toggleNavModalPopup(true, "hidden")}
         redoLastChoice={() => onReturnToPreviousScene("last_choice")}
         goToCheckpoint={() => onReturnToPreviousScene("checkpoints")}
@@ -508,7 +568,9 @@ function GamePlay() {
       />
 
       <BoostModal
-        closeModal={() => setBoostModalClassName("hidden")}
+        closeModal={() => {
+          setBoostModalClassName("hidden");
+        }}
         onStatChange={handleBoostSelectorChange}
         onConfirm={handleBoostOnConfirm}
         modalClassName={boostModalClassName}
@@ -519,6 +581,13 @@ function GamePlay() {
         boostAmount={boostAmount}
         setBoostAmount={setBoostAmount}
         luck={luck}
+      />
+
+      <AchievementsModal
+        closeModal={() => {
+          setAchievementsModalClassName("hidden");
+        }}
+        modalClassName={achievementsModalClassName}
       />
 
       {/* Player Stats Bar */}

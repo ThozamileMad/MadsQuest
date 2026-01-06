@@ -12,6 +12,11 @@ import {
   restartGameProcess,
 } from "./controllers/GameProgressController.js";
 import { createSceneProcess } from "./controllers/SceneController.js";
+import {
+  getLuckProcess,
+  updateLuckProcess,
+  boostStatsProcess,
+} from "./controllers/LuckController.js";
 
 const app = express();
 const port = 5000;
@@ -54,6 +59,24 @@ const db = new pg.Client({
 });
 
 db.connect();
+
+// -------------------------------
+// Scene Routes
+// -------------------------------
+
+/**
+ * GET /api/scene/:sceneId/:userId
+ * Retrieves or initializes the scene process for the given user.
+ */
+app.get("/api/scene/:sceneId/:userId/:updateStats", async (req, res) => {
+  const sceneId = req.params.sceneId;
+  const userId = req.params.userId;
+  const updateStats = req.params.updateStats === "true";
+
+  const response = await createSceneProcess(db, userId, sceneId, updateStats);
+
+  return res.status(response.statusCode).json(response.result);
+});
 
 // -------------------------------
 // Game Progression Routes
@@ -100,19 +123,35 @@ app.get("/api/restart_game/:userId", async (req, res) => {
 });
 
 // -------------------------------
-// Scene Routes
+// Luck Routes
 // -------------------------------
 
-/**
- * GET /api/scene/:sceneId/:userId
- * Retrieves or initializes the scene process for the given user.
- */
-app.get("/api/scene/:sceneId/:userId/:updateStats", async (req, res) => {
-  const sceneId = req.params.sceneId;
+// Gets current player luck
+app.get("/api/get_luck/:userId", async (req, res) => {
   const userId = req.params.userId;
-  const updateStats = req.params.updateStats === "true";
 
-  const response = await createSceneProcess(db, userId, sceneId, updateStats);
+  const response = await getLuckProcess(db, userId);
+
+  return res.status(response.statusCode).json(response.result);
+});
+
+// Updates current player luck
+app.post("/api/update_luck/:userId/:luck", async (req, res) => {
+  const userId = req.params.userId;
+  const luck = Number(req.params.luck);
+
+  const response = await updateLuckProcess(db, userId, luck);
+
+  return res.status(response.statusCode).json(response.result);
+});
+
+// Boosts a players stats
+app.post("/api/boost_stats/:userId/:boost_amount/:stat", async (req, res) => {
+  const userId = req.params.userId;
+  const boostAmount = Number(req.params.boost_amount);
+  const stat = req.params.stat;
+
+  const response = await boostStatsProcess(db, userId, boostAmount, stat);
 
   return res.status(response.statusCode).json(response.result);
 });
