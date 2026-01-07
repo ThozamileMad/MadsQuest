@@ -407,3 +407,35 @@ CREATE TABLE luck (
 	user_id INTEGER,
 	luck INTEGER
 );
+
+-- Updated achievements table with luck column
+CREATE TABLE achievements (
+    id SERIAL PRIMARY KEY,
+    icon TEXT,
+    title TEXT UNIQUE NOT NULL,
+    subtitle TEXT UNIQUE NOT NULL,
+    luck INTEGER DEFAULT 0,
+	scene_id INTEGER,
+	FOREIGN KEY (scene_id) REFERENCES scenes(id)
+);
+
+CREATE TABLE player_achievements (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    achievement_id INTEGER,
+    FOREIGN KEY (achievement_id) REFERENCES achievements(id)
+);
+
+-- Insert achievements with luck values
+INSERT INTO achievements (icon, title, subtitle, luck, scene_id) VALUES
+('fa-gamepad', 'First Steps', 'Begin your journey in the Nexus Chronicles', 2, 1),
+('fa-horse-head', 'Cavalry Charge!', 'Trample an enemy while mounted on horseback', 1, 21),
+('fa-feather-alt', 'Borrowed Instincts', 'Command a raptor through telepathic domination', 2, 30),
+('fa-fire', 'Pyromaniac', 'Set multiple combatants ablaze with reckless fire magic', 3, 40),
+('fa-face-grin-squint', 'Dirty Tactics', 'Distract an enemy with pure disgust and let fate finish the job', 1, 44)
+
+
+SELECT a.*
+FROM achievements a
+JOIN player_achievements pa ON pa.achievement_id = a.id
+WHERE pa.user_id = 1;

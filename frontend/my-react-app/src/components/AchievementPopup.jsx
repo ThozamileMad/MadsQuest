@@ -1,38 +1,43 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 function AchievementPopup({
   className,
-  achievement,
+  icon,
+  title,
+  description,
+  luckAmount,
   onClose,
-  duration = 5000,
 }) {
   return (
-    <div className={`achievement-popup ${className}`} id="achievementPopup">
+    <div className={`achievement-popup ${className}`}>
       <div className="achievement-content">
-        {/* Animated Sparkles */}
+        {/* Sparkles */}
         <div className="sparkle"></div>
         <div className="sparkle"></div>
         <div className="sparkle"></div>
         <div className="sparkle"></div>
 
+        {/* Close Button */}
         <div className="achievement-close" onClick={onClose}>
           <i className="fas fa-times"></i>
         </div>
 
         <div className="achievement-inner">
           <div className="achievement-icon-container">
-            <i
-              className={`fas ${achievement.icon || "fa-trophy"}`}
-              id="achievementIcon"
-            ></i>
+            <i className={`fas ${icon}`}></i>
           </div>
+
           <div className="achievement-text">
             <div className="achievement-header">🎉 Achievement Unlocked!</div>
-            <div className="achievement-title" id="achievementTitle">
-              {achievement.title}
-            </div>
-            <div className="achievement-description" id="achievementDesc">
-              {achievement.description}
+
+            <div className="achievement-title">{title}</div>
+
+            <div className="achievement-description">{description}</div>
+
+            <div className="luck-reward">
+              <i className="fas fa-clover luck-icon"></i>
+              <span className="luck-text">Luck Gained</span>
+              <span className="luck-amount">+{luckAmount}</span>
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ import GameNavBar from "../components/GameNavBar";
 import GameNavModal from "../components/GameNavModal";
 import BoostModal from "../components/BoostModal";
 import AchievementsModal from "../components/AchievementsModal";
+import AchievementPopup from "../components/AchievementPopup";
 
 /* API modules */
 import { post, get } from "../scripts/api";
@@ -55,6 +56,8 @@ function GamePlay() {
   const [achievementsModalClassName, setAchievementsModalClassName] =
     useState("hidden");
   const [infoClassName, setInfoClassName] = useState("hidden");
+  const [achievementPopupClassName, setAchievementPopupClassName] =
+    useState("hide");
 
   const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
 
@@ -62,6 +65,16 @@ function GamePlay() {
   const [boostIcon, setBoostIcon] = useState("fa-heart");
   const [boostValue, setBoostValue] = useState(0);
   const [boostAmount, setBoostAmount] = useState(0);
+
+  const [achievementModalData, setAchievementModalData] = useState([]);
+
+  const [achievementPopupClassname, setAchievementPopupClassname] =
+    useState("");
+  const [achievementPopupIcon, setAchievementPopupIcon] = useState("");
+  const [achievementPopupTitle, setAchievementPopupTitle] = useState("");
+  const [achievementPopupDescription, setAchievementPopupDescription] =
+    useState("");
+  const [achievementPopupLuck, setAchievementPopupLuck] = useState(0);
 
   const [luck, setLuck] = useState(12);
 
@@ -199,6 +212,7 @@ function GamePlay() {
 
     setPlayerStatus(status);
     updateSceneUI(sceneData, choiceEffectsData, playerStatsData, choiceData);
+    showAchievementPopup(sceneId);
 
     // Keep stats visible when transitioning scenes
     statsRef.current.scrollIntoView({
@@ -523,11 +537,46 @@ function GamePlay() {
   };
 
   /* -----------------------------
-   * Achievement Funcs
+   * Achievement Modal
    * ----------------------------- */
 
-  const openAchievements = () => {
+  const openAchievements = async () => {
+    const response = await get(`/api/get_achievements/${userId}`);
+
+    if (response.status !== 200) {
+      showError(response.status);
+      return;
+    }
+
+    setAchievementModalData(response.data);
     setAchievementsModalClassName("active");
+  };
+
+  /* -----------------------------
+   * Achievement Popup
+   * ----------------------------- */
+
+  const showAchievementPopup = async (sceneId) => {
+    const response = await post(`/api/unlock_achievement/${userId}/${sceneId}`);
+
+    if (response.status !== 200) {
+      return;
+    }
+
+    const { icon, title, subtitle, luck } = response.data[0];
+
+    console.log(response.data[0]);
+    setAchievementPopupClassname("show");
+    setAchievementPopupIcon(icon);
+    setAchievementPopupTitle(title);
+    setAchievementPopupDescription(subtitle);
+    setAchievementPopupLuck(luck);
+
+    setTimeout(() => setAchievementPopupClassname("hide2"), 5000);
+  };
+
+  const achievementPopupOnClose = () => {
+    setAchievementPopupClassname("hide2");
   };
 
   /* -----------------------------
@@ -537,9 +586,9 @@ function GamePlay() {
   useEffect(() => {
     fetchData(sceneId, userId, updateStats);
 
-    if (sceneId === 1) {
+    /*if (sceneId === 1) {
       onRestartGame();
-    }
+    }*/
   }, []);
 
   /* -----------------------------
@@ -588,6 +637,7 @@ function GamePlay() {
           setAchievementsModalClassName("hidden");
         }}
         modalClassName={achievementsModalClassName}
+        achievementData={achievementModalData}
       />
 
       {/* Player Stats Bar */}
@@ -718,36 +768,15 @@ function GamePlay() {
         ]}
       />
 
-      {/* 
-      <CheckpointPopup
-        className={checkpointClassName}
-        onContinueAdventure={onContinueAdventure}
-        disabled={btnDisabled.checkpointContinuePopup}
+      {/* AchievementPopup */}
+      <AchievementPopup
+        className={achievementPopupClassname}
+        icon={achievementPopupIcon}
+        title={achievementPopupTitle}
+        description={achievementPopupDescription}
+        luckAmount={achievementPopupLuck}
+        onClose={achievementPopupOnClose}
       />
-
-      <DeathPopup
-        className={deathClassName}
-        onReturnToCheckpoint={() => onReturnToPreviousScene("checkpoints")}
-        onRestartGame={onRestartGame}
-        returnToCheckpointDisabled={btnDisabled.returnToCheckpointPopup}
-        restartGameDisabled={btnDisabled.returnToCheckpointPopup}
-      />
-
-      <ErrorPopup
-        className={errorClassName}
-        errorCode={errorCode}
-        onAcknowledge={hideError}
-        disabled={btnDisabled.errorPopup}
-      />
-
-      <InfoPopup
-        className={infoClassName}
-        title={infoTitle}
-        message={infoMessage}
-        onAcknowledge={hideError}
-        disabled={btnDisabled.infoPopup}
-      />
-      */}
     </div>
   );
 }
