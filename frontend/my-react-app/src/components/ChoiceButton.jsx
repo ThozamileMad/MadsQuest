@@ -1,10 +1,17 @@
 import React from "react";
 
-function ChoiceButton({ onClick, styles, icon, text, disabled }) {
+function ChoiceButton({
+  themeClassName,
+  onClick,
+  styles,
+  icon,
+  text,
+  disabled,
+}) {
   return (
     <button
       type="button"
-      className="choice-button"
+      className={`choice-button ${themeClassName}`}
       onClick={onClick}
       style={styles}
       disabled={disabled}

@@ -5,6 +5,7 @@ import BoostInfoBox from "./BoostInfoBox";
 import ModalHeader from "./ModalHeader";
 
 const BoostModal = ({
+  themeClassName,
   modalClassName,
   onStatChange,
   statOptions,
@@ -19,19 +20,16 @@ const BoostModal = ({
 }) => {
   return (
     <div id="boostModal" className={"modal " + modalClassName}>
-      <div className="modal-content">
+      <div className={`modal-content ${themeClassName}`}>
         <ModalHeader
+          themeClassName={themeClassName}
           text="Boost Stats"
           icon="fa-bolt"
           closeModal={closeModal}
           modalName="boostModal"
         />
 
-        <StatSelector
-          selectedStat={boostLabel}
-          onStatChange={onStatChange}
-          options={statOptions}
-        />
+        <StatSelector onStatChange={onStatChange} options={statOptions} />
 
         <div className="boost-container">
           <BoostControls

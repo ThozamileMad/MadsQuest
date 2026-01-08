@@ -1,10 +1,10 @@
 import React from "react";
 
-function StoryText({ paragraphs }) {
+function StoryText({ textSizeClassName, themeClassName, paragraphs }) {
   return (
-    <div className="story-text">
-      {paragraphs.map((item, key) => {
-        return <p key={key}>{item}</p>;
+    <div className={`story-text ${textSizeClassName} ${themeClassName}`}>
+      {paragraphs.map((text, index) => {
+        return <p key={index}>{text}</p>;
       })}
     </div>
   );

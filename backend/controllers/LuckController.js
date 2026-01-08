@@ -1,5 +1,6 @@
 import LuckService from "../services/LuckService.js";
 import PlayerService from "../services/PlayerService.js";
+import { ok } from "../utils/response.js";
 
 // ----------------------
 // Luck Retrieval Process
@@ -62,17 +63,13 @@ const boostStatsProcess = async (db, userId, boostAmount, stat) => {
   if (!statsUpdated.success) return statsUpdated;
 
   // Return updated luck and stats
-  return {
-    success: true,
-    result: [
-      {
-        luck: updatedLuck,
-        life: newPlayerStats.life,
-        mana: newPlayerStats.mana,
-      },
-    ],
-    statusCode: 200,
-  };
+  return ok([
+    {
+      luck: updatedLuck,
+      life: newPlayerStats.life,
+      mana: newPlayerStats.mana,
+    },
+  ]);
 };
 
 export { getLuckProcess, updateLuckProcess, boostStatsProcess };

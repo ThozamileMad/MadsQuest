@@ -1,14 +1,21 @@
 import React from "react";
 import GameNavButton from "./GameNavButton";
 
-function GameNavBar({ openNavigation, openBoostStats, openAchievements }) {
+function GameNavBar({
+  topNavTheme,
+  navBtnTheme,
+  openNavigation,
+  openBoostStats,
+  openAchievements,
+  openSettings,
+}) {
   return (
-    <div className="top-nav">
+    <div className={`top-nav ${topNavTheme}`}>
       <div className="nav-buttons">
         <GameNavButton
           wrapperClassName="nav-btn-wrapper"
-          btnClassName="nav-btn navigate"
-          onClick={() => openNavigation()}
+          btnClassName={`nav-btn navigate ${navBtnTheme}`}
+          onClick={openNavigation}
           icon="fa-arrow-left"
           text="Navigate"
           toolTip="Go back or restart"
@@ -16,8 +23,8 @@ function GameNavBar({ openNavigation, openBoostStats, openAchievements }) {
 
         <GameNavButton
           wrapperClassName="nav-btn-wrapper"
-          btnClassName="nav-btn boost"
-          onClick={() => openBoostStats()}
+          btnClassName={`nav-btn boost ${navBtnTheme}`}
+          onClick={openBoostStats}
           icon="fa-bolt"
           text="Boost Stats"
           toolTip="Enhance your character"
@@ -25,8 +32,8 @@ function GameNavBar({ openNavigation, openBoostStats, openAchievements }) {
 
         <GameNavButton
           wrapperClassName="nav-btn-wrapper"
-          btnClassName="nav-btn achievements"
-          onClick={() => openAchievements()}
+          btnClassName={`nav-btn achievements ${navBtnTheme}`}
+          onClick={openAchievements}
           icon="fa-trophy"
           text="Achievements"
           toolTip="View your progress"
@@ -35,8 +42,8 @@ function GameNavBar({ openNavigation, openBoostStats, openAchievements }) {
 
       <GameNavButton
         wrapperClassName="settings-btn-wrapper"
-        btnClassName="settings-btn"
-        onClick={() => alert("Settings opened!")}
+        btnClassName={`settings-btn ${navBtnTheme}`}
+        onClick={openSettings}
         icon="fa-cog"
         text="Settings"
       />

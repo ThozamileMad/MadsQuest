@@ -1,6 +1,13 @@
 import React from "react";
 
-function StatCard({ icon, label, value, changeClassname = "", change = 0 }) {
+function StatCard({
+  themeClassName,
+  icon,
+  label,
+  value,
+  changeClassname = "",
+  change = 0,
+}) {
   const renderStatChangeClassname = () => {
     if (change < 0) {
       return "negative";
@@ -26,11 +33,11 @@ function StatCard({ icon, label, value, changeClassname = "", change = 0 }) {
   };
 
   return (
-    <div className={"stat-item " + renderChangeEffect()}>
-      <div className="stat-icon">{icon}</div>
+    <div className={`stat-item ${themeClassName} ${renderChangeEffect()}`}>
+      <div className={`stat-icon ${themeClassName}`}>{icon}</div>
       <div className="stat-content">
-        <div className="stat-label">{label}</div>
-        <div className="stat-value">
+        <div className={`stat-label ${themeClassName}`}>{label}</div>
+        <div className={`stat-value ${themeClassName}`}>
           {value}
           <span className={"stat-change " + renderStatChangeClassname()}>
             {change > 0 ? `+${change}` : change}

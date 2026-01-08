@@ -41,11 +41,17 @@ const achievementsData = [
   },
 ];
 
-const AchievementsModal = ({ modalClassName, closeModal, achievementData }) => {
+const AchievementsModal = ({
+  themeClassName,
+  modalClassName,
+  closeModal,
+  achievementData,
+}) => {
   return (
     <div id="achievementsModal" className={"modal " + modalClassName}>
-      <div className="modal-content">
+      <div className={`modal-content ${themeClassName}`}>
         <ModalHeader
+          themeClassName={themeClassName}
           text="Achievements"
           icon="fa-trophy"
           closeModal={closeModal}

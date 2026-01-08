@@ -12,6 +12,7 @@ import GameNavModal from "../components/GameNavModal";
 import BoostModal from "../components/BoostModal";
 import AchievementsModal from "../components/AchievementsModal";
 import AchievementPopup from "../components/AchievementPopup";
+import SettingsModal from "../components/SettingsModal";
 
 /* API modules */
 import { post, get } from "../scripts/api";
@@ -56,8 +57,6 @@ function GamePlay() {
   const [achievementsModalClassName, setAchievementsModalClassName] =
     useState("hidden");
   const [infoClassName, setInfoClassName] = useState("hidden");
-  const [achievementPopupClassName, setAchievementPopupClassName] =
-    useState("hide");
 
   const [popUpNextSceneId, setPopUpNextSceneId] = useState(null);
 
@@ -76,7 +75,7 @@ function GamePlay() {
     useState("");
   const [achievementPopupLuck, setAchievementPopupLuck] = useState(0);
 
-  const [luck, setLuck] = useState(12);
+  const [luck, setLuck] = useState(0);
 
   // btnDisabled{} key/value map to various UI buttons; see handleChoiceClick()
   const [btnDisabled, setBtnDisabled] = useState({
@@ -100,6 +99,12 @@ function GamePlay() {
   const [infoMessage, setInfoMessage] = useState("");
 
   const [errorCode, setErrorCode] = useState("???");
+
+  const [settingsModalClassName, setSettingsModalClassName] =
+    useState("hidden");
+  const [theme, setTheme] = useState("theme-black");
+  const [sound, setSound] = useState("sound-on");
+  const [textSize, setTextSize] = useState("text-medium");
 
   const statsRef = useRef(null);
   const location = useLocation();
@@ -227,7 +232,7 @@ function GamePlay() {
    */
   const getPreviousSceneId = async (table) => {
     const response = await get(`/api/return_to_previous/${table}/${userId}`);
-    console.log("response: ", response);
+
     if (!response) {
       showInfo(
         "No previous saves",
@@ -309,6 +314,14 @@ function GamePlay() {
    * Handler for returning to the last checkpoint after death.
    */
   const onReturnToPreviousScene = async (table) => {
+    if (luck <= 0 && table === "last_choice") {
+      showInfo(
+        "Insufficient Luck",
+        "You don't have enough luck to redo the last choice. You can obtain more luck by unlocking achievements or purchasing it."
+      );
+      return;
+    }
+
     const id = await getPreviousSceneId(table);
     if (!id) return;
 
@@ -482,13 +495,22 @@ function GamePlay() {
     setLuck(luck);
   };
 
-  const openBoostModal = () => {
-    setBoostModalClassName("active");
+  const resetBoostModal = () => {
     setBoostAmount(0);
     setBoostIcon("fa-heart");
     setBoostValue(playerStats[0]);
     setBoostLabel("Life");
     getLuck();
+  };
+
+  const openBoostModal = () => {
+    setBoostModalClassName("active");
+    resetBoostModal();
+  };
+
+  const closeBoostModal = () => {
+    setBoostModalClassName("hidden");
+    resetBoostModal();
   };
 
   const handleBoostSelectorChange = (stat) => {
@@ -565,7 +587,6 @@ function GamePlay() {
 
     const { icon, title, subtitle, luck } = response.data[0];
 
-    console.log(response.data[0]);
     setAchievementPopupClassname("show");
     setAchievementPopupIcon(icon);
     setAchievementPopupTitle(title);
@@ -580,11 +601,49 @@ function GamePlay() {
   };
 
   /* -----------------------------
+   * Settings Modal
+   * ----------------------------- */
+
+  const openSettings = () => {
+    setSettingsModalClassName("active");
+  };
+
+  const changeSetting = (key, value, func) => {
+    localStorage.setItem(key, value);
+    func(value);
+  };
+
+  const onThemeBtn = (value) => {
+    changeSetting("theme", value, setTheme);
+    console.log(theme);
+  };
+
+  const onSoundBtn = (value) => {
+    changeSetting("sound", value, setSound);
+  };
+
+  const onTextSizeBtn = (value) => {
+    changeSetting("textSize", value, setTextSize);
+  };
+
+  /* -----------------------------
    * Lifecycle
    * ----------------------------- */
 
+  const renderSettings = () => {
+    const currentTheme = localStorage.getItem("theme") || "theme-black";
+    const currentSound = localStorage.getItem("sound") || "sound-on";
+    const currentTextSize = localStorage.getItem("textSize") || "text-medium";
+
+    changeSetting("theme", currentTheme, setTheme);
+    changeSetting("sound", currentSound, setSound);
+    changeSetting("textSize", currentTextSize, setTextSize);
+  };
+
   useEffect(() => {
     fetchData(sceneId, userId, updateStats);
+    renderSettings();
+    getLuck();
 
     /*if (sceneId === 1) {
       onRestartGame();
@@ -596,16 +655,20 @@ function GamePlay() {
    * ----------------------------- */
 
   return (
-    <div className="game-container">
+    <div className={`game-container ${theme}`}>
       {/* Navigation Bar */}
       <GameNavBar
+        topNavTheme={theme}
+        navBtnTheme={theme}
         openNavigation={() => toggleNavModalPopup(false, "active")}
         openBoostStats={openBoostModal}
         openAchievements={openAchievements}
+        openSettings={openSettings}
       />
 
       {/* Navigation Bar Modals */}
       <GameNavModal
+        themeClassName={theme}
         modalClassName={navModalClassName}
         closeModal={() => toggleNavModalPopup(true, "hidden")}
         redoLastChoice={() => onReturnToPreviousScene("last_choice")}
@@ -617,9 +680,8 @@ function GamePlay() {
       />
 
       <BoostModal
-        closeModal={() => {
-          setBoostModalClassName("hidden");
-        }}
+        themeClassName={theme}
+        closeModal={closeBoostModal}
         onStatChange={handleBoostSelectorChange}
         onConfirm={handleBoostOnConfirm}
         modalClassName={boostModalClassName}
@@ -633,6 +695,7 @@ function GamePlay() {
       />
 
       <AchievementsModal
+        themeClassName={theme}
         closeModal={() => {
           setAchievementsModalClassName("hidden");
         }}
@@ -640,27 +703,45 @@ function GamePlay() {
         achievementData={achievementModalData}
       />
 
+      <SettingsModal
+        themeClassName={theme}
+        modalClassName={settingsModalClassName}
+        closeModal={() => {
+          setSettingsModalClassName("hidden");
+        }}
+        theme={theme}
+        onThemeClick={onThemeBtn}
+        sound={sound}
+        onSoundClick={onSoundBtn}
+        textSize={textSize}
+        onTextSizeClick={onTextSizeBtn}
+      />
+
       {/* Player Stats Bar */}
-      <div ref={statsRef} className="stats-bar">
+      <div ref={statsRef} className={`stats-bar ${theme}`}>
         <StatCard
+          themeClassName={theme}
           icon="❤️"
           label="Life"
           value={playerStats[0]}
           change={choiceEffects[0]}
         />
         <StatCard
+          themeClassName={theme}
           icon="⚡"
           label="Mana"
           value={playerStats[1]}
           change={choiceEffects[1]}
         />
         <StatCard
+          themeClassName={theme}
           icon="⚖️"
           label="Morality"
           value={playerStats[2]}
           change={choiceEffects[2]}
         />
         <StatCard
+          themeClassName={theme}
           icon="💰"
           label="Gold"
           value={playerStats[3]}
@@ -670,21 +751,27 @@ function GamePlay() {
 
       {/* Story Content */}
       <div className="story-section">
+        {/* Story Image 
         <img
           src="https://wallpaperaccess.com/full/10761557.jpg"
           alt="Story scene"
           className="story-image"
+        />*/}
+        <StoryText
+          textSizeClassName={textSize}
+          themeClassName={theme}
+          paragraphs={paragraphs}
         />
-        <StoryText paragraphs={paragraphs} />
       </div>
 
       {/* Choices */}
       <div className="choices-section">
-        <div className="choices-title">What do you do?</div>
+        <div className={`choices-title ${theme}`}>What do you do?</div>
 
         <div className="choices-grid">
           {choiceData.map((item, index) => (
             <ChoiceButton
+              themeClassName={theme}
               key={index}
               onClick={() => handleChoiceClick(item)}
               styles={item.styles}
@@ -698,6 +785,7 @@ function GamePlay() {
 
       {/* Checkpoint Popup */}
       <Popup
+        themeClassName={theme}
         overlayClass={checkpointClassName}
         variant="checkpoint"
         icon="💎"
@@ -714,6 +802,7 @@ function GamePlay() {
 
       {/* Death Popup */}
       <Popup
+        themeClassName={theme}
         overlayClass={deathClassName}
         variant="death"
         icon="💀"
@@ -735,6 +824,7 @@ function GamePlay() {
 
       {/* Error Popup */}
       <Popup
+        themeClassName={theme}
         overlayClass={errorClassName}
         variant="error"
         icon="⚠️"
@@ -754,6 +844,7 @@ function GamePlay() {
 
       {/* Info Popup */}
       <Popup
+        themeClassName={theme}
         overlayClass={infoClassName}
         variant="info"
         icon="📜"
@@ -770,6 +861,7 @@ function GamePlay() {
 
       {/* AchievementPopup */}
       <AchievementPopup
+        themeClassName={theme}
         className={achievementPopupClassname}
         icon={achievementPopupIcon}
         title={achievementPopupTitle}

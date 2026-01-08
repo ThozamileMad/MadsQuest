@@ -12,6 +12,7 @@ import React from "react";
  * @param {ReactNode} extraContent - Optional extra JSX (error code, etc.)
  */
 function Popup({
+  themeClassName,
   overlayClass = "",
   variant = "",
   icon = "",
@@ -22,25 +23,27 @@ function Popup({
 }) {
   return (
     <div className={`popup-overlay ${overlayClass}`}>
-      <div className={`popup ${variant}`}>
+      <div className={`popup ${variant} ${themeClassName}`}>
         {/* particles */}
         {[...Array(5)].map((_, i) => (
-          <div className="particle" key={i} />
+          <div className={`particle ${themeClassName}`} key={i} />
         ))}
 
-        {icon && <div className="popup-icon">{icon}</div>}
-        {title && <h2 className="popup-title">{title}</h2>}
+        {icon && <div className={`popup-icon ${themeClassName}`}>{icon}</div>}
+        {title && <h2 className={`popup-title ${themeClassName}`}>{title}</h2>}
 
-        <div className="popup-divider" />
+        <div className={`popup-divider ${themeClassName}`} />
 
-        {message && <p className="popup-message">{message}</p>}
+        {message && (
+          <p className={`popup-message ${themeClassName}`}>{message}</p>
+        )}
 
         {extraContent}
 
         {buttons.map(({ label, onClick, disabled = false }, index) => (
           <button
             key={index}
-            className="popup-button"
+            className={`popup-button ${themeClassName}`}
             onClick={onClick}
             disabled={disabled}
           >

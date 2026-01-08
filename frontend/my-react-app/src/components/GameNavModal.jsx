@@ -3,6 +3,7 @@ import ModalHeader from "./ModalHeader";
 import GameNavModalOption from "./GameNavModalOption";
 
 function GameNavModal({
+  themeClassName,
   modalClassName,
   closeModal,
   redoLastChoice,
@@ -14,8 +15,9 @@ function GameNavModal({
 }) {
   return (
     <div id="navigationModal" className={"modal " + modalClassName}>
-      <div className="modal-content">
+      <div className={`modal-content ${themeClassName}`}>
         <ModalHeader
+          themeClassName={themeClassName}
           text="Navigation"
           icon="fa-arrow-left"
           closeModal={closeModal}

@@ -1,12 +1,25 @@
 import React from "react";
 
-function GameNavModalOption({ onClick, disabled, icon, title, description }) {
+function GameNavModalOption({
+  themeClassName,
+  onClick,
+  disabled,
+  icon,
+  title,
+  description,
+}) {
   return (
-    <button className="modal-option" onClick={onClick} disabled={disabled}>
+    <button
+      className={`modal-option ${themeClassName}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
       <i className={"fas " + icon}></i>
-      <div className="modal-option-content">
-        <div className="modal-option-title">{title}</div>
-        <div className="modal-option-desc">{description}</div>
+      <div className={`modal-option-content ${themeClassName}`}>
+        <div className={`modal-option-title ${themeClassName}`}>{title}</div>
+        <div className={`modal-option-desc ${themeClassName}`}>
+          {description}
+        </div>
       </div>
     </button>
   );

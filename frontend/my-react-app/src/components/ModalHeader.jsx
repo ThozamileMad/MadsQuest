@@ -1,9 +1,9 @@
 import React from "react";
 
-function ModalHeader({ icon, text, closeModal, modalName }) {
+function ModalHeader({ themeClassName, icon, text, closeModal, modalName }) {
   return (
     <div className="modal-header">
-      <div className="modal-title">
+      <div className={`modal-title ${themeClassName}`}>
         <i className={"fas " + icon}></i>
         <span>{text}</span>
       </div>
